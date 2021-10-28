@@ -1,8 +1,14 @@
-from ..transformers.transformer_xy import TransformerXY
-from typing import Tuple, Union
+from abc import ABC, abstractmethod
+from typing import Tuple, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+from ..transformers.transformer_xy import TransformerXY
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class KoalasToPandas(TransformerXY):
@@ -36,15 +42,16 @@ class KoalasToPandas(TransformerXY):
     def __init__(self):
         TransformerXY.__init__(self)
 
-    def transform(self,
-                  X: Union[pd.DataFrame, ks.DataFrame],
-                  y: Union[pd.Series, ks.Series],
-                  ) -> Tuple[np.ndarray, np.ndarray]:
+    def transform(
+        self,
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : [pd.Series, ks.Series]:
             Target values.
@@ -57,7 +64,7 @@ class KoalasToPandas(TransformerXY):
             Target values.
         """
         if not isinstance(X, ks.DataFrame):
-            raise TypeError('`X` should be a koalas dataframe')
+            raise TypeError("`X` should be a koalas dataframe")
         self.check_dataframe(X)
         self.check_y(X, y)
         return X.to_pandas(), y.to_pandas()

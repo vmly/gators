@@ -1,9 +1,15 @@
 # License: Apache-2.0
-from ._base_data_cleaning import _BaseDataCleaning
-from ..util import util
-from typing import List, Union
-import pandas as pd
+from abc import ABC, abstractmethod
+from typing import List, TypeVar
+
 import databricks.koalas as ks
+import pandas as pd
+
+from ..util import util
+from ._base_data_cleaning import _BaseDataCleaning
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropHighCardinality(_BaseDataCleaning):
@@ -68,13 +74,11 @@ class DropHighCardinality(_BaseDataCleaning):
 
     def __init__(self, max_categories: int):
         if not isinstance(max_categories, int):
-            raise TypeError('`max_categories` should be an int.')
+            raise TypeError("`max_categories` should be an int.")
         _BaseDataCleaning.__init__(self)
         self.max_categories = max_categories
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'DropHighCardinality':
+    def fit(self, X: DataFrame, y: Series = None) -> "DropHighCardinality":
         """Fit the transformer on the dataframe `X`.
 
         Get the list of column names to remove and the array of
@@ -82,7 +86,7 @@ class DropHighCardinality(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         y : None
            None
@@ -94,8 +98,7 @@ class DropHighCardinality(_BaseDataCleaning):
         self.check_dataframe(X)
         object_columns = util.get_datatype_columns(X, object)
         self.columns = self.get_columns_to_drop(
-            X=X[object_columns],
-            max_categories=self.max_categories
+            X=X[object_columns], max_categories=self.max_categories
         )
         self.columns_to_keep = util.exclude_columns(
             columns=X.columns,
@@ -107,10 +110,8 @@ class DropHighCardinality(_BaseDataCleaning):
         )
         return self
 
-    @ staticmethod
-    def get_columns_to_drop(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            max_categories: int) -> List[str]:
+    @staticmethod
+    def get_columns_to_drop(X: DataFrame, max_categories: int) -> List[str]:
         """Get the column names to drop.
 
         Parameters

@@ -1,10 +1,19 @@
 # License: Apache-2.0
-from feature_gen_str import split_and_extract_str
-from typing import List, Union
+from typing import List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from._base_string_feature import _BaseStringFeature
+
+from feature_gen_str import split_and_extract_str
+
+from ..util import util
+
+from ._base_string_feature import _BaseStringFeature
+
+from abc import ABC, abstractmethod
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class SplitExtract(_BaseStringFeature):
@@ -43,7 +52,7 @@ class SplitExtract(_BaseStringFeature):
           A  B A__split_by_*_idx_0 A__split_by_*_idx_1
     0  qw*e  1                  qw                   e
     1  a*qd  2                   a                  qd
-    2  zxq*  3                 zxq                    
+    2  zxq*  3                 zxq
 
     * fit & transform with `koalas`
 
@@ -56,7 +65,7 @@ class SplitExtract(_BaseStringFeature):
           A  B A__split_by_*_idx_0 A__split_by_*_idx_1
     0  qw*e  1                  qw                   e
     1  a*qd  2                   a                  qd
-    2  zxq*  3                 zxq                    
+    2  zxq*  3                 zxq
 
     * fit with `pandas` & transform with `NumPy`
 
@@ -86,53 +95,68 @@ class SplitExtract(_BaseStringFeature):
 
     """
 
-    def __init__(self, columns: List[str],
-                 str_split_vec: List[int], idx_split_vec: List[int],
-                 column_names: List[str] = None):
+    def __init__(
+        self,
+        columns: List[str],
+        str_split_vec: List[int],
+        idx_split_vec: List[int],
+        column_names: List[str] = None,
+    ):
         if not isinstance(columns, list):
-            raise TypeError('`columns` should be a list.')
+            raise TypeError("`columns` should be a list.")
         if not isinstance(str_split_vec, list):
-            raise TypeError('`str_split_vec` should be a list.')
+            raise TypeError("`str_split_vec` should be a list.")
         if len(columns) != len(str_split_vec):
-            raise ValueError(
-                'Length of `columns` and `str_split_vec` should match.')
+            raise ValueError("Length of `columns` and `str_split_vec` should match.")
         if not isinstance(idx_split_vec, list):
-            raise TypeError('`idx_split_vec` should be a list.')
+            raise TypeError("`idx_split_vec` should be a list.")
         if len(columns) != len(idx_split_vec):
-            raise ValueError(
-                'Length of `columns` and `idx_split_vec` should match.')
+            raise ValueError("Length of `columns` and `idx_split_vec` should match.")
         if not column_names:
             column_names = [
-                f'{col}__split_by_{split}_idx_{idx}' for
-                col, split, idx in zip(columns, str_split_vec, idx_split_vec)
+                f"{col}__split_by_{split}_idx_{idx}"
+                for col, split, idx in zip(columns, str_split_vec, idx_split_vec)
             ]
         _BaseStringFeature.__init__(self, columns, column_names)
         self.str_split_vec = np.array(str_split_vec, object)
         self.idx_split_vec = np.array(idx_split_vec, int)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        for col, idx, str_split, name in zip(
-                self.columns, self.idx_split_vec,
-                self.str_split_vec, self.column_names):
+        # for col, idx, str_split, name in zip(
+        #         self.columns, self.idx_split_vec,
+        #         self.str_split_vec, self.column_names):
+        #     n = idx if idx > 0 else 1
+        #     X.loc[:, name] = X[col].str.split(str_split, n=n, expand=True)[
+        #         idx].fillna('MISSING')
+        # return X
+
+        def f(x, idx_dict, str_split_dict):
+            idx = idx_dict[x.name]
             n = idx if idx > 0 else 1
-            X.loc[:, name] = X[col].str.split(str_split, n=n, expand=True)[
-                idx].fillna('MISSING')
-        return X
+            return x.str.split(str_split_dict[x.name], n=n, expand=True)[idx].fillna(
+                "MISSING"
+            )
+
+        X_new = X[self.columns]
+        X_new.columns = self.column_names
+        idx_dict = dict(zip(self.column_names, self.idx_split_vec))
+        str_split_dict = dict(zip(self.column_names, self.str_split_vec))
+        meta = pd.DataFrame(columns=self.column_names, dtype=object)
+        X_new = util.get_apply(X).apply(X_new, f, (idx_dict, str_split_dict), meta=meta)
+        return X.join(X_new)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.

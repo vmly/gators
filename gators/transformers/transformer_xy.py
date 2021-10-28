@@ -1,9 +1,12 @@
 # License: Apache-2.0
-from typing import Union
-from abc import ABC
-from abc import abstractmethod
-import pandas as pd
+from abc import ABC, abstractmethod
+from typing import TypeVar
+
 import databricks.koalas as ks
+import pandas as pd
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class TransformerXY(ABC):
@@ -46,57 +49,55 @@ class TransformerXY(ABC):
     """
 
     @abstractmethod
-    def transform(
-            self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series]):
+    def transform(self, X: DataFrame, y: Series):
         """Fit and Transform the dataframes `X`ad `y`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series]
+        y : Series
             None.
 
         Returns
         -------
-        Tuple[Union[pd.DataFrame, ks.DataFrame], Union[pd.Series, ks.Series]]
+        Tuple[DataFrame, Series]
             Transformed dataframes.
         """
 
     @staticmethod
-    def check_dataframe(X: Union[pd.DataFrame, ks.DataFrame]):
+    def check_dataframe(X: DataFrame):
         """Validate dataframe.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         """
         if not isinstance(X, (pd.DataFrame, ks.DataFrame)):
             raise TypeError(
-                '''`X` should be a pandas dataframe or a koalas dataframe.''')
+                """`X` should be a pandas dataframe or a koalas dataframe."""
+            )
         for c in X.columns:
             if not isinstance(c, str):
-                raise TypeError('Column names of `X` should be of type str.')
+                raise TypeError("Column names of `X` should be of type str.")
 
-    @ staticmethod
-    def check_y(X: Union[pd.DataFrame, ks.DataFrame],
-                y: Union[pd.Series, ks.Series]):
+    @staticmethod
+    def check_y(X: DataFrame, y: Series):
         """Validate target.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe
-        y : Union[pd.Series, ks.Series]
+        y : Series
             Labels
         """
         if isinstance(X, pd.DataFrame) and (not isinstance(y, pd.Series)):
-            raise TypeError('`y` should be a pandas series.')
+            raise TypeError("`y` should be a pandas series.")
         if isinstance(X, ks.DataFrame) and (not isinstance(y, ks.Series)):
-            raise TypeError('`y` should be a koalas series.')
+            raise TypeError("`y` should be a koalas series.")
         if not isinstance(y.name, str):
-            raise TypeError('Name of `y` should be a str.')
+            raise TypeError("Name of `y` should be a str.")
         if X.shape[0] != y.shape[0]:
-            raise ValueError('Length of `X` and `y` should match.')
+            raise ValueError("Length of `X` and `y` should match.")

@@ -26,6 +26,7 @@
       ~TargetEncoder.check_nans
       ~TargetEncoder.check_regression_target
       ~TargetEncoder.check_y
+      ~TargetEncoder.clean_mapping
       ~TargetEncoder.decompose_mapping
       ~TargetEncoder.fit
       ~TargetEncoder.fit_transform

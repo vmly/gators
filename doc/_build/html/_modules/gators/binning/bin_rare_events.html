@@ -156,11 +156,15 @@
 <span class="kn">from</span> <span class="nn">binning</span> <span class="kn">import</span> <span class="n">bin_rare_events</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">..transformers.transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Dict</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="BinRareEvents"><a class="viewcode-back" href="../../../reference/api/gators.binning.BinRareEvents.html#gators.binning.BinRareEvents">[docs]</a><span class="k">class</span> <span class="nc">BinRareEvents</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
@@ -239,13 +243,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">n_categories_to_keep_np</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">categories_to_keep_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
             <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;BinRareEvents&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 <span class="sd">        y : None</span>
 <span class="sd">            None.</span>
@@ -278,18 +282,18 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                  <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+                  <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -331,13 +335,13 @@
 
     <span class="o">@</span> <span class="nb">staticmethod</span>
     <span class="k">def</span> <span class="nf">compute_categories_to_keep_dict</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
+            <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
             <span class="n">min_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
         <span class="sd">&quot;&quot;&quot;Compute the category frequency.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 <span class="sd">        min_ratio : float</span>
 <span class="sd">            Min occurence per category.</span>

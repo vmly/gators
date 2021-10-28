@@ -153,10 +153,14 @@
                 
   <h1>Source code for gators.converter.koalas_to_pandas</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">..transformers.transformer_xy</span> <span class="kn">import</span> <span class="n">TransformerXY</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="KoalasToPandas"><a class="viewcode-back" href="../../../reference/api/gators.converter.KoalasToPandas.html#gators.converter.KoalasToPandas">[docs]</a><span class="k">class</span> <span class="nc">KoalasToPandas</span><span class="p">(</span><span class="n">TransformerXY</span><span class="p">):</span>
@@ -191,14 +195,14 @@
         <span class="n">TransformerXY</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                  <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                  <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
+                  <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+                  <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span>
                   <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 <span class="sd">        y : [pd.Series, ks.Series]:</span>
 <span class="sd">            Target values.</span>

@@ -1,12 +1,22 @@
 # License: Apache-2.0
-from ..util import util
-from feature_gen_str import string_length
-from typing import List, Union
+from typing import List, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from._base_string_feature import _BaseStringFeature
+
+from feature_gen_str import string_length
+
+from ..util import util
+
+from ._base_string_feature import _BaseStringFeature
+
 pd.options.mode.chained_assignment = None
+
+from abc import ABC, abstractmethod
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class StringLength(_BaseStringFeature):
@@ -72,18 +82,15 @@ class StringLength(_BaseStringFeature):
 
     def __init__(self, columns: List[str], column_names: List[str] = None):
         if not column_names:
-            column_names = [f'{col}__length' for col in columns]
-        _BaseStringFeature.__init__(
-            self, columns, column_names)
+            column_names = [f"{col}__length" for col in columns]
+        _BaseStringFeature.__init__(self, columns, column_names)
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'StringLength':
+    def fit(self, X: DataFrame, y: Series = None) -> "StringLength":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : None
             None.
@@ -95,32 +102,40 @@ class StringLength(_BaseStringFeature):
         """
         self.check_dataframe(X)
         self.idx_columns = util.get_idx_columns(
-            columns=X.columns,
-            selected_columns=self.columns
+            columns=X.columns, selected_columns=self.columns
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        for col, name in zip(self.columns, self.column_names):
-            X.loc[:, name] = X.loc[:, col].fillna('').astype(str).replace(
-                {'nan': ''}).str.len().astype(np.float64)
-            pass
-        return X
+
+        def f(x):
+            return (
+                x.fillna("")
+                .astype(str)
+                .replace({"nan": ""})
+                .str.len()
+                .astype(np.float64)
+            )
+
+        X_new = (
+            util.get_apply(X)
+            .apply(X[self.columns], f)
+            .rename(columns=dict(zip(self.columns, self.column_names)))
+        )
+        return X.join(X_new)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.

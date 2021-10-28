@@ -1,12 +1,21 @@
 # License: Apache-2.0
-from encoder import encoder
-from ..transformers.transformer import Transformer
-from typing import List, Tuple, Union, Dict, Collection, Any
+from abc import ABC, abstractmethod
+from typing import Any, Collection, Dict, List, Tuple, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from ..transformers.transformer import NUMERICS_DTYPES
-from ..transformers.transformer import PRINT_NUMERICS_DTYPES
+
+from encoder import encoder
+
+from ..transformers.transformer import (
+    NUMERICS_DTYPES,
+    PRINT_NUMERICS_DTYPES,
+    Transformer,
+)
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseEncoder(Transformer):
@@ -20,8 +29,7 @@ class _BaseEncoder(Transformer):
 
     def __init__(self, dtype=np.float64):
         if dtype not in NUMERICS_DTYPES:
-            raise TypeError(
-                f'`dtype` should be a dtype from {PRINT_NUMERICS_DTYPES}.')
+            raise TypeError(f"`dtype` should be a dtype from {PRINT_NUMERICS_DTYPES}.")
         Transformer.__init__(self)
         self.dtype = dtype
         self.columns = []
@@ -31,18 +39,16 @@ class _BaseEncoder(Transformer):
         self.encoded_values_vec = np.array([])
         self.mapping: Dict[str, Dict[str, float]] = {}
 
-    def transform(self,
-                  X: Union[pd.DataFrame, ks.DataFrame]
-                  ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -70,9 +76,9 @@ class _BaseEncoder(Transformer):
             self.idx_columns,
         ).astype(self.dtype)
 
-    @ staticmethod
+    @staticmethod
     def decompose_mapping(
-            mapping: List[Dict[str, Collection[Any]]],
+        mapping: List[Dict[str, Collection[Any]]],
     ) -> Tuple[List[str], np.ndarray, np.ndarray]:
         """Decompose the mapping.
 
@@ -89,14 +95,10 @@ class _BaseEncoder(Transformer):
         n_columns = len(columns)
         max_categories = max([len(m) for m in mapping.values()])
         encoded_values_vec = np.zeros((n_columns, max_categories))
-        values_vec = np.zeros(
-            (n_columns, max_categories), dtype=object
-        )
+        values_vec = np.zeros((n_columns, max_categories), dtype=object)
         for i, c in enumerate(columns):
             mapping_col = mapping[c]
             n_values = len(mapping_col)
-            encoded_values_vec[i, :n_values] = np.array(
-                list(mapping_col.values()))
-            values_vec[i, :n_values] = np.array(
-                list(mapping_col.keys()))
+            encoded_values_vec[i, :n_values] = np.array(list(mapping_col.values()))
+            values_vec[i, :n_values] = np.array(list(mapping_col.keys()))
         return columns, values_vec, encoded_values_vec

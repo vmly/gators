@@ -1,13 +1,17 @@
 # License: Apache-2.0
-from ._base_imputer import _BaseImputer
-from imputer import float_imputer_object
-from imputer import float_imputer
-from ..util import util
-import numpy as np
-from typing import List, Union
-import pandas as pd
-import databricks.koalas as ks
 import warnings
+from typing import List, TypeVar
+
+import numpy as np
+import pandas as pd
+
+from imputer import float_imputer, float_imputer_object
+
+from ..util import util
+from ._base_imputer import _BaseImputer, get_computer
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class NumericsImputer(_BaseImputer):
@@ -110,26 +114,26 @@ class NumericsImputer(_BaseImputer):
 
     """
 
-    def __init__(self, strategy: str,
-                 value: float = None,
-                 columns: List[str] = None):
+    def __init__(self, strategy: str, value: float = None, columns: List[str] = None):
         _BaseImputer.__init__(self, strategy, value, columns)
-        if strategy not in ['constant', 'mean', 'median']:
+        if strategy not in ["constant", "mean", "median"]:
             raise ValueError(
-                '''`strategy` should be "constant", ,"mean"
-                     or "median" for NumericsImputer Transformer.''')
-        if strategy == 'constant' and not isinstance(value, float):
+                """`strategy` should be "constant", ,"mean"
+                     or "median" for NumericsImputer Transformer."""
+            )
+        if strategy == "constant" and not isinstance(self.value, (int, float)):
             raise TypeError(
-                '''`value` should be a float
-                for the NumericsImputer class''')
+                """`value` should be a int or float
+                for the NumericsImputer class"""
+            )
+        self.value = float(self.value) if self.value is not None else None
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'NumericsImputer':
+    def fit(self, X: DataFrame, y: Series = None) -> "NumericsImputer":
         """Fit the transformer on the pandas/koalas dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : None
             None.
@@ -139,38 +143,32 @@ class NumericsImputer(_BaseImputer):
             'NumericsImputer': Instance of itself.
         """
         self.check_dataframe(X)
+        self.computer = get_computer(X)
         if not self.columns:
             self.columns = util.get_datatype_columns(X, float)
         if not self.columns:
             warnings.warn(
-                '''`X` does not contain numerical columns,
-                `NumericsImputer` is not needed''')
+                """`X` does not contain numerical columns,
+                `NumericsImputer` is not needed"""
+            )
             self.idx_columns = np.array([])
             return self
         self.idx_columns = util.get_idx_columns(X.columns, self.columns)
-        self.statistics = self.compute_statistics(
-            X=X,
-            columns=self.columns,
-            strategy=self.strategy,
-            value=self.value,
-        )
-        self.statistics_values = np.array(
-            list(self.statistics.values()))
+        self.statistics = self.compute_statistics(X=X, value=self.value)
+        self.statistics_values = np.array(list(self.statistics.values()))
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -193,14 +191,12 @@ class NumericsImputer(_BaseImputer):
             Transformed NumPy array.
         """
         self.check_array(X)
+        if isinstance(X[0, 0], np.integer):
+            return X
         if self.idx_columns.size == 0:
             return X
         if X.dtype == object:
             return float_imputer_object(
-                X,
-                self.statistics_values.astype(object),
-                self.idx_columns)
-        return float_imputer(
-            X,
-            self.statistics_values,
-            self.idx_columns)
+                X, self.statistics_values.astype(object), self.idx_columns
+            )
+        return float_imputer(X, self.statistics_values, self.idx_columns)

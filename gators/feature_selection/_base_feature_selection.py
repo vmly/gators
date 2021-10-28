@@ -1,10 +1,16 @@
 # License: Apache-2.0
-from ..transformers.transformer import Transformer
-from ..util import util
-from typing import List, Union
+from abc import ABC, abstractmethod
+from typing import List, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+from ..transformers.transformer import Transformer
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseFeatureSelection(Transformer):
@@ -27,21 +33,19 @@ class _BaseFeatureSelection(Transformer):
         self.idx_selected_columns: List[str] = []
         self.columns_to_drop: List[str] = []
 
-    def transform(
-            self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame, y: Series = None) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : np.ndarray
              Labels.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)

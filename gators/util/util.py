@@ -1,9 +1,159 @@
 # License: Apache-2.0
-from pyspark.ml.feature import VectorAssembler
-from typing import List, Union
+from abc import ABC, abstractmethod
+from typing import List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+KSDataFrame = TypeVar("ks.DataFrame")
+
+
+class FunctionFactory(ABC):
+    @abstractmethod
+    def apply():
+        pass
+
+    @abstractmethod
+    def apply_to_pandas():
+        pass
+    
+    @abstractmethod
+    def cut():
+        pass
+    
+
+class FunctionPandas(FunctionFactory):
+    def apply(self, X, f, args=None, meta=None):
+        return X.apply(f, args=args)
+
+    def apply_to_pandas(self, X, f, args=None, meta=None):
+        return X.apply(f, args=args)
+
+    def cut(self, X, **kwargs):
+        return pd.cut(X, **kwargs)
+    
+    def concat(self, objs, axis=0):
+        return pd.concat(objs, axis=axis)
+class FunctionKoalas(FunctionFactory):
+    def apply(self, X, f, args=None, meta=None):
+        return X.apply(f, args=args)
+
+    def apply_to_pandas(self, X, f, args=None, meta=None):
+        return X.apply(f, args=args)
+
+    def cut(self, X, **kwargs):
+        import databricks.koalas as ks
+        return ks.cut(X, **kwargs)
+
+    def concat(self, objs, axis=0):
+        import databricks.koalas as ks
+        return ks.concat(objs, axis=axis)
+    
+class FunctionDask(FunctionFactory):
+
+    def to_pandas(self, X):
+        return X.compute()
+    
+    def apply(self, X, f, args=None, meta=None):
+        if meta is None:
+            return X.map_partitions(lambda x: x.apply(f, args=args))
+        return X.map_partitions(lambda x: x.apply(f, args=args), meta=meta)
+
+    def apply_to_pandas(self, X, f, args=None, meta=None):
+        if meta is None:
+            return X.map_partitions(lambda x: x.apply(f, args=args))
+        return X.map_partitions(lambda x: x.apply(f, args=args), meta=meta)
+
+    def cut(self, X, **kwargs):
+        import dask.dataframe as dd
+        return dd.cut(X, **kwargs)
+
+    def concat(self, objs, axis=0):
+        import dask.dataframe as dd
+        return dd.concat(objs, axis=axis)
+    
+def get_function(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": FunctionPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": FunctionKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": FunctionDask(),
+    }
+    return factories[str(type(X))]
+
+
+class ComputerFactory(ABC):
+    @abstractmethod
+    def to_pandas(self, X):
+        pass
+
+    @abstractmethod
+    def mask_object():
+        pass
+
+    @abstractmethod
+    def raise_y_dtype_error():
+        pass
+
+
+class ComputerPandas(ComputerFactory):
+
+    def to_pandas(self, X):
+        return X
+
+    def mask_object(self, X_dtypes):
+        return X_dtypes == object
+
+    def raise_y_dtype_error(self, X):
+        if not isinstance(y, pd.Series):
+            raise TypeError("`y` should be a pandas series.")
+
+
+class ComputerKoalas(ComputerFactory):
+
+    def mask_object(self, X_dtypes):
+        return (X_dtypes.astype(str).str.startswith("<U")) | (X_dtypes == object)
+
+    def raise_y_dtype_error(self, X):
+        import databricks.koalas as ks
+
+        if not isinstance(y, ks.Series):
+            raise TypeError("`y` should be a koalas series.")
+
+
+class ComputerDask(ComputerFactory):
+    def concat(self, objs, axis):
+        import dask.dataframe as dd
+
+        return dd.concat(objs, axis=axis)
+
+    def to_pandas(self, X):
+        return X.compute()
+    
+    def mask_object(self, X_dtypes):
+        return X_dtypes == object
+
+    def raise_y_dtype_error(self, y):
+        import dask.dataframe as dd
+
+        if not isinstance(y, dd.Series):
+            raise TypeError("`y` should be a dask series.")
+
+
+def get_computer(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": ComputerDask(),
+        "<class 'pandas.core.frame.Series'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.Series'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.Series'>": ComputerDask(),
+    }
+    str_type = str(type(X))
+    if str(type(X)) not in factories:
+        raise TypeError("""`X` should be a pandas, koalas, or dask dataframe.""")
+    return factories[str(type(X))]
 
 
 def get_bounds(X_dtype: type) -> List:
@@ -19,43 +169,38 @@ def get_bounds(X_dtype: type) -> List:
     List
         Lower ad upper bounds.
     """
-    if 'float' in str(X_dtype):
+    if "float" in str(X_dtype):
         info = np.finfo(X_dtype)
         return info.min, info.max
-    elif 'int' in str(X_dtype):
+    elif "int" in str(X_dtype):
         info = np.iinfo(X_dtype)
         return info.min, info.max
 
 
-def concat(objs: List[Union[pd.DataFrame, ks.DataFrame]],
-           axis: int) -> Union[pd.DataFrame, ks.DataFrame]:
+def concat(objs: List[DataFrame], axis: int = 0) -> DataFrame:
     """Concatenate the `objs` along an axis.
 
     Parameters
     ----------
-    objs : List[Union[pd.DataFrame, ks.DataFrame]]
+    objs : List[DataFrame]
         List of dataframes to concatenate.
-    axis : int
+    axis : int, default to 0.
         The axis to concatenate along.
 
     Returns
     -------
-    Union[pd.DataFrame, ks.DataFrame]
+    DataFrame
         Concatenated dataframe.
     """
-    if isinstance(objs[0], (pd.DataFrame, pd.Series)):
-        return pd.concat(objs, axis=axis)
-    return ks.concat(objs, axis=axis)
+    return get_computer(objs[0]).concat(objs, axis=axis)
 
 
-def get_datatype_columns(
-        X: Union[pd.DataFrame, ks.DataFrame],
-        datatype: type) -> List[str]:
+def get_datatype_columns(X: DataFrame, datatype: type) -> List[str]:
     """Return the columns of the specified datatype.
 
     Parameters
     ----------
-    X : Union[pd.DataFrame, ks.DataFrame]
+    X : DataFrame
             Input dataframe.
     datatype : type
         Datatype.
@@ -65,18 +210,17 @@ def get_datatype_columns(
     List[str]
         List of columns
     """
-    X_dtypes = X.dtypes
-    mask = X_dtypes == datatype
-    if isinstance(X, ks.DataFrame) and (datatype == object):
-        mask = (X_dtypes == object) | (
-            X_dtypes.astype(str).str.startswith('<U'))
-
+    computer = get_computer(X)
+    X_dtypes = computer.dtypes(X)
+    if datatype != object:
+        mask = X_dtypes == datatype
+    else:
+        mask = computer.mask_object(X_dtypes)
     datatype_columns = [c for c, m in zip(X_dtypes.index, mask) if m]
     return datatype_columns
 
 
-def exclude_columns(columns: List[str],
-                    excluded_columns: List[str]) -> List[str]:
+def exclude_columns(columns: List[str], excluded_columns: List[str]) -> List[str]:
     """Return the columns in `columns` not in `selected_columns`.
 
     Parameters
@@ -94,8 +238,7 @@ def exclude_columns(columns: List[str],
     return [c for c in columns if c not in excluded_columns]
 
 
-def get_idx_columns(
-        columns: List[str], selected_columns: List[str]) -> np.ndarray:
+def get_idx_columns(columns: List[str], selected_columns: List[str]) -> np.ndarray:
     """Return the indices of the columns in `columns`
       and `selected_columns`.
 
@@ -119,8 +262,7 @@ def get_idx_columns(
     return np.array(selected_idx_columns)
 
 
-def exclude_idx_columns(
-        columns: List[str], excluded_columns: List[str]) -> np.ndarray:
+def exclude_idx_columns(columns: List[str], excluded_columns: List[str]) -> np.ndarray:
     """Return the indices of the columns in `columns`
         and not in `excluded_columns`.
 
@@ -138,18 +280,17 @@ def exclude_idx_columns(
     """
 
     selected_idx_columns = [
-        i for i, c in enumerate(columns)
-        if c not in excluded_columns
+        i for i, c in enumerate(columns) if c not in excluded_columns
     ]
     return np.array(selected_idx_columns)
 
 
-def get_numerical_columns(X: Union[pd.DataFrame, ks.DataFrame]) -> List[str]:
+def get_numerical_columns(X: DataFrame) -> List[str]:
     """Return the float columns.
 
     Parameters
     ----------
-    X : Union[pd.DataFrame, ks.DataFrame]
+    X : DataFrame
         Input dataframe.
 
     Returns
@@ -157,76 +298,20 @@ def get_numerical_columns(X: Union[pd.DataFrame, ks.DataFrame]) -> List[str]:
     List[str]
         List of columns.
     """
-    X_dtypes = X.dtypes
+    X_dtypes = get_computer(X).dtypes(X)
     mask = (
-        (X_dtypes == np.float64) |
-        (X_dtypes == np.int64) |
-        (X_dtypes == np.float32) |
-        (X_dtypes == np.int32) |
-        (X_dtypes == np.float16) |
-        (X_dtypes == np.int16)
+        (X_dtypes == np.float64)
+        | (X_dtypes == np.int64)
+        | (X_dtypes == np.float32)
+        | (X_dtypes == np.int32)
+        | (X_dtypes == np.float16)
+        | (X_dtypes == np.int16)
     )
     numerical_columns = [c for c, m in zip(X_dtypes.index, mask) if m]
     return numerical_columns
 
 
-def get_float_only_columns(X: Union[pd.DataFrame, ks.DataFrame]) -> List[str]:
-    """Return the float columns.
-
-    Parameters
-    ----------
-    X : Union[pd.DataFrame, ks.DataFrame]
-        Input dataframe.
-
-    Returns
-    -------
-    List[str]
-        List of columns.
-    """
-    numerical_columns = get_numerical_columns(X)
-    if not numerical_columns:
-        return []
-    i_max = int(np.min(np.array([X.shape[0], 50000])))
-    X_dummy = X[numerical_columns].head(i_max).to_numpy()
-    float_columns = [
-        col for i, col in enumerate(numerical_columns)
-        if not np.allclose(
-            X_dummy[:, i].round(),
-            X_dummy[:, i], equal_nan=True) or
-        (X_dummy[:, i] != X_dummy[:, i]).mean() == 1
-    ]
-    return float_columns
-
-
-def get_int_only_columns(X: Union[pd.DataFrame, ks.DataFrame]) -> List[str]:
-    """Return the list of integer columns.
-
-    Parameters
-    ----------
-    X : Union[pd.DataFrame, ks.DataFrame]
-        Input dataframe.
-
-    Returns
-    -------
-    List[str]
-        List of columns.
-    """
-    numerical_columns = get_numerical_columns(X)
-    if not numerical_columns:
-        return []
-    i_max = int(np.min(np.array([X.shape[0], 50000])))
-    X_dummy = X[numerical_columns].head(i_max).to_numpy()
-    int_columns = [
-        col for i, col in enumerate(numerical_columns)
-        if np.allclose(
-            X_dummy[:, i].round(),
-            X_dummy[:, i], equal_nan=True) and
-        (X_dummy[:, i] != X_dummy[:, i]).mean() != 1
-    ]
-    return int_columns
-
-
-def generate_spark_dataframe(X: ks.DataFrame, y=None):
+def generate_spark_dataframe(X: KSDataFrame, y=None):
     """
     Generates a Spark dataframe and transforms the features
     to one column, ready for training in a SparkML model
@@ -243,13 +328,14 @@ def generate_spark_dataframe(X: ks.DataFrame, y=None):
     pyspark.DataFrame
         Contains the features transformed into one column.
     """
+    from pyspark.ml.feature import VectorAssembler
+
     columns = list(X.columns)
     if y is None:
         spark_df = X.to_spark()
     else:
         spark_df = X.join(y).to_spark()
-    vector_assembler = VectorAssembler(
-        inputCols=columns, outputCol="features")
+    vector_assembler = VectorAssembler(inputCols=columns, outputCol="features")
     transformed_spark_df = vector_assembler.transform(spark_df)
     return transformed_spark_df
 

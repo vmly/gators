@@ -47,7 +47,7 @@ Multi-Class Encoder
 .. note::
     The *MultiClassEncoder* takes as input a binary encoder and apply it
     to each class. For example, if a n-class classification is composed of
-    *c* categorical columns, the number encoded columns with be *n x c*.
+    *c* categorical columns, the number of encoded columns is *n x c*.
 
 .. autosummary::
    :toctree: api/

@@ -1,14 +1,107 @@
 # License: Apache-2.0
-from typing import List, Union
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
+from typing import List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.Series, ks.Series, dd.Series]")
 
 NUMERICS_DTYPES = [np.int16, np.int32, np.int64, np.float32, np.float64]
-PRINT_NUMERICS_DTYPES = ', '.join(
-    [dtype.__name__ for dtype in NUMERICS_DTYPES])
+PRINT_NUMERICS_DTYPES = ", ".join([dtype.__name__ for dtype in NUMERICS_DTYPES])
+
+
+class ComputerFactory(ABC):
+    @abstractmethod
+    def sum_of_nans():
+        pass
+
+    @abstractmethod
+    def nunique():
+        pass
+
+    @abstractmethod
+    def dtypes():
+        pass
+
+    @abstractmethod
+    def is_row_size_match():
+        pass
+
+    @abstractmethod
+    def raise_y_dtype_error():
+        pass
+
+
+class ComputerPandas(ComputerFactory):
+    def sum_of_nans(self, X):
+        return X.isnull().sum().sum()
+
+    def nunique(self, X):
+        return X.nunique()
+
+    def dtypes(self, X):
+        return X.dtypes.unique()
+
+    def is_row_size_match(self, X, y):
+        return X.shape[0] == y.shape[0]
+
+    def raise_y_dtype_error(self, X, y):
+        if not isinstance(y, pd.Series):
+            raise TypeError("`y` should be a pandas series.")
+
+
+class ComputerKoalas(ComputerFactory):
+    def sum_of_nans(self, X):
+        return X.isnull().sum().sum()
+
+    def nunique(self, X):
+        return X.nunique()
+
+    def dtypes(self, X):
+        return X.dtypes.unique()
+
+    def is_row_size_match(self, X, y):
+        return X.shape[0] == y.shape[0]
+
+    def raise_y_dtype_error(self, X, y):
+        import databricks.koalas as ks
+
+        if not isinstance(y, ks.Series):
+            raise TypeError("`y` should be a koalas series.")
+
+
+class ComputerDask(ComputerFactory):
+    def sum_of_nans(self, X):
+        return X.isnull().sum().sum().compute()
+
+    def nunique(self, X):
+        return X.nunique().compute()
+
+    def dtypes(self, X):
+        return X.dtypes.unique()
+
+    def is_row_size_match(self, X, y):
+        return X.shape[0].compute() == y.shape[0].compute()
+
+    def raise_y_dtype_error(self, X, y):
+        import dask.dataframe as dd
+
+        if not isinstance(y, dd.Series):
+            raise TypeError("`y` should be a dask series.")
+
+
+def get_computer(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": ComputerDask(),
+    }
+    str_type = str(type(X))
+    if str(type(X)) not in factories:
+        raise TypeError("""`X` should be a pandas, koalas, or dask dataframe.""")
+    return factories[str(type(X))]
 
 
 class Transformer(ABC):
@@ -66,14 +159,12 @@ class Transformer(ABC):
     """
 
     @abstractmethod
-    def fit(
-            self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'Transformer':
+    def fit(self, X: DataFrame, y: Series = None) -> "Transformer":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : None
             None.
@@ -84,25 +175,22 @@ class Transformer(ABC):
         """
 
     @abstractmethod
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame],
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
 
     @abstractmethod
-    def transform_numpy(self, X: Union[pd.Series, ks.Series],
-                        y: Union[pd.Series, ks.Series] = None):
+    def transform_numpy(self, X: Series, y: Series = None):
         """Transform the array X.
 
         Parameters
@@ -111,66 +199,56 @@ class Transformer(ABC):
             Array
         """
 
-    def fit_transform(
-            self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def fit_transform(self, X: DataFrame, y: Series = None) -> DataFrame:
         """Fit and Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Input target.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         _ = self.fit(X, y)
         return self.transform(X)
 
     @staticmethod
-    def check_dataframe(X: Union[pd.DataFrame, ks.DataFrame]):
+    def check_dataframe(X: DataFrame):
         """Validate dataframe.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         """
-        if not isinstance(X, (pd.DataFrame, ks.DataFrame)):
-            raise TypeError(
-                '''`X` should be a pandas dataframe or a koalas dataframe.''')
+        get_computer(X)
         for c in X.columns:
             if not isinstance(c, str):
-                raise ValueError(
-                    'Column names of `X` should be of type str.')
+                raise ValueError("Column names of `X` should be of type str.")
 
-    @ staticmethod
-    def check_y(X: Union[pd.DataFrame, ks.DataFrame],
-                y: Union[pd.Series, ks.Series]):
+    @staticmethod
+    def check_y(X: DataFrame, y: Series):
         """Validate target.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe
-        y : Union[pd.Series, ks.Series]
+        y : Series
             Labels
         """
-        if isinstance(X, pd.DataFrame) and (not isinstance(y, pd.Series)):
-            raise TypeError('`y` should be a pandas series.')
-        if isinstance(X, ks.DataFrame) and (not isinstance(y, ks.Series)):
-            raise TypeError('`y` should be a koalas series.')
+        get_computer(X).raise_y_dtype_error(X, y)
         if not isinstance(y.name, str):
-            raise TypeError('Name of `y` should be a str.')
-        if X.shape[0] != y.shape[0]:
-            raise ValueError('Length of `X` and `y` should match.')
+            raise TypeError("Name of `y` should be a str.")
+        if not get_computer(X).is_row_size_match(X, y):
+            raise ValueError("Length of `X` and `y` should match.")
 
-    @ staticmethod
+    @staticmethod
     def check_array(X: np.ndarray):
         """Validate array.
 
@@ -179,108 +257,109 @@ class Transformer(ABC):
             X (np.ndarray): Array.
         """
         if not isinstance(X, np.ndarray):
-            raise TypeError('`X` should be a NumPy array.')
+            raise TypeError("`X` should be a NumPy array.")
 
     @staticmethod
-    def check_dataframe_is_numerics(X: Union[pd.DataFrame, ks.DataFrame]):
+    def check_dataframe_is_numerics(X: DataFrame):
         """Check if dataframe is only numerics.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe
         """
-        X_dtypes = X.dtypes.unique()
+        X_dtypes = get_computer(X).dtypes(X)
         for x_dtype in X_dtypes:
             if x_dtype not in NUMERICS_DTYPES:
-                raise ValueError(
-                    f'`X` should be of type {PRINT_NUMERICS_DTYPES}.')
+                raise ValueError(f"`X` should be of type {PRINT_NUMERICS_DTYPES}.")
 
     def check_datatype(self, dtype, accepted_dtypes):
         """Check if dataframe is only numerics.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe
         """
-        print_dtypes = ', '.join([dtype.__name__ for dtype in accepted_dtypes])
+        print_dtypes = ", ".join([dtype.__name__ for dtype in accepted_dtypes])
         if dtype not in accepted_dtypes:
             raise ValueError(
-                f'''`X` should be of type {print_dtypes}.
+                f"""`X` should be of type {print_dtypes}.
                         Use gators.converter.ConvertColumnDatatype before
-                        calling the transformer {self.__class__.__name__}.''')
+                        calling the transformer {self.__class__.__name__}."""
+            )
 
     @staticmethod
-    def check_binary_target(y: Union[pd.Series, ks.Series]):
+    def check_binary_target(X: DataFrame, y: Series):
         """Raise an error if the target datatype is not binary.
 
         Parameters
         ----------
-        y : Union[pd.Series, ks.Series]
+        y : Series
             Target values.
         """
-        if y.nunique() != 2 or 'int' not in str(y.dtype):
-            raise ValueError('`y` should be binary.')
+        if get_computer(X).nunique(y) != 2 or "int" not in str(y.dtype):
+            raise ValueError("`y` should be binary.")
 
     @staticmethod
-    def check_multiclass_target(y: Union[pd.Series, ks.Series]):
+    def check_multiclass_target(y: Series):
         """Raise an error if the target datatype is not discrete.
 
         Parameters
         ----------
-        y : Union[pd.Series, ks.Series]
+        y : Series
             Target values.
         """
-        if 'int' not in str(y.dtype):
-            raise ValueError('`y` should be discrete.')
+        if "int" not in str(y.dtype):
+            raise ValueError("`y` should be discrete.")
 
     @staticmethod
-    def check_regression_target(y: Union[pd.Series, ks.Series]):
+    def check_regression_target(y: Series):
         """Raise an error if the target datatype is not discrete.
 
         Parameters
         ----------
-        y : Union[pd.Series, ks.Series]
+        y : Series
             Target values.
         """
-        if 'float' not in str(y.dtype):
-            raise ValueError('`y` should be float.')
+        if "float" not in str(y.dtype):
+            raise ValueError("`y` should be float.")
 
-    @ staticmethod
-    def check_dataframe_contains_numerics(
-            X: Union[pd.DataFrame, ks.DataFrame]):
+    @staticmethod
+    def check_dataframe_contains_numerics(X: DataFrame):
         """Check if dataframe is only numerics.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe
         """
-        X_dtypes = X.dtypes.unique()
+        X_dtypes = get_computer(X).dtypes(X)
         for x_dtype in X_dtypes:
             if x_dtype in NUMERICS_DTYPES:
                 return
         raise ValueError(
-            f'''`X` should contains one of the following float dtypes:
+            f"""`X` should contains one of the following float dtypes:
             {PRINT_NUMERICS_DTYPES}.
             Use gators.converter.ConvertColumnDatatype before
-            calling this transformer.''')
+            calling this transformer."""
+        )
 
-    def check_dataframe_with_objects(
-            self, X: Union[pd.DataFrame, ks.DataFrame]):
+    def check_dataframe_with_objects(self, X: DataFrame):
         """Check if dataframe contains object columns.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe
         """
-        contains_object = object in X.dtypes.unique()
+        X_dtypes = get_computer(X).dtypes(X)
+        contains_object = object in X_dtypes
         if not contains_object:
             raise ValueError(
-                f'''`X` should contains object columns to use the transformer
-                {self.__class__.__name__}.''')
+                f"""`X` should contains object columns to use the transformer
+                {self.__class__.__name__}."""
+            )
 
     def check_array_is_numerics(self, X: np.ndarray):
         """Check if array is only numerics.
@@ -292,24 +371,25 @@ class Transformer(ABC):
         """
         if X.dtype not in NUMERICS_DTYPES:
             raise ValueError(
-                f'''`X` should be of type {PRINT_NUMERICS_DTYPES}
+                f"""`X` should be of type {PRINT_NUMERICS_DTYPES}
                 to use the transformer {self.__class__.__name__}.
                 Use gators.converter.ConvertColumnDatatype before calling it.
-                ''')
+                """
+            )
 
-    def check_nans(self, X: Union[pd.DataFrame, ks.DataFrame],
-                   columns: List[str]):
+    def check_nans(self, X: DataFrame, columns: List[str]):
         """Raise an error if X contains NaN values.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe.
         columns : List[str]
             List of columns.
         """
-        if X[columns].isnull().sum().sum() != 0:
+        if get_computer(X).sum_of_nans(X[columns]) != 0:
             raise ValueError(
-                f'''The object columns should not contain NaN values
+                f"""The object columns should not contain NaN values
                 to use the transformer {self.__class__.__name__}.
-                Use `gators.imputers.ObjectImputer` before calling it.''')
+                Use `gators.imputers.ObjectImputer` before calling it."""
+            )

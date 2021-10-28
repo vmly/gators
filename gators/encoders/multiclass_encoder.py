@@ -1,14 +1,67 @@
 # License: Apache-2.0
-from typing import Union
-import warnings
 import copy
+import warnings
+from abc import ABC, abstractmethod
+from typing import TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from ._base_encoder import _BaseEncoder
-from ..util import util
+
 from ..data_cleaning.drop_columns import DropColumns
 from ..transformers.transformer import Transformer
+from ..util import util
+from ._base_encoder import _BaseEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+
+
+class ComputerFactory(ABC):
+    @abstractmethod
+    def compute_dummies():
+        pass
+
+    @abstractmethod
+    def join():
+        pass
+
+
+class ComputerPandas(ComputerFactory):
+    def compute_dummies(self, X):
+        return pd.get_dummies(X, prefix=X.name)
+
+    def join(self, X, dummy):
+        return X.join(dummy)
+
+
+class ComputerKoalas(ComputerFactory):
+    def compute_dummies(self, X):
+        import databricks.koalas as ks
+
+        return ks.get_dummies(X, prefix=X.name)
+
+    def join(self, X, dummy):
+        return X.join(dummy, how="inner").sort_index()
+
+
+class ComputerDask(ComputerFactory):
+    def compute_dummies(self, X):
+        import dask.dataframe as dd
+
+        return dd.get_dummies(X.to_frame().astype(object).categorize(), prefix=X.name)
+
+    def join(self, X, dummy):
+        return X.join(dummy)
+
+
+def get_computer(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": ComputerDask(),
+    }
+    return factories[str(type(X))]
 
 
 class MultiClassEncoder(_BaseEncoder):
@@ -125,7 +178,7 @@ class MultiClassEncoder(_BaseEncoder):
 
     def __init__(self, encoder: Transformer, dtype: type = np.float64):
         if not isinstance(encoder, Transformer):
-            raise TypeError('`encoder` should be a transformer.')
+            raise TypeError("`encoder` should be a transformer.")
         _BaseEncoder.__init__(self, dtype=dtype)
         self.encoder = encoder
         self.drop_columns = None
@@ -137,16 +190,14 @@ class MultiClassEncoder(_BaseEncoder):
         self.column_mapping = {}
         self.name = type(encoder).__name__
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series]) -> 'MultiClassEncoder':
+    def fit(self, X: DataFrame, y: Series) -> "MultiClassEncoder":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -157,44 +208,39 @@ class MultiClassEncoder(_BaseEncoder):
         self.check_dataframe(X)
         self.check_y(X, y)
         self.check_multiclass_target(y)
-        self.columns = util.get_datatype_columns(X, object)
         self.check_nans(X, self.columns)
+        self.computer = get_computer(X)
+        self.columns = util.get_datatype_columns(X, object)
         self.drop_columns = DropColumns(self.columns).fit(X)
         if not self.columns:
             warnings.warn(
-                f'''`X` does not contain object columns:
-                `{self.__class__.__name__}` is not needed''')
+                f"""`X` does not contain object columns:
+                `{self.__class__.__name__}` is not needed"""
+            )
             return self
         self.idx_columns = util.get_idx_columns(
             columns=X.columns,
             selected_columns=self.columns,
         )
-        y_name = y.name
-        if isinstance(X, pd.DataFrame):
-            y_one_hot = pd.get_dummies(y, prefix=y_name)
-        else:
-            y_one_hot = ks.get_dummies(y, prefix=y_name)
+        y_one_hot = self.computer.compute_dummies(y)
         y_one_hot = y_one_hot.drop(y_one_hot.columns[0], axis=1)
         self.label_names = y_one_hot.columns
         for label_name in self.label_names:
             self.encoder_dict[label_name] = copy.copy(self.encoder)
-            self.encoder_dict[label_name].fit(
-                X[self.columns], y_one_hot[label_name])
+            self.encoder_dict[label_name].fit(X[self.columns], y_one_hot[label_name])
         return self
 
-    def transform(self,
-                  X: Union[pd.DataFrame, ks.DataFrame]
-                  ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -202,15 +248,15 @@ class MultiClassEncoder(_BaseEncoder):
             self.idx_columns = np.array([])
             return X
         for i, label_name in enumerate(self.label_names):
-            dummy = self.encoder_dict[label_name].transform(
-                X[self.columns].copy())[self.encoder_dict[label_name].columns]
-            column_names = [
-                f'{col}__{label_name}_{self.name}' for col in dummy.columns]
+            dummy = self.encoder_dict[label_name].transform(X[self.columns].copy())[
+                self.encoder_dict[label_name].columns
+            ]
+            column_names = [f"{col}__{label_name}_{self.name}" for col in dummy.columns]
             dummy.columns = column_names
             self.column_names.extend(column_names)
             for name, col in zip(column_names, self.columns):
                 self.column_mapping[name] = col
-            X = X.join(dummy, how='inner').sort_index()
+            X = self.computer.join(X, dummy)
         return self.drop_columns.transform(X).astype(self.dtype)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
@@ -232,8 +278,10 @@ class MultiClassEncoder(_BaseEncoder):
         X_encoded_list = []
         for i, label_name in enumerate(self.label_names):
             dummy = self.encoder_dict[label_name].transform_numpy(
-                X[:, self.idx_columns].copy())
+                X[:, self.idx_columns].copy()
+            )
             X_encoded_list.append(dummy)
         X_new = np.concatenate(
-            [self.drop_columns.transform_numpy(X)] + X_encoded_list, axis=1)
+            [self.drop_columns.transform_numpy(X)] + X_encoded_list, axis=1
+        )
         return X_new.astype(self.dtype)

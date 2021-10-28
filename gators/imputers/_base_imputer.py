@@ -1,9 +1,91 @@
 # License: Apache-2.0
-from ..transformers.transformer import Transformer
-from typing import List, Dict, Union
+from abc import ABC, abstractmethod
+from typing import Dict, List, TypeVar, Union
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+from ..transformers.transformer import Transformer
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+
+
+class ComputerFactory(ABC):
+    @abstractmethod
+    def compute_statistics_mean():
+        pass
+
+    @abstractmethod
+    def compute_statistics_median():
+        pass
+
+    @abstractmethod
+    def compute_statistics_most_frequent():
+        pass
+
+    @abstractmethod
+    def transform():
+        pass
+
+
+class ComputerPandas(ComputerFactory):
+    def compute_statistics_mean(self, X):
+        return X.mean().to_dict()
+
+    def compute_statistics_median(self, X):
+        return X.median().to_dict()
+
+    def compute_statistics_most_frequent(self, X):
+        columns = list(X.columns)
+        values = [X[c].value_counts().index.to_numpy()[0] for c in columns]
+        return dict(zip(columns, values))
+
+    def transform(self, X, statistics):
+        return X.fillna(statistics)
+
+
+class ComputerKoalas(ComputerFactory):
+    def compute_statistics_mean(self, X):
+        return X.mean().to_dict()
+
+    def compute_statistics_median(self, X):
+        return X.median().to_dict()
+
+    def compute_statistics_most_frequent(self, X):
+        columns = list(X.columns)
+        values = [X[c].value_counts().index.to_numpy()[0] for c in columns]
+        return dict(zip(columns, values))
+
+    def transform(self, X, statistics):
+        for col, val in statistics.items():
+            X[col] = X[col].fillna(val)
+        return X
+
+
+class ComputerDask(ComputerFactory):
+    def compute_statistics_mean(self, X):
+        return X.mean().compute().to_dict()
+
+    def compute_statistics_median(self, X):
+        return X.median().compute().to_dict()
+
+    def transform(self, X, statistics):
+        return X.fillna(statistics)
+
+    def compute_statistics_most_frequent(self, X):
+        columns = list(X.columns)
+        values = [X[c].value_counts().compute().index[0] for c in columns]
+        return dict(zip(columns, values))
+
+
+def get_computer(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": ComputerDask(),
+    }
+    return factories[str(type(X))]
 
 
 class _BaseImputer(Transformer):
@@ -23,21 +105,19 @@ class _BaseImputer(Transformer):
         used for `strategy=constant`.
     columns: List[str], default to None.
         List of columns.
-
     """
 
-    def __init__(self, strategy: str,
-                 value: Union[float, str, None],
-                 columns: List[str]):
+    def __init__(
+        self, strategy: str, value: Union[float, str, None], columns: List[str]
+    ):
         if not isinstance(strategy, str):
-            raise TypeError('`strategy` should be a string.')
-        if strategy == 'constant' and value is None:
-            raise ValueError(
-                'if `strategy` is "constant", `value` should not be None.')
-        if strategy not in ['constant', 'mean', 'median', 'most_frequent']:
-            raise ValueError('Imputation `strategy` not implemented.')
+            raise TypeError("`strategy` should be a string.")
+        if strategy == "constant" and value is None:
+            raise ValueError('if `strategy` is "constant", `value` should not be None.')
+        if strategy not in ["constant", "mean", "median", "most_frequent"]:
+            raise ValueError("Imputation `strategy` not implemented.")
         if not isinstance(columns, list) and columns is not None:
-            raise TypeError('`columns` should be a list or None.')
+            raise TypeError("`columns` should be a list or None.")
 
         Transformer.__init__(self)
         self.strategy = strategy
@@ -46,21 +126,19 @@ class _BaseImputer(Transformer):
         self.statistics: Dict = {}
         self.statistics_values: np.ndarray = None
         self.idx_columns: np.ndarray = None
-        self.X_dtypes: Union[pd.Series, ks.Series] = None
+        self.X_dtypes: Series = None
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -70,48 +148,38 @@ class _BaseImputer(Transformer):
             X[col] = X[col].fillna(val)
         return X
 
-    @staticmethod
     def compute_statistics(
-            X: Union[pd.DataFrame, ks.DataFrame], columns: List[str],
-            strategy: str,
-            value: Union[float, int, str, None]
+        self, X: DataFrame, value: Union[float, int, str, None]
     ) -> Dict[str, Union[float, int, str]]:
         """Compute the imputation values.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe used to compute the imputation values.
-        columns : List[str]
-            Columns to consider.
-        strategy : str
-            Imputation strategy.
         value : Union[float, int, str, None]
             Value used for imputation.
 
         Returns
         -------
-        Dict[str, Union[float, int, str]]
+        Dict[str, TypeVar[float, int, str]]
             Imputation value mapping.
         """
-        if strategy == 'mean':
-            statistics = X[columns].astype(np.float64).mean().to_dict()
-        elif strategy == 'median':
-            statistics = X[columns].astype(np.float64).median().to_dict()
-        elif strategy == 'most_frequent':
-            values = [
-                X[c].value_counts().index.to_numpy()[0]
-                for c in columns
-            ]
-            statistics = dict(zip(columns, values))
+        if self.strategy == "mean":
+            statistics = self.computer.compute_statistics_mean(X[self.columns])
+        elif self.strategy == "median":
+            statistics = self.computer.compute_statistics_median(X[self.columns])
+        elif self.strategy == "most_frequent":
+            statistics = self.computer.compute_statistics_most_frequent(X[self.columns])
         else:  # strategy == 'constant'
-            values = len(columns) * [value]
-            statistics = dict(zip(columns, values))
+            values = len(self.columns) * [value]
+            statistics = dict(zip(self.columns, values))
         if pd.Series(statistics).isnull().sum():
             raise ValueError(
-                '''Some columns contains only NaN values and the
+                """Some columns contains only NaN values and the
                 imputation values cannot be calculated.
                 Remove these columns
                 before performing the imputation
-                (e.g. with `gators.data_cleaning.drop_high_nan_ratio()`).''')
+                (e.g. with `gators.data_cleaning.drop_high_nan_ratio()`)."""
+            )
         return statistics

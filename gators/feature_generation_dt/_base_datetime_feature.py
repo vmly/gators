@@ -1,10 +1,15 @@
 # Licence Apache-2.0
-from ..transformers.transformer import Transformer
-from ..util import util
-from typing import List, Dict, Union
+from abc import ABC, abstractmethod
+from typing import Dict, List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+from ..transformers.transformer import Transformer
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseDatetimeFeature(Transformer):
@@ -21,8 +26,12 @@ class _BaseDatetimeFeature(Transformer):
 
     """
 
-    def __init__(self, columns: List[str], column_names: List[str],
-                 column_mapping: Dict[str, str]):
+    def __init__(
+        self,
+        columns: List[str],
+        column_names: List[str],
+        column_mapping: Dict[str, str],
+    ):
         Transformer.__init__(self)
         self.columns = columns
         self.column_names = column_names
@@ -30,16 +39,14 @@ class _BaseDatetimeFeature(Transformer):
         self.idx_columns: np.ndarray = np.array([])
         self.n_columns = len(self.columns)
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> '_BaseDatetimeFeature':
+    def fit(self, X: DataFrame, y: Series = None) -> "_BaseDatetimeFeature":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
         X : pd.DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Target values.
 
         Returns
@@ -48,14 +55,15 @@ class _BaseDatetimeFeature(Transformer):
             Instance of itself.
         """
         self.check_dataframe(X)
-        X_datetime_dtype = X.iloc[:100][self.columns].dtypes
+        X_datetime_dtype = X[self.columns].dtypes
         for column in self.columns:
             if not np.issubdtype(X_datetime_dtype[column], np.datetime64):
                 raise TypeError(
                     """
                     Datetime columns should be of subtype np.datetime64.
                     Use `ConvertColumnDatatype` to convert the dtype.
-                """)
+                """
+                )
         self.idx_columns = util.get_idx_columns(
             columns=X.columns,
             selected_columns=self.columns,
@@ -75,6 +83,6 @@ class _BaseDatetimeFeature(Transformer):
         """
         column_names = []
         for c in columns:
-            column_names.append(f'{c}__{pattern}_cos')
-            column_names.append(f'{c}__{pattern}_sin')
+            column_names.append(f"{c}__{pattern}_cos")
+            column_names.append(f"{c}__{pattern}_sin")
         return column_names

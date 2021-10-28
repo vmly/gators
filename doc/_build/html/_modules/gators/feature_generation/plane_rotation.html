@@ -153,7 +153,7 @@
                 
   <h1>Source code for gators.feature_generation.plane_rotation</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">cos</span><span class="p">,</span> <span class="n">sin</span>
 <span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span> <span class="k">as</span> <span class="n">PI</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -163,6 +163,10 @@
 <span class="kn">from</span> <span class="nn">gators.transformers</span> <span class="kn">import</span> <span class="n">Transformer</span>
 <span class="kn">from</span> <span class="nn">feature_gen</span> <span class="kn">import</span> <span class="n">plan_rotation</span>
 <span class="kn">from</span> <span class="nn">._base_feature_generation</span> <span class="kn">import</span> <span class="n">_BaseFeatureGeneration</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="PlaneRotation"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation.PlaneRotation.html#gators.feature_generation.PlaneRotation">[docs]</a><span class="k">class</span> <span class="nc">PlaneRotation</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
@@ -275,13 +279,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cos_theta_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta_vec</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sin_theta_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">theta_vec</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;PlaneRotation&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+            <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;PlaneRotation&#39;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 <span class="sd">        y : None</span>
 <span class="sd">            None.</span>
@@ -297,18 +301,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_y</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">::</span><span class="mi">2</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span>
+                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>

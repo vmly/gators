@@ -1,11 +1,17 @@
 # License: Apache-2.0
-from ..util import util
-from ..transformers.transformer import Transformer
-from typing import Dict, Union
+from abc import ABC, abstractmethod
+from typing import Dict, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
 from data_cleaning import replace
+
+from ..transformers.transformer import Transformer
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Replace(Transformer):
@@ -82,7 +88,7 @@ class Replace(Transformer):
 
     def __init__(self, to_replace_dict: Dict[str, Dict[str, str]]):
         if not isinstance(to_replace_dict, dict):
-            raise TypeError('`to_replace_dict` should be a dict.')
+            raise TypeError("`to_replace_dict` should be a dict.")
         Transformer.__init__(self)
         self.to_replace_dict = to_replace_dict
         self.columns = list(to_replace_dict.keys())
@@ -95,12 +101,13 @@ class Replace(Transformer):
             n_elements = len(self.to_replace_dict[col])
             self.n_elements_vec[i] = n_elements
             self.to_replace_np_keys[i, :n_elements] = list(
-                self.to_replace_dict[col].keys())[:n_elements]
+                self.to_replace_dict[col].keys()
+            )[:n_elements]
             self.to_replace_np_vals[i, :n_elements] = list(
-                self.to_replace_dict[col].values())[:n_elements]
+                self.to_replace_dict[col].values()
+            )[:n_elements]
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y=None) -> 'Replace':
+    def fit(self, X: DataFrame, y=None) -> "Replace":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -108,9 +115,9 @@ class Replace(Transformer):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -122,18 +129,17 @@ class Replace(Transformer):
         self.idx_columns = util.get_idx_columns(X.columns, self.columns)
         return self
 
-    def transform(self,  X: Union[pd.DataFrame, ks.DataFrame]
-                  ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -154,7 +160,9 @@ class Replace(Transformer):
         """
         self.check_array(X)
         return replace(
-            X, self.idx_columns,
+            X,
+            self.idx_columns,
             self.to_replace_np_keys,
             self.to_replace_np_vals,
-            self.n_elements_vec)
+            self.n_elements_vec,
+        )

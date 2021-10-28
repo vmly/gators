@@ -1,25 +1,67 @@
 # License: Apache-2.
-from typing import List, Union, Dict
 import warnings
+from abc import ABC, abstractmethod
+from typing import Dict, List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from ._base_encoder import _BaseEncoder
+
 from ..util import util
+from ._base_encoder import _BaseEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
-def clean_mapping(mapping: Dict[str, Dict[str, List[float]]]
-                  ) -> Dict[str, Dict[str, List[float]]]:
-    mapping = {
-        col: {k: v for k, v in mapping[col].items() if v == v}
-        for col in mapping.keys()
+class ComputerFactory(ABC):
+    @abstractmethod
+    def compute_mapping():
+        pass
+
+
+class ComputerPandas(ComputerFactory):
+    def compute_mapping(self, X, y):
+        y_name = y.name
+
+        def f(x):
+            return pd.DataFrame(x).join(y).groupby(x.name).mean()[y_name]
+
+        return X.apply(f).to_dict()
+
+
+class ComputerKoalas(ComputerFactory):
+    def compute_mapping(self, X, y):
+        import databricks.koalas as ks
+
+        mapping_list = []
+        y_name = y.name
+        for name in X.columns:
+            dummy = (
+                ks.DataFrame(X[name]).join(y).groupby(name).mean()[y_name].to_pandas()
+            )
+            dummy.name = name
+            mapping_list.append(dummy)
+        return pd.concat(mapping_list, axis=1).to_dict()
+
+
+class ComputerDask(ComputerFactory):
+    def compute_mapping(self, X, y):
+        mapping_list = []
+        y_name = y.name
+        for name in X.columns:
+            dummy = X[[name]].join(y).groupby(name).mean()[y_name].compute()
+            dummy.name = name
+            mapping_list.append(dummy)
+        return pd.concat(mapping_list, axis=1).to_dict()
+
+
+def get_computer(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": ComputerDask(),
     }
-    for m in mapping.values():
-        if 'OTHERS' not in m:
-            m['OTHERS'] = 0.
-        if 'MISSING' not in m:
-            m['MISSING'] = 0.
-    return mapping
+    return factories[str(type(X))]
 
 
 class TargetEncoder(_BaseEncoder):
@@ -89,16 +131,14 @@ class TargetEncoder(_BaseEncoder):
     def __init__(self, dtype: type = np.float64):
         _BaseEncoder.__init__(self, dtype=dtype)
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series]) -> 'TargetEncoder':
+    def fit(self, X: DataFrame, y: Series) -> "TargetEncoder":
         """Fit the encoder.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]:
+        X : DataFrame:
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -108,39 +148,34 @@ class TargetEncoder(_BaseEncoder):
         """
         self.check_dataframe(X)
         self.check_y(X, y)
-        self.check_binary_target(y)
+        self.check_binary_target(X, y)
+        self.check_nans(X, self.columns)
+        self.computer = get_computer(X)
         self.columns = util.get_datatype_columns(X, object)
         if not self.columns:
             warnings.warn(
-                f'''`X` does not contain object columns:
-                `{self.__class__.__name__}` is not needed''')
+                f"""`X` does not contain object columns:
+                `{self.__class__.__name__}` is not needed"""
+            )
             return self
-        self.check_nans(X, self.columns)
-        self.mapping = self.generate_mapping(
-            X[self.columns], y)
-        self.num_categories_vec = np.array(
-            [len(m) for m in self.mapping.values()]
+        self.mapping = self.generate_mapping(X[self.columns], y)
+        self.num_categories_vec = np.array([len(m) for m in self.mapping.values()])
+        columns, self.values_vec, self.encoded_values_vec = self.decompose_mapping(
+            mapping=self.mapping
         )
-        columns, self.values_vec, self.encoded_values_vec = \
-            self.decompose_mapping(mapping=self.mapping)
         self.idx_columns = util.get_idx_columns(
             columns=X.columns, selected_columns=columns
         )
         return self
 
-    @staticmethod
-    def generate_mapping(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series],
-
-    ) -> Dict[str, Dict[str, float]]:
+    def generate_mapping(self, X: DataFrame, y: Series) -> Dict[str, Dict[str, float]]:
         """Generate the mapping to perform the encoding.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series]:
+        y : Series:
              Labels.
 
         Returns
@@ -148,20 +183,20 @@ class TargetEncoder(_BaseEncoder):
         Dict[str, Dict[str, float]]
             Mapping.
         """
-        y_name = y.name
-        if isinstance(X, pd.DataFrame):
-            def f(x) -> ks.Series[np.float64]:
-                return pd.DataFrame(x).join(y).groupby(x.name).mean()[y_name]
+        mapping = self.computer.compute_mapping(X, y)
+        return self.clean_mapping(mapping)
 
-            mapping = X.apply(f).to_dict()
-            return clean_mapping(mapping)
-
-        mapping_list = []
-        for name in X.columns:
-            dummy = ks.DataFrame(X[name]).join(y).groupby(
-                name).mean()[y_name].to_pandas()
-            dummy.name = name
-            mapping_list.append(dummy)
-
-        mapping = pd.concat(mapping_list, axis=1).to_dict()
-        return clean_mapping(mapping)
+    @staticmethod
+    def clean_mapping(
+        mapping: Dict[str, Dict[str, List[float]]]
+    ) -> Dict[str, Dict[str, List[float]]]:
+        mapping = {
+            col: {k: v for k, v in mapping[col].items() if v == v}
+            for col in mapping.keys()
+        }
+        for m in mapping.values():
+            if "OTHERS" not in m:
+                m["OTHERS"] = 0.0
+            if "MISSING" not in m:
+                m["MISSING"] = 0.0
+        return mapping

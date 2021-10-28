@@ -154,13 +154,16 @@
   <h1>Source code for gators.binning.discretizer</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
 <span class="kn">from</span> <span class="nn">._base_discretizer</span> <span class="kn">import</span> <span class="n">_BaseDiscretizer</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
 
 <span class="n">EPSILON</span> <span class="o">=</span> <span class="mf">1e-10</span>
+
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Discretizer"><a class="viewcode-back" href="../../../reference/api/gators.binning.Discretizer.html#gators.binning.Discretizer">[docs]</a><span class="k">class</span> <span class="nc">Discretizer</span><span class="p">(</span><span class="n">_BaseDiscretizer</span><span class="p">):</span>
@@ -255,7 +258,7 @@
         <span class="n">_BaseDiscretizer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="n">inplace</span><span class="p">)</span></div>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">compute_bins</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="k">def</span> <span class="nf">compute_bins</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span>
                      <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Compute the bins list and the bins array.</span>
 <span class="sd">        The bin list is used for dataframes and</span>
@@ -263,7 +266,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
 <span class="sd">        n_bins : int</span>
 <span class="sd">            Number of bins to use.</span>

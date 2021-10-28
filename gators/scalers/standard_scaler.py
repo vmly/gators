@@ -1,10 +1,17 @@
 # License: Apache-2.0
-from scaler import standard_scaler
-from ..transformers.transformer import Transformer
-import numpy as np
-from typing import Union
-import pandas as pd
+from abc import ABC, abstractmethod
+from typing import TypeVar
+
 import databricks.koalas as ks
+import numpy as np
+import pandas as pd
+
+from scaler import standard_scaler
+
+from ..transformers.transformer import Transformer
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class StandardScaler(Transformer):
@@ -72,18 +79,17 @@ class StandardScaler(Transformer):
 
     def __init__(self, dtype: type = np.float64):
         self.dtype = dtype
-        self.X_mean: Union[pd.DataFrame, ks.DataFrame] = None
-        self.X_std: Union[pd.DataFrame, ks.DataFrame] = None
+        self.X_mean: DataFrame = None
+        self.X_std: DataFrame = None
         self.X_mean_np = np.array([])
         self.X_std_np = np.array([])
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'StandardScaler':
+    def fit(self, X: DataFrame, y: Series = None) -> "StandardScaler":
         """Fit the transformer on the pandas/koalas dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : None
             None.
@@ -105,12 +111,12 @@ class StandardScaler(Transformer):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -135,5 +141,4 @@ class StandardScaler(Transformer):
         """
         self.check_array(X)
         self.check_array_is_numerics(X)
-        return standard_scaler(
-            X.astype(self.dtype), self.X_mean_np, self.X_std_np)
+        return standard_scaler(X.astype(self.dtype), self.X_mean_np, self.X_std_np)

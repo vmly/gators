@@ -1,25 +1,46 @@
 # License: Apache-2.0
-from typing import List, Union, Dict
 import warnings
+from abc import ABC, abstractmethod
+from typing import Dict, List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from ._base_encoder import _BaseEncoder
+
 from ..util import util
+from ._base_encoder import _BaseEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
-def clean_mapping(mapping: Dict[str, Dict[str, List[float]]]
-                  ) -> Dict[str, Dict[str, List[float]]]:
-    mapping = {
-        col: {k: v for k, v in mapping[col].items() if v == v}
-        for col in mapping.keys()
+class ComputerFactory(ABC):
+    @abstractmethod
+    def compute_tab():
+        pass
+
+
+class ComputerPandas(ComputerFactory):
+    def compute_tab(self, X, col, y_name):
+        return X.groupby([col, y_name])[y_name].count().unstack().fillna(0)
+
+
+class ComputerKoalas(ComputerFactory):
+    def compute_tab(self, X, col, y_name):
+        return X.groupby([col, y_name])[y_name].count().to_pandas().unstack().fillna(0)
+
+
+class ComputerDask(ComputerFactory):
+    def compute_tab(self, X, col, y_name):
+        return X.groupby([col, y_name])[y_name].count().compute().unstack().fillna(0)
+
+
+def get_computer(X):
+    factories = {
+        "<class 'pandas.core.frame.DataFrame'>": ComputerPandas(),
+        "<class 'databricks.koalas.frame.DataFrame'>": ComputerKoalas(),
+        "<class 'dask.dataframe.core.DataFrame'>": ComputerDask(),
     }
-    for m in mapping.values():
-        if 'OTHERS' not in m:
-            m['OTHERS'] = 0.
-        if 'MISSING' not in m:
-            m['MISSING'] = 0.
-    return mapping
+    return factories[str(type(X))]
 
 
 class WOEEncoder(_BaseEncoder):
@@ -89,16 +110,14 @@ class WOEEncoder(_BaseEncoder):
     def __init__(self, dtype: type = np.float64):
         _BaseEncoder.__init__(self, dtype=dtype)
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series]) -> 'WOEEncoder':
+    def fit(self, X: DataFrame, y: Series) -> "WOEEncoder":
         """Fit the encoder.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]:
+        X : DataFrame:
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -108,40 +127,38 @@ class WOEEncoder(_BaseEncoder):
         """
         self.check_dataframe(X)
         self.check_y(X, y)
-        self.check_binary_target(y)
+        self.check_binary_target(X, y)
+        self.check_nans(X, self.columns)
+        self.computer = get_computer(X)
         self.columns = util.get_datatype_columns(X, object)
         if not self.columns:
             warnings.warn(
-                f'''`X` does not contain object columns:
-                `{self.__class__.__name__}` is not needed''')
+                f"""`X` does not contain object columns:
+                `{self.__class__.__name__}` is not needed"""
+            )
             return self
-        self.check_binary_target(y)
-        self.check_nans(X, self.columns)
-        self.mapping = self.generate_mapping(
-            X[self.columns], y)
-        self.num_categories_vec = np.array(
-            [len(m) for m in self.mapping.values()]
+        self.mapping = self.generate_mapping(X[self.columns], y)
+        self.num_categories_vec = np.array([len(m) for m in self.mapping.values()])
+        columns, self.values_vec, self.encoded_values_vec = self.decompose_mapping(
+            mapping=self.mapping
         )
-        columns, self.values_vec, self.encoded_values_vec = \
-            self.decompose_mapping(mapping=self.mapping)
         self.idx_columns = util.get_idx_columns(
             columns=X.columns, selected_columns=columns
         )
         return self
 
-    @staticmethod
     def generate_mapping(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series],
-
+        self,
+        X: DataFrame,
+        y: Series,
     ) -> Dict[str, Dict[str, float]]:
         """Generate the mapping to perform the encoding.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series]:
+        y : Series:
              Labels.
 
         Returns
@@ -153,20 +170,28 @@ class WOEEncoder(_BaseEncoder):
         y_name = y.name
         X = X.join(y)
         for col in X.columns:
-            if isinstance(X, pd.DataFrame):
-                tab = X.groupby(
-                    [col, y_name])[y_name].count().unstack(
-                ).fillna(0)
-            else:
-                tab = X.groupby(
-                    [col, y_name])[y_name].count().unstack(
-                ).to_pandas().fillna(0)
+            tab = self.computer.compute_tab(X, col, y_name)
             tab /= tab.sum()
             tab.columns = [int(c) for c in tab.columns]
-            with np.errstate(divide='ignore'):
+            with np.errstate(divide="ignore"):
                 woe = pd.Series(np.log(tab[1] / tab[0]))
-            woe[(woe == np.inf) | (woe == -np.inf)] = 0.
+            woe[(woe == np.inf) | (woe == -np.inf)] = 0.0
             mapping_list.append(pd.Series(woe, name=col))
         mapping = pd.concat(mapping_list, axis=1).to_dict()
         X = X.drop(y_name, axis=1)
-        return clean_mapping(mapping)
+        return self.clean_mapping(mapping)
+
+    @staticmethod
+    def clean_mapping(
+        mapping: Dict[str, Dict[str, List[float]]]
+    ) -> Dict[str, Dict[str, List[float]]]:
+        mapping = {
+            col: {k: v for k, v in mapping[col].items() if v == v}
+            for col in mapping.keys()
+        }
+        for m in mapping.values():
+            if "OTHERS" not in m:
+                m["OTHERS"] = 0.0
+            if "MISSING" not in m:
+                m["MISSING"] = 0.0
+        return mapping

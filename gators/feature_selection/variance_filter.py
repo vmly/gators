@@ -1,9 +1,15 @@
 # License: Apache-2.0
+from abc import ABC, abstractmethod
+from typing import TypeVar
+
+import databricks.koalas as ks
+import pandas as pd
+
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
-from typing import Union
-import pandas as pd
-import databricks.koalas as ks
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class VarianceFilter(_BaseFeatureSelection):
@@ -72,18 +78,16 @@ class VarianceFilter(_BaseFeatureSelection):
 
     def __init__(self, min_var: float):
         if not isinstance(min_var, float):
-            raise TypeError('`min_var` should be a float.')
+            raise TypeError("`min_var` should be a float.")
         _BaseFeatureSelection.__init__(self)
         self.min_var = min_var
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'VarianceFilter':
+    def fit(self, X: DataFrame, y: Series = None) -> "VarianceFilter":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         y : None
             None.
@@ -94,14 +98,15 @@ class VarianceFilter(_BaseFeatureSelection):
         """
         self.check_dataframe(X)
         numerical_columns = util.get_numerical_columns(X)
-        self.feature_importances_ = X[numerical_columns].var()
-        if isinstance(self.feature_importances_, ks.Series):
-            self.feature_importances_ = self.feature_importances_.to_pandas()
+        self.feature_importances_ = util.get_computer(X).to_pandas(
+            X[numerical_columns].var()
+        )
+        # if isinstance(self.feature_importances_, ks.Series):
+        #     self.feature_importances_ = self.feature_importances_.to_pandas()
         mask = self.feature_importances_ < self.min_var
         self.columns_to_drop = list(self.feature_importances_.index[mask])
-        self.selected_columns = util.exclude_columns(
-            X.columns, self.columns_to_drop
-        )
+        self.selected_columns = util.exclude_columns(X.columns, self.columns_to_drop)
         self.idx_selected_columns = util.get_idx_columns(
-            X.columns, self.selected_columns)
+            X.columns, self.selected_columns
+        )
         return self

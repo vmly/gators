@@ -1,8 +1,14 @@
 name: Build and test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
 
 jobs:
   build:

@@ -1,12 +1,19 @@
 # License: Apache-2.0
-from ._base_discretizer import _BaseDiscretizer
-from typing import Tuple, List, Union
+from typing import List, Tuple, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
 from ..util import util
+from ._base_discretizer import _BaseDiscretizer
 
 EPSILON = 1e-10
+
+from abc import ABC, abstractmethod
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class QuantileDiscretizer(_BaseDiscretizer):
@@ -101,15 +108,14 @@ class QuantileDiscretizer(_BaseDiscretizer):
         _BaseDiscretizer.__init__(self, n_bins=n_bins, inplace=inplace)
 
     @staticmethod
-    def compute_bins(X: Union[pd.DataFrame, ks.DataFrame], n_bins: int
-                     ) -> Tuple[List[List[float]], np.ndarray]:
+    def compute_bins(X: DataFrame, n_bins: int) -> Tuple[List[List[float]], np.ndarray]:
         """Compute the bins list and the bins array.
         The bin list is used for dataframes and
         the bins array is used for arrays.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         n_bins : int
             Number of bins to use.
@@ -123,7 +129,7 @@ class QuantileDiscretizer(_BaseDiscretizer):
         bins_np : np.ndarray
             Bin splits definition for NumPy.
         """
-        q = np.linspace(0, 1, n_bins+1)[1:-1].tolist()
+        q = np.linspace(0, 1, n_bins + 1)[1:-1].tolist()
         X_dtype = X.dtypes.to_numpy()[0]
 
         def f(x):
@@ -138,11 +144,11 @@ class QuantileDiscretizer(_BaseDiscretizer):
         for c in X.columns:
             unique_bins = bins[c].iloc[1:-1].unique()
             n_unique = unique_bins.shape[0]
-            bins[c].iloc[1:1+n_unique] = unique_bins
-            bins[c].iloc[1+n_unique:] = util.get_bounds(X_dtype)[1]
+            bins[c].iloc[1 : 1 + n_unique] = unique_bins
+            bins[c].iloc[1 + n_unique :] = util.get_bounds(X_dtype)[1]
         bins_np = bins.to_numpy()
         if isinstance(X, pd.DataFrame):
-            return bins.to_dict(orient='list'), bins_np
+            return bins.to_dict(orient="list"), bins_np
         else:
             bins = bins_np.T.tolist()
-            return [np.unique(b)+EPSILON for b in bins], bins_np
+            return [np.unique(b) + EPSILON for b in bins], bins_np

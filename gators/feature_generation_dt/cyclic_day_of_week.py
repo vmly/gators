@@ -1,14 +1,21 @@
 # Licence Apache-2.0
-import feature_gen_dt
-from ._base_datetime_feature import _BaseDatetimeFeature
-import numpy as np
-from typing import List, Union
 from math import pi
+from typing import List, TypeVar
+
+import numpy as np
 import pandas as pd
-import databricks.koalas as ks
 
+import feature_gen_dt
 
-PREFACTOR = 2 * pi / 6.
+from ..util import util
+from ._base_datetime_feature import _BaseDatetimeFeature
+
+PREFACTOR = 2 * pi / 6.0
+
+from abc import ABC, abstractmethod
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class CyclicDayOfWeek(_BaseDatetimeFeature):
@@ -77,33 +84,30 @@ class CyclicDayOfWeek(_BaseDatetimeFeature):
 
     def __init__(self, columns: List[str]):
         if not isinstance(columns, list):
-            raise TypeError('`columns` should be a list.')
+            raise TypeError("`columns` should be a list.")
         if not columns:
-            raise ValueError('`columns` should not be empty.')
-        column_names = self.get_cyclic_column_names(columns, 'day_of_week')
+            raise ValueError("`columns` should not be empty.")
+        column_names = self.get_cyclic_column_names(columns, "day_of_week")
         column_mapping = {
-            name: col for name, col in zip(column_names, columns + columns)}
-        _BaseDatetimeFeature.__init__(
-            self, columns, column_names, column_mapping)
+            name: col for name, col in zip(column_names, columns + columns)
+        }
+        _BaseDatetimeFeature.__init__(self, columns, column_names, column_mapping)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        return self.compute_cyclic_day_of_week(
-            X, self.columns, self.column_names)
+        return self.compute_cyclic_day_of_week(X)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.
@@ -119,44 +123,49 @@ class CyclicDayOfWeek(_BaseDatetimeFeature):
             Transformed array.
         """
         self.check_array(X)
-        return feature_gen_dt.cyclic_day_of_week(
-            X, self.idx_columns, PREFACTOR)
+        return feature_gen_dt.cyclic_day_of_week(X, self.idx_columns, PREFACTOR)
 
-    @ staticmethod
-    def compute_cyclic_day_of_week(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            columns: List[str],
-            column_names: List[str]) -> Union[pd.DataFrame, ks.DataFrame]:
+    def compute_cyclic_day_of_week(self, X: DataFrame) -> DataFrame:
         """Compute the cyclic day of the week features.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe of datetime columns.
-        columns: str
-            List of datetime columns.
-        column_names: str
-            List of datetime column names.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Dataframe of cyclic day of the week features.
         """
-        if isinstance(X, pd.DataFrame):
-            dummy = X[columns].apply(
-                lambda x: PREFACTOR * x.dt.dayofweek)
-            X_cyclic = dummy.agg(['cos', 'sin'])
-            X_cyclic.columns = column_names
-            return X.join(X_cyclic)
 
-        for i, col in enumerate(columns):
-            X = X.assign(
-                dummy_cos=np.cos(PREFACTOR * X[col].dt.dayofweek),
-                dummy_sin=np.sin(PREFACTOR * X[col].dt.dayofweek)
-            ).rename(
-                columns={
-                    'dummy_cos': column_names[2*i],
-                    'dummy_sin': column_names[2*i+1]}
-            )
-        return X
+        def f_cos(x):
+            return np.cos(PREFACTOR * x.dt.dayofweek)
+
+        def f_sin(x):
+            return np.sin(PREFACTOR * x.dt.dayofweek)
+
+        X_cos = util.get_apply(X).apply(X[self.columns], f_cos)
+        X_sin = util.get_apply(X).apply(X[self.columns], f_sin)
+        X_cos.columns = self.column_names[::2]
+        X_sin.columns = self.column_names[1::2]
+        X_new = X_cos.join(X_sin)
+        return X.join(X_new[self.column_names])
+
+        # if isinstance(X, pd.DataFrame):
+        #     dummy = X[columns].apply(
+        #         lambda x: PREFACTOR * x.dt.dayofweek)
+        #     X_cyclic = dummy.agg(['cos', 'sin'])
+        #     X_cyclic.columns = column_names
+        #     return X.join(X_cyclic)
+
+        # for i, col in enumerate(columns):
+        #     X = X.assign(
+        #         dummy_cos=np.cos(PREFACTOR * X[col].dt.dayofweek),
+        #         dummy_sin=np.sin(PREFACTOR * X[col].dt.dayofweek)
+        #     ).rename(
+        #         columns={
+        #             'dummy_cos': column_names[2*i],
+        #             'dummy_sin': column_names[2*i+1]}
+        #     )
+        # return X

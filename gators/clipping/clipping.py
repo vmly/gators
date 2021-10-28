@@ -1,11 +1,18 @@
 # License: Apache-2.0
-from typing import List, Dict, Union
+from abc import ABC, abstractmethod
+from typing import Dict, List, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
-from ..util import util
-from ..transformers.transformer import Transformer
+
 from clipping import clipping
+
+from ..transformers.transformer import Transformer
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Clipping(Transformer):
@@ -102,26 +109,24 @@ class Clipping(Transformer):
 
     """
 
-    def __init__(self, clip_dict: Dict[str, List[float]],
-                 dtype: type = np.float64):
+    def __init__(self, clip_dict: Dict[str, List[float]], dtype: type = np.float64):
         if not isinstance(clip_dict, dict):
-            raise TypeError('`clip_dict` should be a dictionary.')
+            raise TypeError("`clip_dict` should be a dictionary.")
         if len(clip_dict) == 0:
-            raise ValueError('Length of `clip_dict` should be not zero.')
+            raise ValueError("Length of `clip_dict` should be not zero.")
         self.clip_dict = clip_dict
         self.dtype = dtype
         self.clip_np = np.array(list(clip_dict.values()))
         self.columns = list(clip_dict.keys())
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'Clipping':
+    def fit(self, X: DataFrame, y: Series = None) -> "Clipping":
         """Fit the transformer on the pandas/koalas dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -139,12 +144,12 @@ class Clipping(Transformer):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
