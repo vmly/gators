@@ -228,6 +228,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="gators.binning.CustomDiscretizer.html">
+     gators.binning.CustomDiscretizer
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="gators.binning.Discretizer.html">
      gators.binning.Discretizer
     </a>
@@ -238,8 +243,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="gators.binning.CustomDiscretizer.html">
-     gators.binning.CustomDiscretizer
+    <a class="reference internal" href="gators.binning.TreeDiscretizer.html">
+     gators.binning.TreeDiscretizer
     </a>
    </li>
   </ul>
@@ -301,16 +306,6 @@
    <li class="toctree-l2">
     <a class="reference internal" href="gators.imputers.NumericsImputer.html">
      gators.imputers.NumericsImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="gators.imputers.IntImputer.html">
-     gators.imputers.IntImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="gators.imputers.FloatImputer.html">
-     gators.imputers.FloatImputer
     </a>
    </li>
    <li class="toctree-l2">
@@ -660,8 +655,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="gators.converter.KoalasToPandas.html">
-     gators.converter.KoalasToPandas
+    <a class="reference internal" href="gators.converter.ToPandas.html">
+     gators.converter.ToPandas
     </a>
    </li>
    <li class="toctree-l2">
@@ -825,7 +820,7 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_array_is_numerics</span></code>(X)</p></td>
 <td><p>Check if array is only numerics.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_binary_target</span></code>(y)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_binary_target</span></code>(X, y)</p></td>
 <td><p>Raise an error if the target datatype is not binary.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dataframe</span></code>(X)</p></td>
@@ -855,22 +850,25 @@
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_y</span></code>(X, y)</p></td>
 <td><p>Validate target.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">decompose_mapping</span></code>(mapping)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_mapping</span></code>(mapping)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">decompose_mapping</span></code>(mapping)</p></td>
 <td><p>Decompose the mapping.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X, y)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X, y)</p></td>
 <td><p>Fit the encoder.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code>(X[, y])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_transform</span></code>(X[, y])</p></td>
 <td><p>Fit and Transform the dataframe <cite>X</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_mapping</span></code>(X, y)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_mapping</span></code>(X, y)</p></td>
 <td><p>Generate the mapping to perform the encoding.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Transform the dataframe <cite>X</cite>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_numpy</span></code>(X)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform_numpy</span></code>(X)</p></td>
 <td><p>Transform the input array.</p></td>
 </tr>
 </tbody>

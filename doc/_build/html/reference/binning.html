@@ -228,6 +228,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="api/gators.binning.CustomDiscretizer.html">
+     gators.binning.CustomDiscretizer
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="api/gators.binning.Discretizer.html">
      gators.binning.Discretizer
     </a>
@@ -238,8 +243,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.binning.CustomDiscretizer.html">
-     gators.binning.CustomDiscretizer
+    <a class="reference internal" href="api/gators.binning.TreeDiscretizer.html">
+     gators.binning.TreeDiscretizer
     </a>
    </li>
   </ul>
@@ -301,16 +306,6 @@
    <li class="toctree-l2">
     <a class="reference internal" href="api/gators.imputers.NumericsImputer.html">
      gators.imputers.NumericsImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.imputers.IntImputer.html">
-     gators.imputers.IntImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.imputers.FloatImputer.html">
-     gators.imputers.FloatImputer
     </a>
    </li>
    <li class="toctree-l2">
@@ -660,8 +655,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.converter.KoalasToPandas.html">
-     gators.converter.KoalasToPandas
+    <a class="reference internal" href="api/gators.converter.ToPandas.html">
+     gators.converter.ToPandas
     </a>
    </li>
    <li class="toctree-l2">
@@ -796,14 +791,17 @@
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/gators.binning.Discretizer.html#gators.binning.Discretizer" title="gators.binning.Discretizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Discretizer</span></code></a>(n_bins[, inplace])</p></td>
-<td><p>Discretize the columns using equal distance splits.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/gators.binning.QuantileDiscretizer.html#gators.binning.QuantileDiscretizer" title="gators.binning.QuantileDiscretizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileDiscretizer</span></code></a>(n_bins[, inplace])</p></td>
-<td><p>Discretize the columns using quantile-based splits.</p></td>
-</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/gators.binning.CustomDiscretizer.html#gators.binning.CustomDiscretizer" title="gators.binning.CustomDiscretizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CustomDiscretizer</span></code></a>(bins[, inplace])</p></td>
 <td><p>Discretize the columns using the splits given by the user.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/gators.binning.Discretizer.html#gators.binning.Discretizer" title="gators.binning.Discretizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Discretizer</span></code></a>(n_bins[, inplace])</p></td>
+<td><p>Discretize the columns using equal distance splits.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/gators.binning.QuantileDiscretizer.html#gators.binning.QuantileDiscretizer" title="gators.binning.QuantileDiscretizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileDiscretizer</span></code></a>(n_bins[, inplace])</p></td>
+<td><p>Discretize the columns using quantile-based splits.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/gators.binning.TreeDiscretizer.html#gators.binning.TreeDiscretizer" title="gators.binning.TreeDiscretizer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TreeDiscretizer</span></code></a>(max_depth[, inplace])</p></td>
+<td><p>Discretize the columns using decision tree based splits.</p></td>
 </tr>
 </tbody>
 </table>

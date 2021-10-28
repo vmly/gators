@@ -1,14 +1,19 @@
 # Licence Apache-2.0
-import feature_gen_dt
-from ._base_datetime_feature import _BaseDatetimeFeature
-from typing import List, Union
 from math import pi
+from typing import List, TypeVar
+
 import numpy as np
-import pandas as pd
-import databricks.koalas as ks
+
+import feature_gen_dt
+
+from ..util import util
+from ._base_datetime_feature import _BaseDatetimeFeature
+
+PREFACTOR = 2 * pi / 59.0
 
 
-PREFACTOR = 2 * pi / 59.
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class CyclicMinuteOfHour(_BaseDatetimeFeature):
@@ -80,33 +85,30 @@ class CyclicMinuteOfHour(_BaseDatetimeFeature):
 
     def __init__(self, columns: List[str]):
         if not isinstance(columns, list):
-            raise TypeError('`columns` should be a list.')
+            raise TypeError("`columns` should be a list.")
         if not columns:
-            raise ValueError('`columns` should not be empty.')
-        column_names = self.get_cyclic_column_names(columns, 'minute_of_hour')
+            raise ValueError("`columns` should not be empty.")
+        column_names = self.get_cyclic_column_names(columns, "minute_of_hour")
         column_mapping = {
-            name: col for name, col in zip(column_names, columns + columns)}
-        _BaseDatetimeFeature.__init__(
-            self, columns, column_names, column_mapping)
+            name: col for name, col in zip(column_names, columns + columns)
+        }
+        _BaseDatetimeFeature.__init__(self, columns, column_names, column_mapping)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        return self.compute_cyclic_minute_of_hour(
-            X, self.columns, self.column_names)
+        return self.compute_cyclic_minute_of_hour(X)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.
@@ -122,41 +124,51 @@ class CyclicMinuteOfHour(_BaseDatetimeFeature):
             Transformed array.
         """
         self.check_array(X)
-        return feature_gen_dt.cyclic_minute_of_hour(
-            X, self.idx_columns, PREFACTOR)
+        return feature_gen_dt.cyclic_minute_of_hour(X, self.idx_columns, PREFACTOR)
 
-    @ staticmethod
     def compute_cyclic_minute_of_hour(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            columns: List[str],
-            column_names: List[str],
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+        self,
+        X: DataFrame,
+    ) -> DataFrame:
         """Compute the cyclic hours of the day features.
 
         Parameters
         ----------
-        X_datetime : Union[pd.DataFrame, ks.DataFrame]
+        X_datetime : DataFrame
             Dataframe of datetime columns.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Dataframe of cyclic hours of the day features.
         """
-        if isinstance(X, pd.DataFrame):
-            X_cyclic = X[columns].apply(
-                lambda x: PREFACTOR * x.dt.minute
-            ).agg(['cos', 'sin'])
-            X_cyclic.columns = column_names
-            return X.join(X_cyclic)
 
-        for i, col in enumerate(columns):
-            X = X.assign(
-                dummy_cos=np.cos(PREFACTOR * X[col].dt.minute),
-                dummy_sin=np.sin(PREFACTOR * X[col].dt.minute)
-            ).rename(
-                columns={
-                    'dummy_cos': column_names[2*i],
-                    'dummy_sin': column_names[2*i+1]}
-            )
-        return X
+        def f_cos(x):
+            return np.cos(PREFACTOR * x.dt.minute)
+
+        def f_sin(x):
+            return np.sin(PREFACTOR * x.dt.minute)
+
+        X_cos = util.get_function(X).apply(X[self.columns], f_cos)
+        X_sin = util.get_function(X).apply(X[self.columns], f_sin)
+        X_cos.columns = self.column_names[::2]
+        X_sin.columns = self.column_names[1::2]
+        X_new = X_cos.join(X_sin)
+        return X.join(X_new[self.column_names])
+        # if isinstance(X, pd.DataFrame):
+        #     X_cyclic = X[columns].apply(
+        #         lambda x: PREFACTOR * x.dt.minute
+        #     ).agg(['cos', 'sin'])
+        #     X_cyclic.columns = column_names
+        #     return X.join(X_cyclic)
+
+        # for i, col in enumerate(columns):
+        #     X = X.assign(
+        #         dummy_cos=np.cos(PREFACTOR * X[col].dt.minute),
+        #         dummy_sin=np.sin(PREFACTOR * X[col].dt.minute)
+        #     ).rename(
+        #         columns={
+        #             'dummy_cos': column_names[2*i],
+        #             'dummy_sin': column_names[2*i+1]}
+        #     )
+        # return X

@@ -1,0 +1,166 @@
+# License: Apache-2.0
+import databricks.koalas as ks
+import numpy as np
+import pandas as pd
+import pytest
+from pandas.testing import assert_frame_equal, assert_series_equal
+from pyspark.ml.classification import RandomForestClassifier as RFCSpark
+from sklearn.datasets import load_iris
+
+from gators.feature_selection.select_from_model import SelectFromModel
+from gators.pipeline.pipeline import Pipeline
+from gators.transformers.transformer import Transformer
+
+ks.set_option("compute.default_index_type", "distributed-sequence")
+
+from sklearn.datasets import load_iris
+
+data = load_iris()
+
+
+class MultiplyTransformer(Transformer):
+    def __init__(self, multiplier):
+        self.multiplier = multiplier
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+
+        return self.multiplier * X
+
+    def transform_numpy(self, X):
+        return self.multiplier * X
+
+
+class NameTransformer(Transformer):
+    def fit(self, X, y=None):
+        self.column_names = [f"{c}_new" for c in X.columns]
+        self.column_mapping = dict(zip(self.column_names, [[c] for c in X.columns]))
+        return self
+
+    def transform(self, X):
+        return X.rename(columns=dict(zip(X.columns, self.column_names)))
+
+    def transform_numpy(self, X):
+        return X
+
+
+@pytest.fixture
+def pipeline_example():
+    X = ks.DataFrame(data["data"], columns=data["feature_names"])
+    steps = [
+        MultiplyTransformer(4.0),
+        MultiplyTransformer(0.5),
+        NameTransformer(),
+    ]
+    pipe = Pipeline(steps)
+    return pipe, X
+
+
+@pytest.fixture
+def pipeline_with_feature_selection_example():
+    X = ks.DataFrame(data["data"], columns=data["feature_names"])
+    y = ks.Series(data["target"], name="TARGET")
+
+    model = RFCSpark(numTrees=1, maxDepth=2, labelCol=y.name, seed=0)
+    steps = [
+        MultiplyTransformer(4.0),
+        MultiplyTransformer(0.5),
+        NameTransformer(),
+        SelectFromModel(model=model, k=3),
+    ]
+    pipe = Pipeline(steps).fit(X, y)
+    return pipe, X
+
+
+@pytest.fixture
+def pipeline_with_model_example():
+    X = ks.DataFrame(data["data"], columns=data["feature_names"])
+    y = ks.Series(data["target"], name="TARGET")
+
+    model = RFCSpark(numTrees=1, maxDepth=2, labelCol=y.name, seed=0)
+    steps = [
+        MultiplyTransformer(4.0),
+        MultiplyTransformer(0.5),
+        NameTransformer(),
+        model,
+    ]
+    pipe = Pipeline(steps).fit(X, y)
+    return pipe, X
+
+
+@pytest.mark.koalas
+def test_pipeline_fit_and_transform_ks(pipeline_example):
+    pipe, X = pipeline_example
+    _ = pipe.fit(X)
+    X_new = pipe.transform(X)
+    assert X_new.shape == (150, 4)
+    assert list(X_new.columns) == [
+        "sepal length (cm)_new",
+        "sepal width (cm)_new",
+        "petal length (cm)_new",
+        "petal width (cm)_new",
+    ]
+
+
+@pytest.mark.koalas
+def test_fit_transform_pipeline_ks(pipeline_example):
+    pipe, X = pipeline_example
+    X_new = pipe.fit_transform(X)
+    assert X_new.shape == (150, 4)
+    assert list(X_new.columns) == [
+        "sepal length (cm)_new",
+        "sepal width (cm)_new",
+        "petal length (cm)_new",
+        "petal width (cm)_new",
+    ]
+
+
+@pytest.mark.koalas
+def test_pipeline_predict_ks(pipeline_with_model_example):
+    pipe, X = pipeline_with_model_example
+    y_pred = pipe.predict(X)
+    assert y_pred.shape == (150,)
+
+
+@pytest.mark.koalas
+def test_pipeline_predict_proba_ks(pipeline_with_model_example):
+    pipe, X = pipeline_with_model_example
+    y_pred = pipe.predict_proba(X)
+    assert y_pred.shape == (150,)
+
+
+@pytest.mark.koalas
+def test_pipeline_np_ks(pipeline_example):
+    pipe, X = pipeline_example
+    _ = pipe.fit(X)
+    X_numpy_new = pipe.transform_numpy(X.to_numpy())
+    assert X_numpy_new.shape == (150, 4)
+
+
+# # @pytest.mark.koalas
+# # def test_pipeline_predict_np_ks(pipeline_with_model_example):
+# #     pipe, X = pipeline_with_model_example
+# #     y_pred = pipe.predict_numpy(X.to_numpy())
+# #     assert y_pred.shape == (4,)
+
+# # @pytest.mark.koalas
+# # def test_pipeline_predict_proba_np_ks(pipeline_with_model_example):
+# #     pipe, X = pipeline_with_model_example
+# #     y_pred = pipe.predict_proba_numpy(X.to_numpy())
+# #     assert y_pred.shape == (4, 2)
+
+
+@pytest.mark.koalas
+def test_get_feature_importances_ks(pipeline_with_feature_selection_example):
+    pipe, _ = pipeline_with_feature_selection_example
+    feature_importances_expected = pd.Series({"petal length (cm)_new": 1.0})
+    feature_importances = pipe.get_feature_importances(k=2)
+    assert_series_equal(feature_importances, feature_importances_expected)
+
+
+@pytest.mark.koalas
+def test_get_production_columns_ks(pipeline_with_feature_selection_example):
+    pipe, _ = pipeline_with_feature_selection_example
+    assert sorted(pipe.get_production_columns()) == ["petal length (cm)"]

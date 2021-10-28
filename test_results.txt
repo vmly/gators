@@ -1,0 +1,3465 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.8.10, pytest-6.2.5, py-1.10.0, pluggy-1.0.0
+rootdir: /Users/cpoli/opensource/gators, configfile: pytest.ini
+plugins: pylama-7.7.1, cov-3.0.0
+collected 915 items / 272 deselected / 643 selected
+
+gators/binning/tests/test_bin_rare_events_dd.py ........                 [  1%]
+gators/binning/tests/test_bin_rare_events_pd.py .........                [  2%]
+gators/binning/tests/test_custom_discretizer_dd.py ............          [  4%]
+gators/binning/tests/test_custom_discretizer_pd.py ............          [  6%]
+gators/binning/tests/test_discretizer_dd.py ............                 [  8%]
+gators/binning/tests/test_discretizer_pd.py .............                [ 10%]
+gators/binning/tests/test_quantile_discretizer_dd.py ..........          [ 11%]
+gators/binning/tests/test_quantile_discretizer_pd.py ...........         [ 13%]
+gators/clipping/tests/test_clipping.py .......                           [ 14%]
+gators/clipping/tests/test_clipping_dd.py ......                         [ 15%]
+gators/clipping/tests/test_clipping_pd.py .......                        [ 16%]
+gators/converter/tests/test_convert_column_datatype_dd.py ....           [ 17%]
+gators/converter/tests/test_convert_column_datatype_pd.py .....          [ 18%]
+gators/converter/tests/test_to_numpy_dd.py .                             [ 18%]
+gators/converter/tests/test_to_numpy_pd.py .                             [ 18%]
+gators/converter/tests/test_to_pandas_dd.py .                            [ 18%]
+gators/converter/tests/test_to_pandas_pd.py .                            [ 18%]
+gators/data_cleaning/tests/test_drop_columns_dd.py ..                    [ 18%]
+gators/data_cleaning/tests/test_drop_columns_pd.py ...                   [ 19%]
+gators/data_cleaning/tests/test_drop_datatype_columns_dd.py ..           [ 19%]
+gators/data_cleaning/tests/test_drop_datatype_columns_pd.py ...          [ 20%]
+gators/data_cleaning/tests/test_drop_high_cardinality_dd.py ..           [ 20%]
+gators/data_cleaning/tests/test_drop_high_cardinality_pd.py ...          [ 20%]
+gators/data_cleaning/tests/test_drop_high_nan_ratio_dd.py ..             [ 21%]
+gators/data_cleaning/tests/test_drop_high_nan_ratio_pd.py ...            [ 21%]
+gators/data_cleaning/tests/test_drop_low_cardinality_dd.py ........      [ 23%]
+gators/data_cleaning/tests/test_drop_low_cardinality_ks.py .             [ 23%]
+gators/data_cleaning/tests/test_drop_low_cardinality_pd.py ........      [ 24%]
+gators/data_cleaning/tests/test_keep_columns_dd.py ..                    [ 24%]
+gators/data_cleaning/tests/test_keep_columns_pd.py ...                   [ 25%]
+gators/data_cleaning/tests/test_replace_dd.py ..                         [ 25%]
+gators/data_cleaning/tests/test_replace_pd.py ...                        [ 25%]
+gators/encoders/tests/test_base_encoder.py .                             [ 26%]
+gators/encoders/tests/test_muticlass_encoder_dd.py ......                [ 27%]
+gators/encoders/tests/test_muticlass_encoder_pd.py .......               [ 28%]
+gators/encoders/tests/test_onehot_encoder_dd.py ......                   [ 29%]
+gators/encoders/tests/test_onehot_encoder_pd.py ......                   [ 30%]
+gators/encoders/tests/test_ordinal_encoder_dd.py ......                  [ 30%]
+gators/encoders/tests/test_ordinal_encoder_pd.py .......                 [ 32%]
+gators/encoders/tests/test_regression_encoder_dd.py EEEE..               [ 32%]
+gators/encoders/tests/test_regression_encoder_ks.py .......              [ 34%]
+gators/encoders/tests/test_regression_encoder_pd.py .......              [ 35%]
+gators/encoders/tests/test_target_encoder_dd.py ......                   [ 36%]
+gators/encoders/tests/test_target_encoder_pd.py ......                   [ 37%]
+gators/encoders/tests/test_woe_encoder_dd.py ......                      [ 37%]
+gators/encoders/tests/test_woe_encoder_pd.py ......                      [ 38%]
+gators/feature_generation/tests/test_cluster_statistics_dd.py ......     [ 39%]
+gators/feature_generation/tests/test_cluster_statistics_pd.py .......    [ 40%]
+gators/feature_generation/tests/test_elementary_arithmetics.py ......... [ 42%]
+..                                                                       [ 42%]
+gators/feature_generation/tests/test_elementary_arithmetics_dd.py ...... [ 43%]
+....                                                                     [ 44%]
+gators/feature_generation/tests/test_elementary_arithmetics_pd.py ...... [ 45%]
+.....                                                                    [ 45%]
+gators/feature_generation/tests/test_is_equal_dd.py ......               [ 46%]
+gators/feature_generation/tests/test_is_equal_pd.py .......              [ 47%]
+gators/feature_generation/tests/test_is_null_dd.py ........              [ 49%]
+gators/feature_generation/tests/test_is_null_pd.py .........             [ 50%]
+gators/feature_generation/tests/test_one_hot_dd.py ....                  [ 51%]
+gators/feature_generation/tests/test_one_hot_ks.py .                     [ 51%]
+gators/feature_generation/tests/test_one_hot_pd.py .....                 [ 52%]
+gators/feature_generation/tests/test_plane_rotation_dd.py ....           [ 52%]
+gators/feature_generation/tests/test_plane_rotation_pd.py .....          [ 53%]
+gators/feature_generation/tests/test_polynomial_features_dd.py ......... [ 54%]
+...                                                                      [ 55%]
+gators/feature_generation/tests/test_polynomial_features_pd.py ......... [ 56%]
+....                                                                     [ 57%]
+gators/feature_generation_dt/tests/test_base_datetime_features_dt.py .   [ 57%]
+gators/feature_generation_dt/tests/test_cyclic_day_of_month_dd.py ..     [ 57%]
+gators/feature_generation_dt/tests/test_cyclic_day_of_month_pd.py ...    [ 58%]
+gators/feature_generation_dt/tests/test_cyclic_day_of_week_dd.py ..      [ 58%]
+gators/feature_generation_dt/tests/test_cyclic_day_of_week_pd.py ...     [ 59%]
+gators/feature_generation_dt/tests/test_cyclic_hour_of_day_dd.py ..      [ 59%]
+gators/feature_generation_dt/tests/test_cyclic_hour_of_day_pd.py ...     [ 59%]
+gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_dd.py ..   [ 60%]
+gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_pd.py ...  [ 60%]
+gators/feature_generation_dt/tests/test_cyclic_month_of_year_dd.py ..    [ 60%]
+gators/feature_generation_dt/tests/test_cyclic_month_of_year_pd.py ...   [ 61%]
+gators/feature_generation_dt/tests/test_delta_time_dd.py ..              [ 61%]
+gators/feature_generation_dt/tests/test_delta_time_pd.py ....            [ 62%]
+gators/feature_generation_dt/tests/test_ordinal_day_of_month_dd.py ..    [ 62%]
+gators/feature_generation_dt/tests/test_ordinal_day_of_month_pd.py ...   [ 63%]
+gators/feature_generation_dt/tests/test_ordinal_day_of_week_dd.py ..     [ 63%]
+gators/feature_generation_dt/tests/test_ordinal_day_of_week_pd.py ...    [ 63%]
+gators/feature_generation_dt/tests/test_ordinal_hour_of_day_dd.py ..     [ 64%]
+gators/feature_generation_dt/tests/test_ordinal_hour_of_day_pd.py ...    [ 64%]
+gators/feature_generation_dt/tests/test_ordinal_minute_of_hour_dd.py ..  [ 65%]
+gators/feature_generation_dt/tests/test_ordinal_minute_of_hour_pd.py ... [ 65%]
+                                                                         [ 65%]
+gators/feature_generation_dt/tests/test_ordinal_month_of_year_dd.py ..   [ 65%]
+gators/feature_generation_dt/tests/test_ordinal_month_of_year_pd.py ...  [ 66%]
+gators/feature_generation_str/tests/test_extract_dd.py ..                [ 66%]
+gators/feature_generation_str/tests/test_extract_pd.py ...               [ 67%]
+gators/feature_generation_str/tests/test_lower_case_dd.py ..             [ 67%]
+gators/feature_generation_str/tests/test_lower_case_pd.py ...            [ 67%]
+gators/feature_generation_str/tests/test_split_extract_dd.py ..          [ 68%]
+gators/feature_generation_str/tests/test_split_extract_pd.py ...         [ 68%]
+gators/feature_generation_str/tests/test_string_contains_dd.py ....      [ 69%]
+gators/feature_generation_str/tests/test_string_contains_pd.py ....      [ 69%]
+gators/feature_generation_str/tests/test_string_length_dd.py ..          [ 70%]
+gators/feature_generation_str/tests/test_string_length_pd.py ...         [ 70%]
+gators/feature_generation_str/tests/test_upper_case_dd.py ..             [ 70%]
+gators/feature_generation_str/tests/test_upper_case_pd.py ...            [ 71%]
+gators/feature_selection/tests/test_correlation_filter_dd.py ..          [ 71%]
+gators/feature_selection/tests/test_correlation_filter_pd.py ...         [ 72%]
+gators/feature_selection/tests/test_information_value_dd.py ..           [ 72%]
+gators/feature_selection/tests/test_information_value_pd.py ...          [ 72%]
+gators/feature_selection/tests/test_multiclass_information_value_dd.py . [ 73%]
+.                                                                        [ 73%]
+gators/feature_selection/tests/test_multiclass_information_value_pd.py . [ 73%]
+..                                                                       [ 73%]
+gators/feature_selection/tests/test_regression_information_value_dd.py . [ 73%]
+.                                                                        [ 74%]
+gators/feature_selection/tests/test_regression_information_value_pd.py . [ 74%]
+..                                                                       [ 74%]
+gators/feature_selection/tests/test_select_from_model_dd.py ..           [ 74%]
+gators/feature_selection/tests/test_select_from_model_pd.py ...          [ 75%]
+gators/feature_selection/tests/test_select_from_models_dd.py ..          [ 75%]
+gators/feature_selection/tests/test_select_from_models_pd.py ...         [ 76%]
+gators/feature_selection/tests/test_variance_filter_dd.py ...            [ 76%]
+gators/feature_selection/tests/test_variance_filter_pd.py ....           [ 77%]
+gators/imputers/tests/test_imputers_dd.py ..................             [ 79%]
+gators/imputers/tests/test_imputers_pd.py .............................  [ 84%]
+gators/model_building/tests/test_hyperopt.py ..                          [ 84%]
+gators/model_building/tests/test_lgbm_treelite_dumper.py ..              [ 85%]
+gators/model_building/tests/test_train_test_split_dd.py FFF              [ 85%]
+gators/model_building/tests/test_train_test_split_pd.py FFF.             [ 86%]
+gators/model_building/tests/test_xgb_booster_builder.py ...              [ 86%]
+gators/model_building/tests/test_xgb_treelite_dumper.py ..               [ 86%]
+gators/pipeline/tests/test_pipeline.py ..F.........                      [ 88%]
+gators/pipeline/tests/test_pipeline_dd.py ..............                 [ 90%]
+gators/pipeline/tests/test_pipeline_pd.py ..............                 [ 93%]
+gators/sampling/tests/test_supervised_sampling_dd.py .                   [ 93%]
+gators/sampling/tests/test_supervised_sampling_pd.py ..                  [ 93%]
+gators/sampling/tests/test_unsupervised_sampling_dd.py ...               [ 94%]
+gators/sampling/tests/test_unsupervised_sampling_ks.py ..                [ 94%]
+gators/sampling/tests/test_unsupervised_sampling_pd.py ...               [ 94%]
+gators/scalers/tests/test_minmax_scaler_dd.py ....                       [ 95%]
+gators/scalers/tests/test_minmax_scaler_pd.py ....                       [ 96%]
+gators/scalers/tests/test_standard_scaler_dd.py ....                     [ 96%]
+gators/scalers/tests/test_standard_scaler_pd.py ....                     [ 97%]
+gators/transformers/tests/test_transformer.py ......                     [ 98%]
+gators/transformers/tests/test_transformer_xy.py ...                     [ 98%]
+gators/util/tests/test_util.py ........                                  [100%]
+
+==================================== ERRORS ====================================
+__________________________ ERROR at setup of test_pd ___________________________
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+>           yield
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function FunctionDask.apply.<locals>.<lambda> at 0x7fa279d93f70>
+args = (Dask DataFrame Structure:
+                TARGET
+npartitions=2         
+0              float64
+3                  ...
+5                  ...
+Dask Name: to_frame, 4 tasks,)
+kwargs = {}
+
+    def _emulate(func, *args, **kwargs):
+        """
+        Apply a function using args / kwargs. If arguments contain dd.DataFrame /
+        dd.Series, using internal cache (``_meta``) for calculation
+        """
+        with raise_on_meta_error(funcname(func), udf=kwargs.pop("udf", False)):
+>           return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x =    TARGET
+0     1.0
+1     1.0
+
+>   return X.map_partitions(lambda x: x.apply(f, args=args))
+
+gators/util/util.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self =    TARGET
+0     1.0
+1     1.0
+func = <function BinDask.bin_inplace.<locals>.f at 0x7fa279d93790>, axis = 0
+raw = False, result_type = None
+args = ({'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}, ['TARGET'])
+kwargs = {}, frame_apply = <function frame_apply at 0x7fa2282b6af0>
+op = <pandas.core.apply.FrameRowApply object at 0x7fa2583ae040>
+
+    def apply(
+        self,
+        func: AggFuncType,
+        axis: Axis = 0,
+        raw: bool = False,
+        result_type=None,
+        args=(),
+        **kwargs,
+    ):
+        """
+        Apply a function along an axis of the DataFrame.
+    
+        Objects passed to the function are Series objects whose index is
+        either the DataFrame's index (``axis=0``) or the DataFrame's columns
+        (``axis=1``). By default (``result_type=None``), the final return type
+        is inferred from the return type of the applied function. Otherwise,
+        it depends on the `result_type` argument.
+    
+        Parameters
+        ----------
+        func : function
+            Function to apply to each column or row.
+        axis : {0 or 'index', 1 or 'columns'}, default 0
+            Axis along which the function is applied:
+    
+            * 0 or 'index': apply function to each column.
+            * 1 or 'columns': apply function to each row.
+    
+        raw : bool, default False
+            Determines if row or column is passed as a Series or ndarray object:
+    
+            * ``False`` : passes each row or column as a Series to the
+              function.
+            * ``True`` : the passed function will receive ndarray objects
+              instead.
+              If you are just applying a NumPy reduction function this will
+              achieve much better performance.
+    
+        result_type : {'expand', 'reduce', 'broadcast', None}, default None
+            These only act when ``axis=1`` (columns):
+    
+            * 'expand' : list-like results will be turned into columns.
+            * 'reduce' : returns a Series if possible rather than expanding
+              list-like results. This is the opposite of 'expand'.
+            * 'broadcast' : results will be broadcast to the original shape
+              of the DataFrame, the original index and columns will be
+              retained.
+    
+            The default behaviour (None) depends on the return value of the
+            applied function: list-like results will be returned as a Series
+            of those. However if the apply function returns a Series these
+            are expanded to columns.
+        args : tuple
+            Positional arguments to pass to `func` in addition to the
+            array/series.
+        **kwargs
+            Additional keyword arguments to pass as keywords arguments to
+            `func`.
+    
+        Returns
+        -------
+        Series or DataFrame
+            Result of applying ``func`` along the given axis of the
+            DataFrame.
+    
+        See Also
+        --------
+        DataFrame.applymap: For elementwise operations.
+        DataFrame.aggregate: Only perform aggregating type operations.
+        DataFrame.transform: Only perform transforming type operations.
+    
+        Notes
+        -----
+        Functions that mutate the passed object can produce unexpected
+        behavior or errors and are not supported. See :ref:`gotchas.udf-mutation`
+        for more details.
+    
+        Examples
+        --------
+        >>> df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+        >>> df
+           A  B
+        0  4  9
+        1  4  9
+        2  4  9
+    
+        Using a numpy universal function (in this case the same as
+        ``np.sqrt(df)``):
+    
+        >>> df.apply(np.sqrt)
+             A    B
+        0  2.0  3.0
+        1  2.0  3.0
+        2  2.0  3.0
+    
+        Using a reducing function on either axis
+    
+        >>> df.apply(np.sum, axis=0)
+        A    12
+        B    27
+        dtype: int64
+    
+        >>> df.apply(np.sum, axis=1)
+        0    13
+        1    13
+        2    13
+        dtype: int64
+    
+        Returning a list-like will result in a Series
+    
+        >>> df.apply(lambda x: [1, 2], axis=1)
+        0    [1, 2]
+        1    [1, 2]
+        2    [1, 2]
+        dtype: object
+    
+        Passing ``result_type='expand'`` will expand list-like results
+        to columns of a Dataframe
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='expand')
+           0  1
+        0  1  2
+        1  1  2
+        2  1  2
+    
+        Returning a Series inside the function is similar to passing
+        ``result_type='expand'``. The resulting column names
+        will be the Series index.
+    
+        >>> df.apply(lambda x: pd.Series([1, 2], index=['foo', 'bar']), axis=1)
+           foo  bar
+        0    1    2
+        1    1    2
+        2    1    2
+    
+        Passing ``result_type='broadcast'`` will ensure the same shape
+        result, whether list-like or scalar is returned by the function,
+        and broadcast it along the axis. The resulting column names will
+        be the originals.
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='broadcast')
+           A  B
+        0  1  2
+        1  1  2
+        2  1  2
+        """
+        from pandas.core.apply import frame_apply
+    
+        op = frame_apply(
+            self,
+            func=func,
+            axis=axis,
+            raw=raw,
+            result_type=result_type,
+            args=args,
+            kwargs=kwargs,
+        )
+>       return op.apply()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/frame.py:8740: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa2583ae040>
+
+    def apply(self) -> FrameOrSeriesUnion:
+        """compute the results"""
+        # dispatch to agg
+        if is_list_like(self.f):
+            return self.apply_multiple()
+    
+        # all empty
+        if len(self.columns) == 0 and len(self.index) == 0:
+            return self.apply_empty_result()
+    
+        # string dispatch
+        if isinstance(self.f, str):
+            return self.apply_str()
+    
+        # ufunc
+        elif isinstance(self.f, np.ufunc):
+            with np.errstate(all="ignore"):
+                results = self.obj._mgr.apply("apply", func=self.f)
+            # _constructor will retain self.index and self.columns
+            return self.obj._constructor(data=results)
+    
+        # broadcasting
+        if self.result_type == "broadcast":
+            return self.apply_broadcast(self.obj)
+    
+        # one axis empty
+        elif not all(self.obj.shape):
+            return self.apply_empty_result()
+    
+        # raw
+        elif self.raw:
+            return self.apply_raw()
+    
+>       return self.apply_standard()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:688: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa2583ae040>
+
+    def apply_standard(self):
+>       results, res_index = self.apply_series_generator()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa2583ae040>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.f)
+    
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        with option_context("mode.chained_assignment", None):
+            for i, v in enumerate(series_gen):
+                # ignore SettingWithCopy here in case the user mutates
+>               results[i] = self.f(v)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:828: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+
+    def f(x):
+>       return func(x, *args, **kwargs)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = {'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}
+columns = ['TARGET']
+
+    def f(x, bins, columns):
+        name = x.name
+        if name not in columns:
+            return x
+        return (
+>           pd.cut(
+                x,
+                bins=bins[name],
+                labels=np.arange(len(bins[name]) - 1),
+                duplicates="drop",
+            )
+            .fillna(0)
+            .astype(float)
+            .astype(str)
+        )
+
+gators/binning/_base_discretizer.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = array([-1.79769313e+308,  4.00000000e-002,  1.57486667e+002,
+        1.92333333e+000,  2.40966667e+002,  1.79769313e+308])
+right = True, labels = array([0, 1, 2, 3, 4]), retbins = False, precision = 3
+include_lowest = False, duplicates = 'drop', ordered = True
+
+    def cut(
+        x,
+        bins,
+        right: bool = True,
+        labels=None,
+        retbins: bool = False,
+        precision: int = 3,
+        include_lowest: bool = False,
+        duplicates: str = "raise",
+        ordered: bool = True,
+    ):
+        """
+        Bin values into discrete intervals.
+    
+        Use `cut` when you need to segment and sort data values into bins. This
+        function is also useful for going from a continuous variable to a
+        categorical variable. For example, `cut` could convert ages to groups of
+        age ranges. Supports binning into an equal number of bins, or a
+        pre-specified array of bins.
+    
+        Parameters
+        ----------
+        x : array-like
+            The input array to be binned. Must be 1-dimensional.
+        bins : int, sequence of scalars, or IntervalIndex
+            The criteria to bin by.
+    
+            * int : Defines the number of equal-width bins in the range of `x`. The
+              range of `x` is extended by .1% on each side to include the minimum
+              and maximum values of `x`.
+            * sequence of scalars : Defines the bin edges allowing for non-uniform
+              width. No extension of the range of `x` is done.
+            * IntervalIndex : Defines the exact bins to be used. Note that
+              IntervalIndex for `bins` must be non-overlapping.
+    
+        right : bool, default True
+            Indicates whether `bins` includes the rightmost edge or not. If
+            ``right == True`` (the default), then the `bins` ``[1, 2, 3, 4]``
+            indicate (1,2], (2,3], (3,4]. This argument is ignored when
+            `bins` is an IntervalIndex.
+        labels : array or False, default None
+            Specifies the labels for the returned bins. Must be the same length as
+            the resulting bins. If False, returns only integer indicators of the
+            bins. This affects the type of the output container (see below).
+            This argument is ignored when `bins` is an IntervalIndex. If True,
+            raises an error. When `ordered=False`, labels must be provided.
+        retbins : bool, default False
+            Whether to return the bins or not. Useful when bins is provided
+            as a scalar.
+        precision : int, default 3
+            The precision at which to store and display the bins labels.
+        include_lowest : bool, default False
+            Whether the first interval should be left-inclusive or not.
+        duplicates : {default 'raise', 'drop'}, optional
+            If bin edges are not unique, raise ValueError or drop non-uniques.
+        ordered : bool, default True
+            Whether the labels are ordered or not. Applies to returned types
+            Categorical and Series (with Categorical dtype). If True,
+            the resulting categorical will be ordered. If False, the resulting
+            categorical will be unordered (labels must be provided).
+    
+            .. versionadded:: 1.1.0
+    
+        Returns
+        -------
+        out : Categorical, Series, or ndarray
+            An array-like object representing the respective bin for each value
+            of `x`. The type depends on the value of `labels`.
+    
+            * True (default) : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are Interval dtype.
+    
+            * sequence of scalars : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are whatever the type in the sequence is.
+    
+            * False : returns an ndarray of integers.
+    
+        bins : numpy.ndarray or IntervalIndex.
+            The computed or specified bins. Only returned when `retbins=True`.
+            For scalar or sequence `bins`, this is an ndarray with the computed
+            bins. If set `duplicates=drop`, `bins` will drop non-unique bin. For
+            an IntervalIndex `bins`, this is equal to `bins`.
+    
+        See Also
+        --------
+        qcut : Discretize variable into equal-sized buckets based on rank
+            or based on sample quantiles.
+        Categorical : Array type for storing data that come from a
+            fixed set of values.
+        Series : One-dimensional array with axis labels (including time series).
+        IntervalIndex : Immutable Index implementing an ordered, sliceable set.
+    
+        Notes
+        -----
+        Any NA values will be NA in the result. Out of bounds values will be NA in
+        the resulting Series or Categorical object.
+    
+        Examples
+        --------
+        Discretize into three equal-sized bins.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3)
+        ... # doctest: +ELLIPSIS
+        [(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3, retbins=True)
+        ... # doctest: +ELLIPSIS
+        ([(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+        array([0.994, 3.   , 5.   , 7.   ]))
+    
+        Discovers the same bins, but assign them specific labels. Notice that
+        the returned Categorical's categories are `labels` and is ordered.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]),
+        ...        3, labels=["bad", "medium", "good"])
+        ['bad', 'good', 'medium', 'medium', 'good', 'bad']
+        Categories (3, object): ['bad' < 'medium' < 'good']
+    
+        ``ordered=False`` will result in unordered categories when labels are passed.
+        This parameter can be used to allow non-unique labels:
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3,
+        ...        labels=["B", "A", "B"], ordered=False)
+        ['B', 'B', 'A', 'A', 'B', 'B']
+        Categories (2, object): ['A', 'B']
+    
+        ``labels=False`` implies you just want the bins back.
+    
+        >>> pd.cut([0, 1, 1, 2], bins=4, labels=False)
+        array([0, 1, 1, 3])
+    
+        Passing a Series as an input returns a Series with categorical dtype:
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, 3)
+        ... # doctest: +ELLIPSIS
+        a    (1.992, 4.667]
+        b    (1.992, 4.667]
+        c    (4.667, 7.333]
+        d     (7.333, 10.0]
+        e     (7.333, 10.0]
+        dtype: category
+        Categories (3, interval[float64, right]): [(1.992, 4.667] < (4.667, ...
+    
+        Passing a Series as an input returns a Series with mapping value.
+        It is used to map numerically to intervals based on bins.
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, [0, 2, 4, 6, 8, 10], labels=False, retbins=True, right=False)
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    4.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6,  8, 10]))
+    
+        Use `drop` optional when bins is not unique
+    
+        >>> pd.cut(s, [0, 2, 4, 6, 10, 10], labels=False, retbins=True,
+        ...        right=False, duplicates='drop')
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    3.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6, 10]))
+    
+        Passing an IntervalIndex for `bins` results in those categories exactly.
+        Notice that values not covered by the IntervalIndex are set to NaN. 0
+        is to the left of the first bin (which is closed on the right), and 1.5
+        falls between two bins.
+    
+        >>> bins = pd.IntervalIndex.from_tuples([(0, 1), (2, 3), (4, 5)])
+        >>> pd.cut([0, 0.5, 1.5, 2.5, 4.5], bins)
+        [NaN, (0.0, 1.0], NaN, (2.0, 3.0], (4.0, 5.0]]
+        Categories (3, interval[int64, right]): [(0, 1] < (2, 3] < (4, 5]]
+        """
+        # NOTE: this binning code is changed a bit from histogram for var(x) == 0
+    
+        original = x
+        x = _preprocess_for_cut(x)
+        x, dtype = _coerce_to_type(x)
+    
+        if not np.iterable(bins):
+            if is_scalar(bins) and bins < 1:
+                raise ValueError("`bins` should be a positive integer.")
+    
+            try:  # for array-like
+                sz = x.size
+            except AttributeError:
+                x = np.asarray(x)
+                sz = x.size
+    
+            if sz == 0:
+                raise ValueError("Cannot cut empty array")
+    
+            rng = (nanops.nanmin(x), nanops.nanmax(x))
+            mn, mx = (mi + 0.0 for mi in rng)
+    
+            if np.isinf(mn) or np.isinf(mx):
+                # GH 24314
+                raise ValueError(
+                    "cannot specify integer `bins` when input data contains infinity"
+                )
+            elif mn == mx:  # adjust end points before binning
+                mn -= 0.001 * abs(mn) if mn != 0 else 0.001
+                mx += 0.001 * abs(mx) if mx != 0 else 0.001
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+            else:  # adjust end points after binning
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+                adj = (mx - mn) * 0.001  # 0.1% of the range
+                if right:
+                    bins[0] -= adj
+                else:
+                    bins[-1] += adj
+    
+        elif isinstance(bins, IntervalIndex):
+            if bins.is_overlapping:
+                raise ValueError("Overlapping IntervalIndex is not accepted.")
+    
+        else:
+            if is_datetime64tz_dtype(bins):
+                bins = np.asarray(bins, dtype=DT64NS_DTYPE)
+            else:
+                bins = np.asarray(bins)
+            bins = _convert_bin_to_numeric_type(bins, dtype)
+    
+            # GH 26045: cast to float64 to avoid an overflow
+            if (np.diff(bins.astype("float64")) < 0).any():
+>               raise ValueError("bins must increase monotonically.")
+E               ValueError: bins must increase monotonically.
+
+../../gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py:285: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def data():
+        n_bins = 3
+        X = dd.from_pandas(pd.DataFrame(
+            {
+                "A": ["Q", "Q", "Q", "W", "W", "W"],
+                "B": ["Q", "Q", "W", "W", "W", "W"],
+                "C": ["Q", "Q", "Q", "Q", "W", "W"],
+                "D": [1, 2, 3, 4, 5, 6],
+            }), npartitions=2)
+        y = dd.from_pandas(pd.Series([0.11, -0.1, 5.55, 233.9, 4.66, 255.1], name="TARGET"), npartitions=2)
+>       obj = RegressionEncoder(
+            WOEEncoder(), discretizer=QuantileDiscretizer(n_bins=n_bins, inplace=True)
+        ).fit(X, y)
+
+gators/encoders/tests/test_regression_encoder_dd.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+gators/encoders/regression_encoder.py:172: in fit
+    y_binned = self.discretizer.fit_transform(y.to_frame())
+gators/transformers/transformer.py:205: in fit_transform
+    return self.transform(X)
+gators/binning/_base_discretizer.py:234: in transform
+    return bin.bin_inplace(X, self.bins, self.columns, self.output_columns)
+gators/binning/_base_discretizer.py:150: in bin_inplace
+    return function.apply(X, f, args=(bins, columns))
+gators/util/util.py:291: in apply
+    return X.map_partitions(lambda x: x.apply(f, args=args))
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:713: in map_partitions
+    return map_partitions(func, self, *args, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5843: in map_partitions
+    meta = _emulate(func, *args, udf=True, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: in _emulate
+    return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/contextlib.py:131: in __exit__
+    self.gen.throw(type, value, traceback)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+            yield
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb = "".join(traceback.format_tb(exc_traceback))
+            msg = "Metadata inference failed{0}.\n\n"
+            if udf:
+                msg += (
+                    "You have supplied a custom function and Dask is unable to \n"
+                    "determine the type of output that that function returns. \n\n"
+                    "To resolve this please provide a meta= keyword.\n"
+                    "The docstring of the Dask function you ran should have more information.\n\n"
+                )
+            msg += (
+                "Original error is below:\n"
+                "------------------------\n"
+                "{1}\n\n"
+                "Traceback:\n"
+                "---------\n"
+                "{2}"
+            )
+            msg = msg.format(f" in `{funcname}`" if funcname else "", repr(e), tb)
+>           raise ValueError(msg) from e
+E           ValueError: Metadata inference failed in `lambda`.
+E           
+E           You have supplied a custom function and Dask is unable to 
+E           determine the type of output that that function returns. 
+E           
+E           To resolve this please provide a meta= keyword.
+E           The docstring of the Dask function you ran should have more information.
+E           
+E           Original error is below:
+E           ------------------------
+E           ValueError('bins must increase monotonically.')
+E           
+E           Traceback:
+E           ---------
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/utils.py", line 176, in raise_on_meta_error
+E               yield
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/core.py", line 5787, in _emulate
+E               return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+E             File "/Users/cpoli/opensource/gators/gators/util/util.py", line 291, in <lambda>
+E               return X.map_partitions(lambda x: x.apply(f, args=args))
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/frame.py", line 8740, in apply
+E               return op.apply()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 688, in apply
+E               return self.apply_standard()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 812, in apply_standard
+E               results, res_index = self.apply_series_generator()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 828, in apply_series_generator
+E               results[i] = self.f(v)
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 131, in f
+E               return func(x, *args, **kwargs)
+E             File "/Users/cpoli/opensource/gators/gators/binning/_base_discretizer.py", line 139, in f
+E               pd.cut(
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py", line 285, in cut
+E               raise ValueError("bins must increase monotonically.")
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:197: ValueError
+_________________________ ERROR at setup of test_pd_np _________________________
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+>           yield
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function FunctionDask.apply.<locals>.<lambda> at 0x7fa268515c10>
+args = (Dask DataFrame Structure:
+                TARGET
+npartitions=2         
+0              float64
+3                  ...
+5                  ...
+Dask Name: to_frame, 4 tasks,)
+kwargs = {}
+
+    def _emulate(func, *args, **kwargs):
+        """
+        Apply a function using args / kwargs. If arguments contain dd.DataFrame /
+        dd.Series, using internal cache (``_meta``) for calculation
+        """
+        with raise_on_meta_error(funcname(func), udf=kwargs.pop("udf", False)):
+>           return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x =    TARGET
+0     1.0
+1     1.0
+
+>   return X.map_partitions(lambda x: x.apply(f, args=args))
+
+gators/util/util.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self =    TARGET
+0     1.0
+1     1.0
+func = <function BinDask.bin_inplace.<locals>.f at 0x7fa2684f13a0>, axis = 0
+raw = False, result_type = None
+args = ({'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}, ['TARGET'])
+kwargs = {}, frame_apply = <function frame_apply at 0x7fa2282b6af0>
+op = <pandas.core.apply.FrameRowApply object at 0x7fa299224e20>
+
+    def apply(
+        self,
+        func: AggFuncType,
+        axis: Axis = 0,
+        raw: bool = False,
+        result_type=None,
+        args=(),
+        **kwargs,
+    ):
+        """
+        Apply a function along an axis of the DataFrame.
+    
+        Objects passed to the function are Series objects whose index is
+        either the DataFrame's index (``axis=0``) or the DataFrame's columns
+        (``axis=1``). By default (``result_type=None``), the final return type
+        is inferred from the return type of the applied function. Otherwise,
+        it depends on the `result_type` argument.
+    
+        Parameters
+        ----------
+        func : function
+            Function to apply to each column or row.
+        axis : {0 or 'index', 1 or 'columns'}, default 0
+            Axis along which the function is applied:
+    
+            * 0 or 'index': apply function to each column.
+            * 1 or 'columns': apply function to each row.
+    
+        raw : bool, default False
+            Determines if row or column is passed as a Series or ndarray object:
+    
+            * ``False`` : passes each row or column as a Series to the
+              function.
+            * ``True`` : the passed function will receive ndarray objects
+              instead.
+              If you are just applying a NumPy reduction function this will
+              achieve much better performance.
+    
+        result_type : {'expand', 'reduce', 'broadcast', None}, default None
+            These only act when ``axis=1`` (columns):
+    
+            * 'expand' : list-like results will be turned into columns.
+            * 'reduce' : returns a Series if possible rather than expanding
+              list-like results. This is the opposite of 'expand'.
+            * 'broadcast' : results will be broadcast to the original shape
+              of the DataFrame, the original index and columns will be
+              retained.
+    
+            The default behaviour (None) depends on the return value of the
+            applied function: list-like results will be returned as a Series
+            of those. However if the apply function returns a Series these
+            are expanded to columns.
+        args : tuple
+            Positional arguments to pass to `func` in addition to the
+            array/series.
+        **kwargs
+            Additional keyword arguments to pass as keywords arguments to
+            `func`.
+    
+        Returns
+        -------
+        Series or DataFrame
+            Result of applying ``func`` along the given axis of the
+            DataFrame.
+    
+        See Also
+        --------
+        DataFrame.applymap: For elementwise operations.
+        DataFrame.aggregate: Only perform aggregating type operations.
+        DataFrame.transform: Only perform transforming type operations.
+    
+        Notes
+        -----
+        Functions that mutate the passed object can produce unexpected
+        behavior or errors and are not supported. See :ref:`gotchas.udf-mutation`
+        for more details.
+    
+        Examples
+        --------
+        >>> df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+        >>> df
+           A  B
+        0  4  9
+        1  4  9
+        2  4  9
+    
+        Using a numpy universal function (in this case the same as
+        ``np.sqrt(df)``):
+    
+        >>> df.apply(np.sqrt)
+             A    B
+        0  2.0  3.0
+        1  2.0  3.0
+        2  2.0  3.0
+    
+        Using a reducing function on either axis
+    
+        >>> df.apply(np.sum, axis=0)
+        A    12
+        B    27
+        dtype: int64
+    
+        >>> df.apply(np.sum, axis=1)
+        0    13
+        1    13
+        2    13
+        dtype: int64
+    
+        Returning a list-like will result in a Series
+    
+        >>> df.apply(lambda x: [1, 2], axis=1)
+        0    [1, 2]
+        1    [1, 2]
+        2    [1, 2]
+        dtype: object
+    
+        Passing ``result_type='expand'`` will expand list-like results
+        to columns of a Dataframe
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='expand')
+           0  1
+        0  1  2
+        1  1  2
+        2  1  2
+    
+        Returning a Series inside the function is similar to passing
+        ``result_type='expand'``. The resulting column names
+        will be the Series index.
+    
+        >>> df.apply(lambda x: pd.Series([1, 2], index=['foo', 'bar']), axis=1)
+           foo  bar
+        0    1    2
+        1    1    2
+        2    1    2
+    
+        Passing ``result_type='broadcast'`` will ensure the same shape
+        result, whether list-like or scalar is returned by the function,
+        and broadcast it along the axis. The resulting column names will
+        be the originals.
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='broadcast')
+           A  B
+        0  1  2
+        1  1  2
+        2  1  2
+        """
+        from pandas.core.apply import frame_apply
+    
+        op = frame_apply(
+            self,
+            func=func,
+            axis=axis,
+            raw=raw,
+            result_type=result_type,
+            args=args,
+            kwargs=kwargs,
+        )
+>       return op.apply()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/frame.py:8740: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa299224e20>
+
+    def apply(self) -> FrameOrSeriesUnion:
+        """compute the results"""
+        # dispatch to agg
+        if is_list_like(self.f):
+            return self.apply_multiple()
+    
+        # all empty
+        if len(self.columns) == 0 and len(self.index) == 0:
+            return self.apply_empty_result()
+    
+        # string dispatch
+        if isinstance(self.f, str):
+            return self.apply_str()
+    
+        # ufunc
+        elif isinstance(self.f, np.ufunc):
+            with np.errstate(all="ignore"):
+                results = self.obj._mgr.apply("apply", func=self.f)
+            # _constructor will retain self.index and self.columns
+            return self.obj._constructor(data=results)
+    
+        # broadcasting
+        if self.result_type == "broadcast":
+            return self.apply_broadcast(self.obj)
+    
+        # one axis empty
+        elif not all(self.obj.shape):
+            return self.apply_empty_result()
+    
+        # raw
+        elif self.raw:
+            return self.apply_raw()
+    
+>       return self.apply_standard()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:688: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa299224e20>
+
+    def apply_standard(self):
+>       results, res_index = self.apply_series_generator()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa299224e20>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.f)
+    
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        with option_context("mode.chained_assignment", None):
+            for i, v in enumerate(series_gen):
+                # ignore SettingWithCopy here in case the user mutates
+>               results[i] = self.f(v)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:828: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+
+    def f(x):
+>       return func(x, *args, **kwargs)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = {'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}
+columns = ['TARGET']
+
+    def f(x, bins, columns):
+        name = x.name
+        if name not in columns:
+            return x
+        return (
+>           pd.cut(
+                x,
+                bins=bins[name],
+                labels=np.arange(len(bins[name]) - 1),
+                duplicates="drop",
+            )
+            .fillna(0)
+            .astype(float)
+            .astype(str)
+        )
+
+gators/binning/_base_discretizer.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = array([-1.79769313e+308,  4.00000000e-002,  1.57486667e+002,
+        1.92333333e+000,  2.40966667e+002,  1.79769313e+308])
+right = True, labels = array([0, 1, 2, 3, 4]), retbins = False, precision = 3
+include_lowest = False, duplicates = 'drop', ordered = True
+
+    def cut(
+        x,
+        bins,
+        right: bool = True,
+        labels=None,
+        retbins: bool = False,
+        precision: int = 3,
+        include_lowest: bool = False,
+        duplicates: str = "raise",
+        ordered: bool = True,
+    ):
+        """
+        Bin values into discrete intervals.
+    
+        Use `cut` when you need to segment and sort data values into bins. This
+        function is also useful for going from a continuous variable to a
+        categorical variable. For example, `cut` could convert ages to groups of
+        age ranges. Supports binning into an equal number of bins, or a
+        pre-specified array of bins.
+    
+        Parameters
+        ----------
+        x : array-like
+            The input array to be binned. Must be 1-dimensional.
+        bins : int, sequence of scalars, or IntervalIndex
+            The criteria to bin by.
+    
+            * int : Defines the number of equal-width bins in the range of `x`. The
+              range of `x` is extended by .1% on each side to include the minimum
+              and maximum values of `x`.
+            * sequence of scalars : Defines the bin edges allowing for non-uniform
+              width. No extension of the range of `x` is done.
+            * IntervalIndex : Defines the exact bins to be used. Note that
+              IntervalIndex for `bins` must be non-overlapping.
+    
+        right : bool, default True
+            Indicates whether `bins` includes the rightmost edge or not. If
+            ``right == True`` (the default), then the `bins` ``[1, 2, 3, 4]``
+            indicate (1,2], (2,3], (3,4]. This argument is ignored when
+            `bins` is an IntervalIndex.
+        labels : array or False, default None
+            Specifies the labels for the returned bins. Must be the same length as
+            the resulting bins. If False, returns only integer indicators of the
+            bins. This affects the type of the output container (see below).
+            This argument is ignored when `bins` is an IntervalIndex. If True,
+            raises an error. When `ordered=False`, labels must be provided.
+        retbins : bool, default False
+            Whether to return the bins or not. Useful when bins is provided
+            as a scalar.
+        precision : int, default 3
+            The precision at which to store and display the bins labels.
+        include_lowest : bool, default False
+            Whether the first interval should be left-inclusive or not.
+        duplicates : {default 'raise', 'drop'}, optional
+            If bin edges are not unique, raise ValueError or drop non-uniques.
+        ordered : bool, default True
+            Whether the labels are ordered or not. Applies to returned types
+            Categorical and Series (with Categorical dtype). If True,
+            the resulting categorical will be ordered. If False, the resulting
+            categorical will be unordered (labels must be provided).
+    
+            .. versionadded:: 1.1.0
+    
+        Returns
+        -------
+        out : Categorical, Series, or ndarray
+            An array-like object representing the respective bin for each value
+            of `x`. The type depends on the value of `labels`.
+    
+            * True (default) : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are Interval dtype.
+    
+            * sequence of scalars : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are whatever the type in the sequence is.
+    
+            * False : returns an ndarray of integers.
+    
+        bins : numpy.ndarray or IntervalIndex.
+            The computed or specified bins. Only returned when `retbins=True`.
+            For scalar or sequence `bins`, this is an ndarray with the computed
+            bins. If set `duplicates=drop`, `bins` will drop non-unique bin. For
+            an IntervalIndex `bins`, this is equal to `bins`.
+    
+        See Also
+        --------
+        qcut : Discretize variable into equal-sized buckets based on rank
+            or based on sample quantiles.
+        Categorical : Array type for storing data that come from a
+            fixed set of values.
+        Series : One-dimensional array with axis labels (including time series).
+        IntervalIndex : Immutable Index implementing an ordered, sliceable set.
+    
+        Notes
+        -----
+        Any NA values will be NA in the result. Out of bounds values will be NA in
+        the resulting Series or Categorical object.
+    
+        Examples
+        --------
+        Discretize into three equal-sized bins.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3)
+        ... # doctest: +ELLIPSIS
+        [(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3, retbins=True)
+        ... # doctest: +ELLIPSIS
+        ([(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+        array([0.994, 3.   , 5.   , 7.   ]))
+    
+        Discovers the same bins, but assign them specific labels. Notice that
+        the returned Categorical's categories are `labels` and is ordered.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]),
+        ...        3, labels=["bad", "medium", "good"])
+        ['bad', 'good', 'medium', 'medium', 'good', 'bad']
+        Categories (3, object): ['bad' < 'medium' < 'good']
+    
+        ``ordered=False`` will result in unordered categories when labels are passed.
+        This parameter can be used to allow non-unique labels:
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3,
+        ...        labels=["B", "A", "B"], ordered=False)
+        ['B', 'B', 'A', 'A', 'B', 'B']
+        Categories (2, object): ['A', 'B']
+    
+        ``labels=False`` implies you just want the bins back.
+    
+        >>> pd.cut([0, 1, 1, 2], bins=4, labels=False)
+        array([0, 1, 1, 3])
+    
+        Passing a Series as an input returns a Series with categorical dtype:
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, 3)
+        ... # doctest: +ELLIPSIS
+        a    (1.992, 4.667]
+        b    (1.992, 4.667]
+        c    (4.667, 7.333]
+        d     (7.333, 10.0]
+        e     (7.333, 10.0]
+        dtype: category
+        Categories (3, interval[float64, right]): [(1.992, 4.667] < (4.667, ...
+    
+        Passing a Series as an input returns a Series with mapping value.
+        It is used to map numerically to intervals based on bins.
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, [0, 2, 4, 6, 8, 10], labels=False, retbins=True, right=False)
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    4.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6,  8, 10]))
+    
+        Use `drop` optional when bins is not unique
+    
+        >>> pd.cut(s, [0, 2, 4, 6, 10, 10], labels=False, retbins=True,
+        ...        right=False, duplicates='drop')
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    3.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6, 10]))
+    
+        Passing an IntervalIndex for `bins` results in those categories exactly.
+        Notice that values not covered by the IntervalIndex are set to NaN. 0
+        is to the left of the first bin (which is closed on the right), and 1.5
+        falls between two bins.
+    
+        >>> bins = pd.IntervalIndex.from_tuples([(0, 1), (2, 3), (4, 5)])
+        >>> pd.cut([0, 0.5, 1.5, 2.5, 4.5], bins)
+        [NaN, (0.0, 1.0], NaN, (2.0, 3.0], (4.0, 5.0]]
+        Categories (3, interval[int64, right]): [(0, 1] < (2, 3] < (4, 5]]
+        """
+        # NOTE: this binning code is changed a bit from histogram for var(x) == 0
+    
+        original = x
+        x = _preprocess_for_cut(x)
+        x, dtype = _coerce_to_type(x)
+    
+        if not np.iterable(bins):
+            if is_scalar(bins) and bins < 1:
+                raise ValueError("`bins` should be a positive integer.")
+    
+            try:  # for array-like
+                sz = x.size
+            except AttributeError:
+                x = np.asarray(x)
+                sz = x.size
+    
+            if sz == 0:
+                raise ValueError("Cannot cut empty array")
+    
+            rng = (nanops.nanmin(x), nanops.nanmax(x))
+            mn, mx = (mi + 0.0 for mi in rng)
+    
+            if np.isinf(mn) or np.isinf(mx):
+                # GH 24314
+                raise ValueError(
+                    "cannot specify integer `bins` when input data contains infinity"
+                )
+            elif mn == mx:  # adjust end points before binning
+                mn -= 0.001 * abs(mn) if mn != 0 else 0.001
+                mx += 0.001 * abs(mx) if mx != 0 else 0.001
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+            else:  # adjust end points after binning
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+                adj = (mx - mn) * 0.001  # 0.1% of the range
+                if right:
+                    bins[0] -= adj
+                else:
+                    bins[-1] += adj
+    
+        elif isinstance(bins, IntervalIndex):
+            if bins.is_overlapping:
+                raise ValueError("Overlapping IntervalIndex is not accepted.")
+    
+        else:
+            if is_datetime64tz_dtype(bins):
+                bins = np.asarray(bins, dtype=DT64NS_DTYPE)
+            else:
+                bins = np.asarray(bins)
+            bins = _convert_bin_to_numeric_type(bins, dtype)
+    
+            # GH 26045: cast to float64 to avoid an overflow
+            if (np.diff(bins.astype("float64")) < 0).any():
+>               raise ValueError("bins must increase monotonically.")
+E               ValueError: bins must increase monotonically.
+
+../../gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py:285: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def data():
+        n_bins = 3
+        X = dd.from_pandas(pd.DataFrame(
+            {
+                "A": ["Q", "Q", "Q", "W", "W", "W"],
+                "B": ["Q", "Q", "W", "W", "W", "W"],
+                "C": ["Q", "Q", "Q", "Q", "W", "W"],
+                "D": [1, 2, 3, 4, 5, 6],
+            }), npartitions=2)
+        y = dd.from_pandas(pd.Series([0.11, -0.1, 5.55, 233.9, 4.66, 255.1], name="TARGET"), npartitions=2)
+>       obj = RegressionEncoder(
+            WOEEncoder(), discretizer=QuantileDiscretizer(n_bins=n_bins, inplace=True)
+        ).fit(X, y)
+
+gators/encoders/tests/test_regression_encoder_dd.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+gators/encoders/regression_encoder.py:172: in fit
+    y_binned = self.discretizer.fit_transform(y.to_frame())
+gators/transformers/transformer.py:205: in fit_transform
+    return self.transform(X)
+gators/binning/_base_discretizer.py:234: in transform
+    return bin.bin_inplace(X, self.bins, self.columns, self.output_columns)
+gators/binning/_base_discretizer.py:150: in bin_inplace
+    return function.apply(X, f, args=(bins, columns))
+gators/util/util.py:291: in apply
+    return X.map_partitions(lambda x: x.apply(f, args=args))
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:713: in map_partitions
+    return map_partitions(func, self, *args, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5843: in map_partitions
+    meta = _emulate(func, *args, udf=True, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: in _emulate
+    return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/contextlib.py:131: in __exit__
+    self.gen.throw(type, value, traceback)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+            yield
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb = "".join(traceback.format_tb(exc_traceback))
+            msg = "Metadata inference failed{0}.\n\n"
+            if udf:
+                msg += (
+                    "You have supplied a custom function and Dask is unable to \n"
+                    "determine the type of output that that function returns. \n\n"
+                    "To resolve this please provide a meta= keyword.\n"
+                    "The docstring of the Dask function you ran should have more information.\n\n"
+                )
+            msg += (
+                "Original error is below:\n"
+                "------------------------\n"
+                "{1}\n\n"
+                "Traceback:\n"
+                "---------\n"
+                "{2}"
+            )
+            msg = msg.format(f" in `{funcname}`" if funcname else "", repr(e), tb)
+>           raise ValueError(msg) from e
+E           ValueError: Metadata inference failed in `lambda`.
+E           
+E           You have supplied a custom function and Dask is unable to 
+E           determine the type of output that that function returns. 
+E           
+E           To resolve this please provide a meta= keyword.
+E           The docstring of the Dask function you ran should have more information.
+E           
+E           Original error is below:
+E           ------------------------
+E           ValueError('bins must increase monotonically.')
+E           
+E           Traceback:
+E           ---------
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/utils.py", line 176, in raise_on_meta_error
+E               yield
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/core.py", line 5787, in _emulate
+E               return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+E             File "/Users/cpoli/opensource/gators/gators/util/util.py", line 291, in <lambda>
+E               return X.map_partitions(lambda x: x.apply(f, args=args))
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/frame.py", line 8740, in apply
+E               return op.apply()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 688, in apply
+E               return self.apply_standard()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 812, in apply_standard
+E               results, res_index = self.apply_series_generator()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 828, in apply_series_generator
+E               results[i] = self.f(v)
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 131, in f
+E               return func(x, *args, **kwargs)
+E             File "/Users/cpoli/opensource/gators/gators/binning/_base_discretizer.py", line 139, in f
+E               pd.cut(
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py", line 285, in cut
+E               raise ValueError("bins must increase monotonically.")
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:197: ValueError
+______________________ ERROR at setup of test_float32_pd _______________________
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+>           yield
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function FunctionDask.apply.<locals>.<lambda> at 0x7fa299390820>
+args = (Dask DataFrame Structure:
+                TARGET
+npartitions=2         
+0              float64
+3                  ...
+5                  ...
+Dask Name: to_frame, 4 tasks,)
+kwargs = {}
+
+    def _emulate(func, *args, **kwargs):
+        """
+        Apply a function using args / kwargs. If arguments contain dd.DataFrame /
+        dd.Series, using internal cache (``_meta``) for calculation
+        """
+        with raise_on_meta_error(funcname(func), udf=kwargs.pop("udf", False)):
+>           return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x =    TARGET
+0     1.0
+1     1.0
+
+>   return X.map_partitions(lambda x: x.apply(f, args=args))
+
+gators/util/util.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self =    TARGET
+0     1.0
+1     1.0
+func = <function BinDask.bin_inplace.<locals>.f at 0x7fa2684f1ee0>, axis = 0
+raw = False, result_type = None
+args = ({'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}, ['TARGET'])
+kwargs = {}, frame_apply = <function frame_apply at 0x7fa2282b6af0>
+op = <pandas.core.apply.FrameRowApply object at 0x7fa25860fe50>
+
+    def apply(
+        self,
+        func: AggFuncType,
+        axis: Axis = 0,
+        raw: bool = False,
+        result_type=None,
+        args=(),
+        **kwargs,
+    ):
+        """
+        Apply a function along an axis of the DataFrame.
+    
+        Objects passed to the function are Series objects whose index is
+        either the DataFrame's index (``axis=0``) or the DataFrame's columns
+        (``axis=1``). By default (``result_type=None``), the final return type
+        is inferred from the return type of the applied function. Otherwise,
+        it depends on the `result_type` argument.
+    
+        Parameters
+        ----------
+        func : function
+            Function to apply to each column or row.
+        axis : {0 or 'index', 1 or 'columns'}, default 0
+            Axis along which the function is applied:
+    
+            * 0 or 'index': apply function to each column.
+            * 1 or 'columns': apply function to each row.
+    
+        raw : bool, default False
+            Determines if row or column is passed as a Series or ndarray object:
+    
+            * ``False`` : passes each row or column as a Series to the
+              function.
+            * ``True`` : the passed function will receive ndarray objects
+              instead.
+              If you are just applying a NumPy reduction function this will
+              achieve much better performance.
+    
+        result_type : {'expand', 'reduce', 'broadcast', None}, default None
+            These only act when ``axis=1`` (columns):
+    
+            * 'expand' : list-like results will be turned into columns.
+            * 'reduce' : returns a Series if possible rather than expanding
+              list-like results. This is the opposite of 'expand'.
+            * 'broadcast' : results will be broadcast to the original shape
+              of the DataFrame, the original index and columns will be
+              retained.
+    
+            The default behaviour (None) depends on the return value of the
+            applied function: list-like results will be returned as a Series
+            of those. However if the apply function returns a Series these
+            are expanded to columns.
+        args : tuple
+            Positional arguments to pass to `func` in addition to the
+            array/series.
+        **kwargs
+            Additional keyword arguments to pass as keywords arguments to
+            `func`.
+    
+        Returns
+        -------
+        Series or DataFrame
+            Result of applying ``func`` along the given axis of the
+            DataFrame.
+    
+        See Also
+        --------
+        DataFrame.applymap: For elementwise operations.
+        DataFrame.aggregate: Only perform aggregating type operations.
+        DataFrame.transform: Only perform transforming type operations.
+    
+        Notes
+        -----
+        Functions that mutate the passed object can produce unexpected
+        behavior or errors and are not supported. See :ref:`gotchas.udf-mutation`
+        for more details.
+    
+        Examples
+        --------
+        >>> df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+        >>> df
+           A  B
+        0  4  9
+        1  4  9
+        2  4  9
+    
+        Using a numpy universal function (in this case the same as
+        ``np.sqrt(df)``):
+    
+        >>> df.apply(np.sqrt)
+             A    B
+        0  2.0  3.0
+        1  2.0  3.0
+        2  2.0  3.0
+    
+        Using a reducing function on either axis
+    
+        >>> df.apply(np.sum, axis=0)
+        A    12
+        B    27
+        dtype: int64
+    
+        >>> df.apply(np.sum, axis=1)
+        0    13
+        1    13
+        2    13
+        dtype: int64
+    
+        Returning a list-like will result in a Series
+    
+        >>> df.apply(lambda x: [1, 2], axis=1)
+        0    [1, 2]
+        1    [1, 2]
+        2    [1, 2]
+        dtype: object
+    
+        Passing ``result_type='expand'`` will expand list-like results
+        to columns of a Dataframe
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='expand')
+           0  1
+        0  1  2
+        1  1  2
+        2  1  2
+    
+        Returning a Series inside the function is similar to passing
+        ``result_type='expand'``. The resulting column names
+        will be the Series index.
+    
+        >>> df.apply(lambda x: pd.Series([1, 2], index=['foo', 'bar']), axis=1)
+           foo  bar
+        0    1    2
+        1    1    2
+        2    1    2
+    
+        Passing ``result_type='broadcast'`` will ensure the same shape
+        result, whether list-like or scalar is returned by the function,
+        and broadcast it along the axis. The resulting column names will
+        be the originals.
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='broadcast')
+           A  B
+        0  1  2
+        1  1  2
+        2  1  2
+        """
+        from pandas.core.apply import frame_apply
+    
+        op = frame_apply(
+            self,
+            func=func,
+            axis=axis,
+            raw=raw,
+            result_type=result_type,
+            args=args,
+            kwargs=kwargs,
+        )
+>       return op.apply()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/frame.py:8740: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa25860fe50>
+
+    def apply(self) -> FrameOrSeriesUnion:
+        """compute the results"""
+        # dispatch to agg
+        if is_list_like(self.f):
+            return self.apply_multiple()
+    
+        # all empty
+        if len(self.columns) == 0 and len(self.index) == 0:
+            return self.apply_empty_result()
+    
+        # string dispatch
+        if isinstance(self.f, str):
+            return self.apply_str()
+    
+        # ufunc
+        elif isinstance(self.f, np.ufunc):
+            with np.errstate(all="ignore"):
+                results = self.obj._mgr.apply("apply", func=self.f)
+            # _constructor will retain self.index and self.columns
+            return self.obj._constructor(data=results)
+    
+        # broadcasting
+        if self.result_type == "broadcast":
+            return self.apply_broadcast(self.obj)
+    
+        # one axis empty
+        elif not all(self.obj.shape):
+            return self.apply_empty_result()
+    
+        # raw
+        elif self.raw:
+            return self.apply_raw()
+    
+>       return self.apply_standard()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:688: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa25860fe50>
+
+    def apply_standard(self):
+>       results, res_index = self.apply_series_generator()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa25860fe50>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.f)
+    
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        with option_context("mode.chained_assignment", None):
+            for i, v in enumerate(series_gen):
+                # ignore SettingWithCopy here in case the user mutates
+>               results[i] = self.f(v)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:828: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+
+    def f(x):
+>       return func(x, *args, **kwargs)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = {'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}
+columns = ['TARGET']
+
+    def f(x, bins, columns):
+        name = x.name
+        if name not in columns:
+            return x
+        return (
+>           pd.cut(
+                x,
+                bins=bins[name],
+                labels=np.arange(len(bins[name]) - 1),
+                duplicates="drop",
+            )
+            .fillna(0)
+            .astype(float)
+            .astype(str)
+        )
+
+gators/binning/_base_discretizer.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = array([-1.79769313e+308,  4.00000000e-002,  1.57486667e+002,
+        1.92333333e+000,  2.40966667e+002,  1.79769313e+308])
+right = True, labels = array([0, 1, 2, 3, 4]), retbins = False, precision = 3
+include_lowest = False, duplicates = 'drop', ordered = True
+
+    def cut(
+        x,
+        bins,
+        right: bool = True,
+        labels=None,
+        retbins: bool = False,
+        precision: int = 3,
+        include_lowest: bool = False,
+        duplicates: str = "raise",
+        ordered: bool = True,
+    ):
+        """
+        Bin values into discrete intervals.
+    
+        Use `cut` when you need to segment and sort data values into bins. This
+        function is also useful for going from a continuous variable to a
+        categorical variable. For example, `cut` could convert ages to groups of
+        age ranges. Supports binning into an equal number of bins, or a
+        pre-specified array of bins.
+    
+        Parameters
+        ----------
+        x : array-like
+            The input array to be binned. Must be 1-dimensional.
+        bins : int, sequence of scalars, or IntervalIndex
+            The criteria to bin by.
+    
+            * int : Defines the number of equal-width bins in the range of `x`. The
+              range of `x` is extended by .1% on each side to include the minimum
+              and maximum values of `x`.
+            * sequence of scalars : Defines the bin edges allowing for non-uniform
+              width. No extension of the range of `x` is done.
+            * IntervalIndex : Defines the exact bins to be used. Note that
+              IntervalIndex for `bins` must be non-overlapping.
+    
+        right : bool, default True
+            Indicates whether `bins` includes the rightmost edge or not. If
+            ``right == True`` (the default), then the `bins` ``[1, 2, 3, 4]``
+            indicate (1,2], (2,3], (3,4]. This argument is ignored when
+            `bins` is an IntervalIndex.
+        labels : array or False, default None
+            Specifies the labels for the returned bins. Must be the same length as
+            the resulting bins. If False, returns only integer indicators of the
+            bins. This affects the type of the output container (see below).
+            This argument is ignored when `bins` is an IntervalIndex. If True,
+            raises an error. When `ordered=False`, labels must be provided.
+        retbins : bool, default False
+            Whether to return the bins or not. Useful when bins is provided
+            as a scalar.
+        precision : int, default 3
+            The precision at which to store and display the bins labels.
+        include_lowest : bool, default False
+            Whether the first interval should be left-inclusive or not.
+        duplicates : {default 'raise', 'drop'}, optional
+            If bin edges are not unique, raise ValueError or drop non-uniques.
+        ordered : bool, default True
+            Whether the labels are ordered or not. Applies to returned types
+            Categorical and Series (with Categorical dtype). If True,
+            the resulting categorical will be ordered. If False, the resulting
+            categorical will be unordered (labels must be provided).
+    
+            .. versionadded:: 1.1.0
+    
+        Returns
+        -------
+        out : Categorical, Series, or ndarray
+            An array-like object representing the respective bin for each value
+            of `x`. The type depends on the value of `labels`.
+    
+            * True (default) : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are Interval dtype.
+    
+            * sequence of scalars : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are whatever the type in the sequence is.
+    
+            * False : returns an ndarray of integers.
+    
+        bins : numpy.ndarray or IntervalIndex.
+            The computed or specified bins. Only returned when `retbins=True`.
+            For scalar or sequence `bins`, this is an ndarray with the computed
+            bins. If set `duplicates=drop`, `bins` will drop non-unique bin. For
+            an IntervalIndex `bins`, this is equal to `bins`.
+    
+        See Also
+        --------
+        qcut : Discretize variable into equal-sized buckets based on rank
+            or based on sample quantiles.
+        Categorical : Array type for storing data that come from a
+            fixed set of values.
+        Series : One-dimensional array with axis labels (including time series).
+        IntervalIndex : Immutable Index implementing an ordered, sliceable set.
+    
+        Notes
+        -----
+        Any NA values will be NA in the result. Out of bounds values will be NA in
+        the resulting Series or Categorical object.
+    
+        Examples
+        --------
+        Discretize into three equal-sized bins.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3)
+        ... # doctest: +ELLIPSIS
+        [(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3, retbins=True)
+        ... # doctest: +ELLIPSIS
+        ([(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+        array([0.994, 3.   , 5.   , 7.   ]))
+    
+        Discovers the same bins, but assign them specific labels. Notice that
+        the returned Categorical's categories are `labels` and is ordered.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]),
+        ...        3, labels=["bad", "medium", "good"])
+        ['bad', 'good', 'medium', 'medium', 'good', 'bad']
+        Categories (3, object): ['bad' < 'medium' < 'good']
+    
+        ``ordered=False`` will result in unordered categories when labels are passed.
+        This parameter can be used to allow non-unique labels:
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3,
+        ...        labels=["B", "A", "B"], ordered=False)
+        ['B', 'B', 'A', 'A', 'B', 'B']
+        Categories (2, object): ['A', 'B']
+    
+        ``labels=False`` implies you just want the bins back.
+    
+        >>> pd.cut([0, 1, 1, 2], bins=4, labels=False)
+        array([0, 1, 1, 3])
+    
+        Passing a Series as an input returns a Series with categorical dtype:
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, 3)
+        ... # doctest: +ELLIPSIS
+        a    (1.992, 4.667]
+        b    (1.992, 4.667]
+        c    (4.667, 7.333]
+        d     (7.333, 10.0]
+        e     (7.333, 10.0]
+        dtype: category
+        Categories (3, interval[float64, right]): [(1.992, 4.667] < (4.667, ...
+    
+        Passing a Series as an input returns a Series with mapping value.
+        It is used to map numerically to intervals based on bins.
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, [0, 2, 4, 6, 8, 10], labels=False, retbins=True, right=False)
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    4.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6,  8, 10]))
+    
+        Use `drop` optional when bins is not unique
+    
+        >>> pd.cut(s, [0, 2, 4, 6, 10, 10], labels=False, retbins=True,
+        ...        right=False, duplicates='drop')
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    3.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6, 10]))
+    
+        Passing an IntervalIndex for `bins` results in those categories exactly.
+        Notice that values not covered by the IntervalIndex are set to NaN. 0
+        is to the left of the first bin (which is closed on the right), and 1.5
+        falls between two bins.
+    
+        >>> bins = pd.IntervalIndex.from_tuples([(0, 1), (2, 3), (4, 5)])
+        >>> pd.cut([0, 0.5, 1.5, 2.5, 4.5], bins)
+        [NaN, (0.0, 1.0], NaN, (2.0, 3.0], (4.0, 5.0]]
+        Categories (3, interval[int64, right]): [(0, 1] < (2, 3] < (4, 5]]
+        """
+        # NOTE: this binning code is changed a bit from histogram for var(x) == 0
+    
+        original = x
+        x = _preprocess_for_cut(x)
+        x, dtype = _coerce_to_type(x)
+    
+        if not np.iterable(bins):
+            if is_scalar(bins) and bins < 1:
+                raise ValueError("`bins` should be a positive integer.")
+    
+            try:  # for array-like
+                sz = x.size
+            except AttributeError:
+                x = np.asarray(x)
+                sz = x.size
+    
+            if sz == 0:
+                raise ValueError("Cannot cut empty array")
+    
+            rng = (nanops.nanmin(x), nanops.nanmax(x))
+            mn, mx = (mi + 0.0 for mi in rng)
+    
+            if np.isinf(mn) or np.isinf(mx):
+                # GH 24314
+                raise ValueError(
+                    "cannot specify integer `bins` when input data contains infinity"
+                )
+            elif mn == mx:  # adjust end points before binning
+                mn -= 0.001 * abs(mn) if mn != 0 else 0.001
+                mx += 0.001 * abs(mx) if mx != 0 else 0.001
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+            else:  # adjust end points after binning
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+                adj = (mx - mn) * 0.001  # 0.1% of the range
+                if right:
+                    bins[0] -= adj
+                else:
+                    bins[-1] += adj
+    
+        elif isinstance(bins, IntervalIndex):
+            if bins.is_overlapping:
+                raise ValueError("Overlapping IntervalIndex is not accepted.")
+    
+        else:
+            if is_datetime64tz_dtype(bins):
+                bins = np.asarray(bins, dtype=DT64NS_DTYPE)
+            else:
+                bins = np.asarray(bins)
+            bins = _convert_bin_to_numeric_type(bins, dtype)
+    
+            # GH 26045: cast to float64 to avoid an overflow
+            if (np.diff(bins.astype("float64")) < 0).any():
+>               raise ValueError("bins must increase monotonically.")
+E               ValueError: bins must increase monotonically.
+
+../../gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py:285: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def data_float32():
+        n_bins = 3
+        X = dd.from_pandas(pd.DataFrame(
+            {
+                "A": ["Q", "Q", "Q", "W", "W", "W"],
+                "B": ["Q", "Q", "W", "W", "W", "W"],
+                "C": ["Q", "Q", "Q", "Q", "W", "W"],
+                "D": [1, 2, 3, 4, 5, 6],
+            }), npartitions=2)
+        y = dd.from_pandas(pd.Series([0.11, -0.1, 5.55, 233.9, 4.66, 255.1], name="TARGET"), npartitions=2)
+>       obj = RegressionEncoder(
+            WOEEncoder(),
+            discretizer=QuantileDiscretizer(n_bins=n_bins, inplace=True),
+            dtype=np.float32,
+        ).fit(X, y)
+
+gators/encoders/tests/test_regression_encoder_dd.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+gators/encoders/regression_encoder.py:172: in fit
+    y_binned = self.discretizer.fit_transform(y.to_frame())
+gators/transformers/transformer.py:205: in fit_transform
+    return self.transform(X)
+gators/binning/_base_discretizer.py:234: in transform
+    return bin.bin_inplace(X, self.bins, self.columns, self.output_columns)
+gators/binning/_base_discretizer.py:150: in bin_inplace
+    return function.apply(X, f, args=(bins, columns))
+gators/util/util.py:291: in apply
+    return X.map_partitions(lambda x: x.apply(f, args=args))
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:713: in map_partitions
+    return map_partitions(func, self, *args, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5843: in map_partitions
+    meta = _emulate(func, *args, udf=True, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: in _emulate
+    return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/contextlib.py:131: in __exit__
+    self.gen.throw(type, value, traceback)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+            yield
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb = "".join(traceback.format_tb(exc_traceback))
+            msg = "Metadata inference failed{0}.\n\n"
+            if udf:
+                msg += (
+                    "You have supplied a custom function and Dask is unable to \n"
+                    "determine the type of output that that function returns. \n\n"
+                    "To resolve this please provide a meta= keyword.\n"
+                    "The docstring of the Dask function you ran should have more information.\n\n"
+                )
+            msg += (
+                "Original error is below:\n"
+                "------------------------\n"
+                "{1}\n\n"
+                "Traceback:\n"
+                "---------\n"
+                "{2}"
+            )
+            msg = msg.format(f" in `{funcname}`" if funcname else "", repr(e), tb)
+>           raise ValueError(msg) from e
+E           ValueError: Metadata inference failed in `lambda`.
+E           
+E           You have supplied a custom function and Dask is unable to 
+E           determine the type of output that that function returns. 
+E           
+E           To resolve this please provide a meta= keyword.
+E           The docstring of the Dask function you ran should have more information.
+E           
+E           Original error is below:
+E           ------------------------
+E           ValueError('bins must increase monotonically.')
+E           
+E           Traceback:
+E           ---------
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/utils.py", line 176, in raise_on_meta_error
+E               yield
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/core.py", line 5787, in _emulate
+E               return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+E             File "/Users/cpoli/opensource/gators/gators/util/util.py", line 291, in <lambda>
+E               return X.map_partitions(lambda x: x.apply(f, args=args))
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/frame.py", line 8740, in apply
+E               return op.apply()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 688, in apply
+E               return self.apply_standard()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 812, in apply_standard
+E               results, res_index = self.apply_series_generator()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 828, in apply_series_generator
+E               results[i] = self.f(v)
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 131, in f
+E               return func(x, *args, **kwargs)
+E             File "/Users/cpoli/opensource/gators/gators/binning/_base_discretizer.py", line 139, in f
+E               pd.cut(
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py", line 285, in cut
+E               raise ValueError("bins must increase monotonically.")
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:197: ValueError
+_____________________ ERROR at setup of test_float32_pd_np _____________________
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+>           yield
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:176: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function FunctionDask.apply.<locals>.<lambda> at 0x7fa26914e790>
+args = (Dask DataFrame Structure:
+                TARGET
+npartitions=2         
+0              float64
+3                  ...
+5                  ...
+Dask Name: to_frame, 4 tasks,)
+kwargs = {}
+
+    def _emulate(func, *args, **kwargs):
+        """
+        Apply a function using args / kwargs. If arguments contain dd.DataFrame /
+        dd.Series, using internal cache (``_meta``) for calculation
+        """
+        with raise_on_meta_error(funcname(func), udf=kwargs.pop("udf", False)):
+>           return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x =    TARGET
+0     1.0
+1     1.0
+
+>   return X.map_partitions(lambda x: x.apply(f, args=args))
+
+gators/util/util.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self =    TARGET
+0     1.0
+1     1.0
+func = <function BinDask.bin_inplace.<locals>.f at 0x7fa279d90550>, axis = 0
+raw = False, result_type = None
+args = ({'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}, ['TARGET'])
+kwargs = {}, frame_apply = <function frame_apply at 0x7fa2282b6af0>
+op = <pandas.core.apply.FrameRowApply object at 0x7fa2691a65e0>
+
+    def apply(
+        self,
+        func: AggFuncType,
+        axis: Axis = 0,
+        raw: bool = False,
+        result_type=None,
+        args=(),
+        **kwargs,
+    ):
+        """
+        Apply a function along an axis of the DataFrame.
+    
+        Objects passed to the function are Series objects whose index is
+        either the DataFrame's index (``axis=0``) or the DataFrame's columns
+        (``axis=1``). By default (``result_type=None``), the final return type
+        is inferred from the return type of the applied function. Otherwise,
+        it depends on the `result_type` argument.
+    
+        Parameters
+        ----------
+        func : function
+            Function to apply to each column or row.
+        axis : {0 or 'index', 1 or 'columns'}, default 0
+            Axis along which the function is applied:
+    
+            * 0 or 'index': apply function to each column.
+            * 1 or 'columns': apply function to each row.
+    
+        raw : bool, default False
+            Determines if row or column is passed as a Series or ndarray object:
+    
+            * ``False`` : passes each row or column as a Series to the
+              function.
+            * ``True`` : the passed function will receive ndarray objects
+              instead.
+              If you are just applying a NumPy reduction function this will
+              achieve much better performance.
+    
+        result_type : {'expand', 'reduce', 'broadcast', None}, default None
+            These only act when ``axis=1`` (columns):
+    
+            * 'expand' : list-like results will be turned into columns.
+            * 'reduce' : returns a Series if possible rather than expanding
+              list-like results. This is the opposite of 'expand'.
+            * 'broadcast' : results will be broadcast to the original shape
+              of the DataFrame, the original index and columns will be
+              retained.
+    
+            The default behaviour (None) depends on the return value of the
+            applied function: list-like results will be returned as a Series
+            of those. However if the apply function returns a Series these
+            are expanded to columns.
+        args : tuple
+            Positional arguments to pass to `func` in addition to the
+            array/series.
+        **kwargs
+            Additional keyword arguments to pass as keywords arguments to
+            `func`.
+    
+        Returns
+        -------
+        Series or DataFrame
+            Result of applying ``func`` along the given axis of the
+            DataFrame.
+    
+        See Also
+        --------
+        DataFrame.applymap: For elementwise operations.
+        DataFrame.aggregate: Only perform aggregating type operations.
+        DataFrame.transform: Only perform transforming type operations.
+    
+        Notes
+        -----
+        Functions that mutate the passed object can produce unexpected
+        behavior or errors and are not supported. See :ref:`gotchas.udf-mutation`
+        for more details.
+    
+        Examples
+        --------
+        >>> df = pd.DataFrame([[4, 9]] * 3, columns=['A', 'B'])
+        >>> df
+           A  B
+        0  4  9
+        1  4  9
+        2  4  9
+    
+        Using a numpy universal function (in this case the same as
+        ``np.sqrt(df)``):
+    
+        >>> df.apply(np.sqrt)
+             A    B
+        0  2.0  3.0
+        1  2.0  3.0
+        2  2.0  3.0
+    
+        Using a reducing function on either axis
+    
+        >>> df.apply(np.sum, axis=0)
+        A    12
+        B    27
+        dtype: int64
+    
+        >>> df.apply(np.sum, axis=1)
+        0    13
+        1    13
+        2    13
+        dtype: int64
+    
+        Returning a list-like will result in a Series
+    
+        >>> df.apply(lambda x: [1, 2], axis=1)
+        0    [1, 2]
+        1    [1, 2]
+        2    [1, 2]
+        dtype: object
+    
+        Passing ``result_type='expand'`` will expand list-like results
+        to columns of a Dataframe
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='expand')
+           0  1
+        0  1  2
+        1  1  2
+        2  1  2
+    
+        Returning a Series inside the function is similar to passing
+        ``result_type='expand'``. The resulting column names
+        will be the Series index.
+    
+        >>> df.apply(lambda x: pd.Series([1, 2], index=['foo', 'bar']), axis=1)
+           foo  bar
+        0    1    2
+        1    1    2
+        2    1    2
+    
+        Passing ``result_type='broadcast'`` will ensure the same shape
+        result, whether list-like or scalar is returned by the function,
+        and broadcast it along the axis. The resulting column names will
+        be the originals.
+    
+        >>> df.apply(lambda x: [1, 2], axis=1, result_type='broadcast')
+           A  B
+        0  1  2
+        1  1  2
+        2  1  2
+        """
+        from pandas.core.apply import frame_apply
+    
+        op = frame_apply(
+            self,
+            func=func,
+            axis=axis,
+            raw=raw,
+            result_type=result_type,
+            args=args,
+            kwargs=kwargs,
+        )
+>       return op.apply()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/frame.py:8740: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa2691a65e0>
+
+    def apply(self) -> FrameOrSeriesUnion:
+        """compute the results"""
+        # dispatch to agg
+        if is_list_like(self.f):
+            return self.apply_multiple()
+    
+        # all empty
+        if len(self.columns) == 0 and len(self.index) == 0:
+            return self.apply_empty_result()
+    
+        # string dispatch
+        if isinstance(self.f, str):
+            return self.apply_str()
+    
+        # ufunc
+        elif isinstance(self.f, np.ufunc):
+            with np.errstate(all="ignore"):
+                results = self.obj._mgr.apply("apply", func=self.f)
+            # _constructor will retain self.index and self.columns
+            return self.obj._constructor(data=results)
+    
+        # broadcasting
+        if self.result_type == "broadcast":
+            return self.apply_broadcast(self.obj)
+    
+        # one axis empty
+        elif not all(self.obj.shape):
+            return self.apply_empty_result()
+    
+        # raw
+        elif self.raw:
+            return self.apply_raw()
+    
+>       return self.apply_standard()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:688: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa2691a65e0>
+
+    def apply_standard(self):
+>       results, res_index = self.apply_series_generator()
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.core.apply.FrameRowApply object at 0x7fa2691a65e0>
+
+    def apply_series_generator(self) -> tuple[ResType, Index]:
+        assert callable(self.f)
+    
+        series_gen = self.series_generator
+        res_index = self.result_index
+    
+        results = {}
+    
+        with option_context("mode.chained_assignment", None):
+            for i, v in enumerate(series_gen):
+                # ignore SettingWithCopy here in case the user mutates
+>               results[i] = self.f(v)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:828: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+
+    def f(x):
+>       return func(x, *args, **kwargs)
+
+../../gators38/lib/python3.8/site-packages/pandas/core/apply.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = {'TARGET': [-1.7976931348623157e+308, 0.03999999999999997, 157.48666666666665, 1.9233333333333316, 240.96666666666664, 1.7976931348623157e+308]}
+columns = ['TARGET']
+
+    def f(x, bins, columns):
+        name = x.name
+        if name not in columns:
+            return x
+        return (
+>           pd.cut(
+                x,
+                bins=bins[name],
+                labels=np.arange(len(bins[name]) - 1),
+                duplicates="drop",
+            )
+            .fillna(0)
+            .astype(float)
+            .astype(str)
+        )
+
+gators/binning/_base_discretizer.py:139: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+x = 0    1.0
+1    1.0
+Name: TARGET, dtype: float64
+bins = array([-1.79769313e+308,  4.00000000e-002,  1.57486667e+002,
+        1.92333333e+000,  2.40966667e+002,  1.79769313e+308])
+right = True, labels = array([0, 1, 2, 3, 4]), retbins = False, precision = 3
+include_lowest = False, duplicates = 'drop', ordered = True
+
+    def cut(
+        x,
+        bins,
+        right: bool = True,
+        labels=None,
+        retbins: bool = False,
+        precision: int = 3,
+        include_lowest: bool = False,
+        duplicates: str = "raise",
+        ordered: bool = True,
+    ):
+        """
+        Bin values into discrete intervals.
+    
+        Use `cut` when you need to segment and sort data values into bins. This
+        function is also useful for going from a continuous variable to a
+        categorical variable. For example, `cut` could convert ages to groups of
+        age ranges. Supports binning into an equal number of bins, or a
+        pre-specified array of bins.
+    
+        Parameters
+        ----------
+        x : array-like
+            The input array to be binned. Must be 1-dimensional.
+        bins : int, sequence of scalars, or IntervalIndex
+            The criteria to bin by.
+    
+            * int : Defines the number of equal-width bins in the range of `x`. The
+              range of `x` is extended by .1% on each side to include the minimum
+              and maximum values of `x`.
+            * sequence of scalars : Defines the bin edges allowing for non-uniform
+              width. No extension of the range of `x` is done.
+            * IntervalIndex : Defines the exact bins to be used. Note that
+              IntervalIndex for `bins` must be non-overlapping.
+    
+        right : bool, default True
+            Indicates whether `bins` includes the rightmost edge or not. If
+            ``right == True`` (the default), then the `bins` ``[1, 2, 3, 4]``
+            indicate (1,2], (2,3], (3,4]. This argument is ignored when
+            `bins` is an IntervalIndex.
+        labels : array or False, default None
+            Specifies the labels for the returned bins. Must be the same length as
+            the resulting bins. If False, returns only integer indicators of the
+            bins. This affects the type of the output container (see below).
+            This argument is ignored when `bins` is an IntervalIndex. If True,
+            raises an error. When `ordered=False`, labels must be provided.
+        retbins : bool, default False
+            Whether to return the bins or not. Useful when bins is provided
+            as a scalar.
+        precision : int, default 3
+            The precision at which to store and display the bins labels.
+        include_lowest : bool, default False
+            Whether the first interval should be left-inclusive or not.
+        duplicates : {default 'raise', 'drop'}, optional
+            If bin edges are not unique, raise ValueError or drop non-uniques.
+        ordered : bool, default True
+            Whether the labels are ordered or not. Applies to returned types
+            Categorical and Series (with Categorical dtype). If True,
+            the resulting categorical will be ordered. If False, the resulting
+            categorical will be unordered (labels must be provided).
+    
+            .. versionadded:: 1.1.0
+    
+        Returns
+        -------
+        out : Categorical, Series, or ndarray
+            An array-like object representing the respective bin for each value
+            of `x`. The type depends on the value of `labels`.
+    
+            * True (default) : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are Interval dtype.
+    
+            * sequence of scalars : returns a Series for Series `x` or a
+              Categorical for all other inputs. The values stored within
+              are whatever the type in the sequence is.
+    
+            * False : returns an ndarray of integers.
+    
+        bins : numpy.ndarray or IntervalIndex.
+            The computed or specified bins. Only returned when `retbins=True`.
+            For scalar or sequence `bins`, this is an ndarray with the computed
+            bins. If set `duplicates=drop`, `bins` will drop non-unique bin. For
+            an IntervalIndex `bins`, this is equal to `bins`.
+    
+        See Also
+        --------
+        qcut : Discretize variable into equal-sized buckets based on rank
+            or based on sample quantiles.
+        Categorical : Array type for storing data that come from a
+            fixed set of values.
+        Series : One-dimensional array with axis labels (including time series).
+        IntervalIndex : Immutable Index implementing an ordered, sliceable set.
+    
+        Notes
+        -----
+        Any NA values will be NA in the result. Out of bounds values will be NA in
+        the resulting Series or Categorical object.
+    
+        Examples
+        --------
+        Discretize into three equal-sized bins.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3)
+        ... # doctest: +ELLIPSIS
+        [(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3, retbins=True)
+        ... # doctest: +ELLIPSIS
+        ([(0.994, 3.0], (5.0, 7.0], (3.0, 5.0], (3.0, 5.0], (5.0, 7.0], ...
+        Categories (3, interval[float64, right]): [(0.994, 3.0] < (3.0, 5.0] ...
+        array([0.994, 3.   , 5.   , 7.   ]))
+    
+        Discovers the same bins, but assign them specific labels. Notice that
+        the returned Categorical's categories are `labels` and is ordered.
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]),
+        ...        3, labels=["bad", "medium", "good"])
+        ['bad', 'good', 'medium', 'medium', 'good', 'bad']
+        Categories (3, object): ['bad' < 'medium' < 'good']
+    
+        ``ordered=False`` will result in unordered categories when labels are passed.
+        This parameter can be used to allow non-unique labels:
+    
+        >>> pd.cut(np.array([1, 7, 5, 4, 6, 3]), 3,
+        ...        labels=["B", "A", "B"], ordered=False)
+        ['B', 'B', 'A', 'A', 'B', 'B']
+        Categories (2, object): ['A', 'B']
+    
+        ``labels=False`` implies you just want the bins back.
+    
+        >>> pd.cut([0, 1, 1, 2], bins=4, labels=False)
+        array([0, 1, 1, 3])
+    
+        Passing a Series as an input returns a Series with categorical dtype:
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, 3)
+        ... # doctest: +ELLIPSIS
+        a    (1.992, 4.667]
+        b    (1.992, 4.667]
+        c    (4.667, 7.333]
+        d     (7.333, 10.0]
+        e     (7.333, 10.0]
+        dtype: category
+        Categories (3, interval[float64, right]): [(1.992, 4.667] < (4.667, ...
+    
+        Passing a Series as an input returns a Series with mapping value.
+        It is used to map numerically to intervals based on bins.
+    
+        >>> s = pd.Series(np.array([2, 4, 6, 8, 10]),
+        ...               index=['a', 'b', 'c', 'd', 'e'])
+        >>> pd.cut(s, [0, 2, 4, 6, 8, 10], labels=False, retbins=True, right=False)
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    4.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6,  8, 10]))
+    
+        Use `drop` optional when bins is not unique
+    
+        >>> pd.cut(s, [0, 2, 4, 6, 10, 10], labels=False, retbins=True,
+        ...        right=False, duplicates='drop')
+        ... # doctest: +ELLIPSIS
+        (a    1.0
+         b    2.0
+         c    3.0
+         d    3.0
+         e    NaN
+         dtype: float64,
+         array([ 0,  2,  4,  6, 10]))
+    
+        Passing an IntervalIndex for `bins` results in those categories exactly.
+        Notice that values not covered by the IntervalIndex are set to NaN. 0
+        is to the left of the first bin (which is closed on the right), and 1.5
+        falls between two bins.
+    
+        >>> bins = pd.IntervalIndex.from_tuples([(0, 1), (2, 3), (4, 5)])
+        >>> pd.cut([0, 0.5, 1.5, 2.5, 4.5], bins)
+        [NaN, (0.0, 1.0], NaN, (2.0, 3.0], (4.0, 5.0]]
+        Categories (3, interval[int64, right]): [(0, 1] < (2, 3] < (4, 5]]
+        """
+        # NOTE: this binning code is changed a bit from histogram for var(x) == 0
+    
+        original = x
+        x = _preprocess_for_cut(x)
+        x, dtype = _coerce_to_type(x)
+    
+        if not np.iterable(bins):
+            if is_scalar(bins) and bins < 1:
+                raise ValueError("`bins` should be a positive integer.")
+    
+            try:  # for array-like
+                sz = x.size
+            except AttributeError:
+                x = np.asarray(x)
+                sz = x.size
+    
+            if sz == 0:
+                raise ValueError("Cannot cut empty array")
+    
+            rng = (nanops.nanmin(x), nanops.nanmax(x))
+            mn, mx = (mi + 0.0 for mi in rng)
+    
+            if np.isinf(mn) or np.isinf(mx):
+                # GH 24314
+                raise ValueError(
+                    "cannot specify integer `bins` when input data contains infinity"
+                )
+            elif mn == mx:  # adjust end points before binning
+                mn -= 0.001 * abs(mn) if mn != 0 else 0.001
+                mx += 0.001 * abs(mx) if mx != 0 else 0.001
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+            else:  # adjust end points after binning
+                bins = np.linspace(mn, mx, bins + 1, endpoint=True)
+                adj = (mx - mn) * 0.001  # 0.1% of the range
+                if right:
+                    bins[0] -= adj
+                else:
+                    bins[-1] += adj
+    
+        elif isinstance(bins, IntervalIndex):
+            if bins.is_overlapping:
+                raise ValueError("Overlapping IntervalIndex is not accepted.")
+    
+        else:
+            if is_datetime64tz_dtype(bins):
+                bins = np.asarray(bins, dtype=DT64NS_DTYPE)
+            else:
+                bins = np.asarray(bins)
+            bins = _convert_bin_to_numeric_type(bins, dtype)
+    
+            # GH 26045: cast to float64 to avoid an overflow
+            if (np.diff(bins.astype("float64")) < 0).any():
+>               raise ValueError("bins must increase monotonically.")
+E               ValueError: bins must increase monotonically.
+
+../../gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py:285: ValueError
+
+The above exception was the direct cause of the following exception:
+
+    @pytest.fixture
+    def data_float32():
+        n_bins = 3
+        X = dd.from_pandas(pd.DataFrame(
+            {
+                "A": ["Q", "Q", "Q", "W", "W", "W"],
+                "B": ["Q", "Q", "W", "W", "W", "W"],
+                "C": ["Q", "Q", "Q", "Q", "W", "W"],
+                "D": [1, 2, 3, 4, 5, 6],
+            }), npartitions=2)
+        y = dd.from_pandas(pd.Series([0.11, -0.1, 5.55, 233.9, 4.66, 255.1], name="TARGET"), npartitions=2)
+>       obj = RegressionEncoder(
+            WOEEncoder(),
+            discretizer=QuantileDiscretizer(n_bins=n_bins, inplace=True),
+            dtype=np.float32,
+        ).fit(X, y)
+
+gators/encoders/tests/test_regression_encoder_dd.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+gators/encoders/regression_encoder.py:172: in fit
+    y_binned = self.discretizer.fit_transform(y.to_frame())
+gators/transformers/transformer.py:205: in fit_transform
+    return self.transform(X)
+gators/binning/_base_discretizer.py:234: in transform
+    return bin.bin_inplace(X, self.bins, self.columns, self.output_columns)
+gators/binning/_base_discretizer.py:150: in bin_inplace
+    return function.apply(X, f, args=(bins, columns))
+gators/util/util.py:291: in apply
+    return X.map_partitions(lambda x: x.apply(f, args=args))
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:713: in map_partitions
+    return map_partitions(func, self, *args, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5843: in map_partitions
+    meta = _emulate(func, *args, udf=True, **kwargs)
+../../gators38/lib/python3.8/site-packages/dask/dataframe/core.py:5787: in _emulate
+    return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+/Library/Frameworks/Python.framework/Versions/3.8/lib/python3.8/contextlib.py:131: in __exit__
+    self.gen.throw(type, value, traceback)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+funcname = 'lambda', udf = True
+
+    @contextmanager
+    def raise_on_meta_error(funcname=None, udf=False):
+        """Reraise errors in this block to show metadata inference failure.
+    
+        Parameters
+        ----------
+        funcname : str, optional
+            If provided, will be added to the error message to indicate the
+            name of the method that failed.
+        """
+        try:
+            yield
+        except Exception as e:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            tb = "".join(traceback.format_tb(exc_traceback))
+            msg = "Metadata inference failed{0}.\n\n"
+            if udf:
+                msg += (
+                    "You have supplied a custom function and Dask is unable to \n"
+                    "determine the type of output that that function returns. \n\n"
+                    "To resolve this please provide a meta= keyword.\n"
+                    "The docstring of the Dask function you ran should have more information.\n\n"
+                )
+            msg += (
+                "Original error is below:\n"
+                "------------------------\n"
+                "{1}\n\n"
+                "Traceback:\n"
+                "---------\n"
+                "{2}"
+            )
+            msg = msg.format(f" in `{funcname}`" if funcname else "", repr(e), tb)
+>           raise ValueError(msg) from e
+E           ValueError: Metadata inference failed in `lambda`.
+E           
+E           You have supplied a custom function and Dask is unable to 
+E           determine the type of output that that function returns. 
+E           
+E           To resolve this please provide a meta= keyword.
+E           The docstring of the Dask function you ran should have more information.
+E           
+E           Original error is below:
+E           ------------------------
+E           ValueError('bins must increase monotonically.')
+E           
+E           Traceback:
+E           ---------
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/utils.py", line 176, in raise_on_meta_error
+E               yield
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/dask/dataframe/core.py", line 5787, in _emulate
+E               return func(*_extract_meta(args, True), **_extract_meta(kwargs, True))
+E             File "/Users/cpoli/opensource/gators/gators/util/util.py", line 291, in <lambda>
+E               return X.map_partitions(lambda x: x.apply(f, args=args))
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/frame.py", line 8740, in apply
+E               return op.apply()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 688, in apply
+E               return self.apply_standard()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 812, in apply_standard
+E               results, res_index = self.apply_series_generator()
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 828, in apply_series_generator
+E               results[i] = self.f(v)
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/apply.py", line 131, in f
+E               return func(x, *args, **kwargs)
+E             File "/Users/cpoli/opensource/gators/gators/binning/_base_discretizer.py", line 139, in f
+E               pd.cut(
+E             File "/Users/cpoli/gators38/lib/python3.8/site-packages/pandas/core/reshape/tile.py", line 285, in cut
+E               raise ValueError("bins must increase monotonically.")
+
+../../gators38/lib/python3.8/site-packages/dask/dataframe/utils.py:197: ValueError
+=================================== FAILURES ===================================
+_________________________________ test_ordered _________________________________
+
+data_ordered = (<gators.model_building.train_test_split.TrainTestSplit object at 0x7fa2583a6400>, Dask DataFrame Structure:
+         ...6  27  28  29
+2  30  31  32  33  34
+3  35  36  37  38  39, 0    0
+1    1
+2    2
+3    0
+Name: TARGET, dtype: int64, ...)
+
+    def test_ordered(data_ordered):
+        (
+            obj,
+            X,
+            y,
+            X_train_expected,
+            X_test_expected,
+            y_train_expected,
+            y_test_expected,
+        ) = data_ordered
+>       X_train, X_test, y_train, y_test = obj.transform(X, y)
+
+gators/model_building/tests/test_train_test_split_dd.py:130: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+gators/model_building/train_test_split.py:291: in transform
+    return self.ordered_split(X, y)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <gators.model_building.train_test_split.TrainTestSplit object at 0x7fa2583a6400>
+X = Dask DataFrame Structure:
+                   A      B      C      D      E
+npartitions=1                              ...     int64  int64  int64  int64  int64
+7                ...    ...    ...    ...    ...
+Dask Name: from_pandas, 1 tasks
+y = Dask Series Structure:
+npartitions=1
+0    int64
+7      ...
+Name: TARGET, dtype: int64
+Dask Name: from_pandas, 1 tasks
+
+    def ordered_split(self, X: DataFrame, y: Series) -> Tuple[DataFrame, DataFrame]:
+        """Perform random split.
+    
+        Parameters
+        ----------
+        X : DataFrame
+            Dataframe
+        y : Series
+            Series
+        Returns
+        -------
+        DataFrame:
+            Train set.
+        DataFrame:
+            Test set.
+        """
+        n_samples = X.shape[0]
+>       n_test = int(self.test_ratio * n_samples)
+E       TypeError: int() argument must be a string, a bytes-like object or a number, not 'Delayed'
+
+gators/model_building/train_test_split.py:321: TypeError
+_________________________________ test_random __________________________________
+
+data_random = (<gators.model_building.train_test_split.TrainTestSplit object at 0x7fa28812c8e0>, Dask DataFrame Structure:
+         ...1  12  13  14
+2   5   6   7   8   9
+3  35  36  37  38  39, 0    0
+1    0
+2    1
+3    2
+Name: TARGET, dtype: int64, ...)
+
+    def test_random(data_random):
+        (
+            obj,
+            X,
+            y,
+            X_train_expected,
+            X_test_expected,
+            y_train_expected,
+            y_test_expected,
+        ) = data_random
+>       X_train, X_test, y_train, y_test = obj.transform(X, y)
+
+gators/model_building/tests/test_train_test_split_dd.py:149: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <gators.model_building.train_test_split.TrainTestSplit object at 0x7fa28812c8e0>
+X = Dask DataFrame Structure:
+                   A      B      C      D      E
+npartitions=1                              ...     int64  int64  int64  int64  int64
+7                ...    ...    ...    ...    ...
+Dask Name: from_pandas, 1 tasks
+y = Dask Series Structure:
+npartitions=1
+0    int64
+7      ...
+Name: TARGET, dtype: int64
+Dask Name: from_pandas, 1 tasks
+
+    def transform(
+        self,
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[DataFrame, DataFrame, Series, Series]:
+        """Transform dataframe and series.
+    
+        Parameters
+        ----------
+        X: DataFrame
+            Dataframe.
+        y: np.ndarray
+            Labels
+        test_ratio: float
+            Ratio of data points used for the test set.
+    
+        Returns
+        --------
+        Tuple[DataFrame, DataFrame,
+              Series, Series]
+            Train-Test split.
+        """
+        self.check_dataframe(X)
+        self.check_y(X, y)
+        y_name = y.name
+        if self.strategy == "ordered":
+            return self.ordered_split(X, y)
+        Xy = X.join(y)
+        if self.strategy == "random":
+>           Xy_train, Xy_test = self.random_split(Xy)
+E           TypeError: random_split() missing 1 required positional argument: 'x_name'
+
+gators/model_building/train_test_split.py:294: TypeError
+_______________________________ test_stratified ________________________________
+
+data_stratified = (<gators.model_building.train_test_split.TrainTestSplit object at 0x7fa279d8c5e0>, Dask DataFrame Structure:
+         ...  35  36  37  38  39
+3  20  21  22  23  24
+4  25  26  27  28  29, 0    0
+1    1
+2    2
+Name: TARGET, dtype: int64, ...)
+
+    def test_stratified(data_stratified):
+        (
+            obj,
+            X,
+            y,
+            X_train_expected,
+            X_test_expected,
+            y_train_expected,
+            y_test_expected,
+        ) = data_stratified
+>       X_train, X_test, y_train, y_test = obj.transform(X, y)
+
+gators/model_building/tests/test_train_test_split_dd.py:168: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <gators.model_building.train_test_split.TrainTestSplit object at 0x7fa279d8c5e0>
+X = Dask DataFrame Structure:
+                   A      B      C      D      E
+npartitions=1                              ...     int64  int64  int64  int64  int64
+7                ...    ...    ...    ...    ...
+Dask Name: from_pandas, 1 tasks
+y = Dask Series Structure:
+npartitions=1
+0    int64
+7      ...
+Name: TARGET, dtype: int64
+Dask Name: from_pandas, 1 tasks
+
+    def transform(
+        self,
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[DataFrame, DataFrame, Series, Series]:
+        """Transform dataframe and series.
+    
+        Parameters
+        ----------
+        X: DataFrame
+            Dataframe.
+        y: np.ndarray
+            Labels
+        test_ratio: float
+            Ratio of data points used for the test set.
+    
+        Returns
+        --------
+        Tuple[DataFrame, DataFrame,
+              Series, Series]
+            Train-Test split.
+        """
+        self.check_dataframe(X)
+        self.check_y(X, y)
+        y_name = y.name
+        if self.strategy == "ordered":
+            return self.ordered_split(X, y)
+        Xy = X.join(y)
+        if self.strategy == "random":
+            Xy_train, Xy_test = self.random_split(Xy)
+        else:
+>           Xy_train, Xy_test = self.stratified_split(Xy)
+E           TypeError: stratified_split() missing 2 required positional arguments: 'x_name' and 'y_name'
+
+gators/model_building/train_test_split.py:296: TypeError
+_________________________________ test_ordered _________________________________
+
+data_ordered = (<gators.model_building.train_test_split.TrainTestSplit object at 0x7fa299281100>,     A   B   C   D   E
+0   0   1   2...6  27  28  29
+2  30  31  32  33  34
+3  35  36  37  38  39, 0    0
+1    1
+2    2
+3    0
+Name: TARGET, dtype: int64, ...)
+
+    def test_ordered(data_ordered):
+        (
+            obj,
+            X,
+            y,
+            X_train_expected,
+            X_test_expected,
+            y_train_expected,
+            y_test_expected,
+        ) = data_ordered
+        X_train, X_test, y_train, y_test = obj.transform(X, y)
+        assert_frame_equal(X_train, X_train_expected)
+>       assert_frame_equal(X_test, X_test_expected)
+
+gators/model_building/tests/test_train_test_split_pd.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+pandas/_libs/testing.pyx:53: in pandas._libs.testing.assert_almost_equal
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+>   ???
+E   AssertionError: DataFrame.index are different
+E   
+E   DataFrame.index values are different (100.0 %)
+E   [left]:  RangeIndex(start=4, stop=8, step=1)
+E   [right]: RangeIndex(start=0, stop=4, step=1)
+
+pandas/_libs/testing.pyx:168: AssertionError
+_________________________________ test_random __________________________________
+
+data_random = (<gators.model_building.train_test_split.TrainTestSplit object at 0x7fa2684eddc0>,     A   B   C   D   E
+0   0   1   2...1  12  13  14
+2   5   6   7   8   9
+3  35  36  37  38  39, 0    0
+1    0
+2    1
+3    2
+Name: TARGET, dtype: int64, ...)
+
+    def test_random(data_random):
+        (
+            obj,
+            X,
+            y,
+            X_train_expected,
+            X_test_expected,
+            y_train_expected,
+            y_test_expected,
+        ) = data_random
+>       X_train, X_test, y_train, y_test = obj.transform(X, y)
+
+gators/model_building/tests/test_train_test_split_pd.py:148: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <gators.model_building.train_test_split.TrainTestSplit object at 0x7fa2684eddc0>
+X =     A   B   C   D   E
+0   0   1   2   3   4
+1   5   6   7   8   9
+2  10  11  12  13  14
+3  15  16  17  18  19
+4  20  21  22  23  24
+5  25  26  27  28  29
+6  30  31  32  33  34
+7  35  36  37  38  39
+y = 0    0
+1    1
+2    2
+3    0
+4    1
+5    2
+6    0
+7    1
+Name: TARGET, dtype: int64
+
+    def transform(
+        self,
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[DataFrame, DataFrame, Series, Series]:
+        """Transform dataframe and series.
+    
+        Parameters
+        ----------
+        X: DataFrame
+            Dataframe.
+        y: np.ndarray
+            Labels
+        test_ratio: float
+            Ratio of data points used for the test set.
+    
+        Returns
+        --------
+        Tuple[DataFrame, DataFrame,
+              Series, Series]
+            Train-Test split.
+        """
+        self.check_dataframe(X)
+        self.check_y(X, y)
+        y_name = y.name
+        if self.strategy == "ordered":
+            return self.ordered_split(X, y)
+        Xy = X.join(y)
+        if self.strategy == "random":
+>           Xy_train, Xy_test = self.random_split(Xy)
+E           TypeError: random_split() missing 1 required positional argument: 'x_name'
+
+gators/model_building/train_test_split.py:294: TypeError
+_______________________________ test_stratified ________________________________
+
+data_stratified = (<gators.model_building.train_test_split.TrainTestSplit object at 0x7fa28812c310>,     A   B   C   D   E
+0   0   1   2...  35  36  37  38  39
+3  20  21  22  23  24
+4  25  26  27  28  29, 0    0
+1    1
+2    2
+Name: TARGET, dtype: int64, ...)
+
+    def test_stratified(data_stratified):
+        (
+            obj,
+            X,
+            y,
+            X_train_expected,
+            X_test_expected,
+            y_train_expected,
+            y_test_expected,
+        ) = data_stratified
+>       X_train, X_test, y_train, y_test = obj.transform(X, y)
+
+gators/model_building/tests/test_train_test_split_pd.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <gators.model_building.train_test_split.TrainTestSplit object at 0x7fa28812c310>
+X =     A   B   C   D   E
+0   0   1   2   3   4
+1   5   6   7   8   9
+2  10  11  12  13  14
+3  15  16  17  18  19
+4  20  21  22  23  24
+5  25  26  27  28  29
+6  30  31  32  33  34
+7  35  36  37  38  39
+y = 0    0
+1    1
+2    2
+3    0
+4    1
+5    2
+6    0
+7    1
+Name: TARGET, dtype: int64
+
+    def transform(
+        self,
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[DataFrame, DataFrame, Series, Series]:
+        """Transform dataframe and series.
+    
+        Parameters
+        ----------
+        X: DataFrame
+            Dataframe.
+        y: np.ndarray
+            Labels
+        test_ratio: float
+            Ratio of data points used for the test set.
+    
+        Returns
+        --------
+        Tuple[DataFrame, DataFrame,
+              Series, Series]
+            Train-Test split.
+        """
+        self.check_dataframe(X)
+        self.check_y(X, y)
+        y_name = y.name
+        if self.strategy == "ordered":
+            return self.ordered_split(X, y)
+        Xy = X.join(y)
+        if self.strategy == "random":
+            Xy_train, Xy_test = self.random_split(Xy)
+        else:
+>           Xy_train, Xy_test = self.stratified_split(Xy)
+E           TypeError: stratified_split() missing 2 required positional arguments: 'x_name' and 'y_name'
+
+gators/model_building/train_test_split.py:296: TypeError
+_____________________________ test_pipeline_numpy ______________________________
+
+pipeline_example = (<gators.pipeline.pipeline.Pipeline object at 0x7fa2684bffd0>,        A      B      C      D
+0  1.764  0.400  0.979  2...  3.528  0.800  1.958  4.482
+1  3.736 -1.954  1.900 -0.302
+2 -0.206  0.822  0.288  2.908
+3  1.522  0.244  0.888  0.668)
+
+    def test_pipeline_numpy(pipeline_example):
+        pipe, X, X_expected = pipeline_example
+        _ = pipe.fit(X)
+        X_numpy_new = pipe.transform_numpy(X.to_numpy())
+>       assert np.allclose(X_expected.to_numpy(), X_numpy_new)
+E       NameError: name 'np' is not defined
+
+gators/pipeline/tests/test_pipeline.py:165: NameError
+=============================== warnings summary ===============================
+../../gators38/lib/python3.8/site-packages/past/builtins/misc.py:45
+  /Users/cpoli/gators38/lib/python3.8/site-packages/past/builtins/misc.py:45: DeprecationWarning: the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses
+    from imp import reload
+
+gators/binning/tests/test_bin_rare_events_dd.py::test_num_dd
+gators/binning/tests/test_bin_rare_events_dd.py::test_num_dd_np
+gators/binning/tests/test_bin_rare_events_pd.py::test_num_pd
+gators/binning/tests/test_bin_rare_events_pd.py::test_num_pd_np
+  /Users/cpoli/opensource/gators/gators/binning/bin_rare_events.py:108: UserWarning: `X` does not contain object columns:
+                  `BinRareEvents` is not needed
+    warnings.warn(
+
+gators/encoders/tests/test_muticlass_encoder_dd.py: 2 warnings
+gators/encoders/tests/test_muticlass_encoder_pd.py: 2 warnings
+gators/encoders/tests/test_regression_encoder_dd.py: 2 warnings
+gators/encoders/tests/test_regression_encoder_ks.py: 2 warnings
+gators/encoders/tests/test_regression_encoder_pd.py: 2 warnings
+  /Users/cpoli/opensource/gators/gators/encoders/multiclass_encoder.py:165: UserWarning: `X` does not contain object columns:
+                  `MultiClassEncoder` is not needed
+    warnings.warn(
+
+gators/encoders/tests/test_onehot_encoder_dd.py::test_without_cat_dd
+gators/encoders/tests/test_onehot_encoder_dd.py::test_without_cat_dd_np
+gators/encoders/tests/test_onehot_encoder_pd.py::test_without_cat_pd
+gators/encoders/tests/test_onehot_encoder_pd.py::test_without_cat_pd_np
+  /Users/cpoli/opensource/gators/gators/encoders/onehot_encoder.py:103: UserWarning: `X` does not contain object columns:
+                  `OneHotEncoder` is not needed
+    warnings.warn(
+
+gators/encoders/tests/test_ordinal_encoder_dd.py::test_no_cat_dd
+gators/encoders/tests/test_ordinal_encoder_dd.py::test_no_cat_dd_np
+gators/encoders/tests/test_ordinal_encoder_pd.py::test_no_cat_pd
+gators/encoders/tests/test_ordinal_encoder_pd.py::test_no_cat_pd_np
+  /Users/cpoli/opensource/gators/gators/encoders/ordinal_encoder.py:102: UserWarning: `X` does not contain object columns:
+                  `OrdinalEncoder` is not needed
+    warnings.warn(
+
+gators/encoders/tests/test_target_encoder_dd.py::test_no_cat_dd
+gators/encoders/tests/test_target_encoder_dd.py::test_no_cat_dd_np
+gators/encoders/tests/test_target_encoder_pd.py::test_no_cat_pd
+gators/encoders/tests/test_target_encoder_pd.py::test_no_cat_pd_np
+  /Users/cpoli/opensource/gators/gators/encoders/target_encoder.py:103: UserWarning: `X` does not contain object columns:
+                  `TargetEncoder` is not needed
+    warnings.warn(
+
+gators/encoders/tests/test_woe_encoder_dd.py::test_no_cat_dd
+gators/encoders/tests/test_woe_encoder_dd.py::test_no_cat_dd_np
+gators/encoders/tests/test_woe_encoder_pd.py::test_no_cat_pd
+gators/encoders/tests/test_woe_encoder_pd.py::test_no_cat_pd_np
+  /Users/cpoli/opensource/gators/gators/encoders/woe_encoder.py:102: UserWarning: `X` does not contain object columns:
+                  `WOEEncoder` is not needed
+    warnings.warn(
+
+gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_dd.py::test_dd
+gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_dd.py::test_dd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_dd.py:14: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_pd.py::test_pd
+gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_pd.py::test_pd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_cyclic_minute_of_hour_pd.py:12: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    X = pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_cyclic_month_of_year_dd.py::test_dd
+gators/feature_generation_dt/tests/test_cyclic_month_of_year_dd.py::test_dd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_cyclic_month_of_year_dd.py:14: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_cyclic_month_of_year_pd.py::test_pd
+gators/feature_generation_dt/tests/test_cyclic_month_of_year_pd.py::test_pd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_cyclic_month_of_year_pd.py:12: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    X = pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_delta_time_dd.py::test_dd
+gators/feature_generation_dt/tests/test_delta_time_dd.py::test_dd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_delta_time_dd.py:14: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_delta_time_pd.py::test_pd
+gators/feature_generation_dt/tests/test_delta_time_pd.py::test_pd_np
+gators/feature_generation_dt/tests/test_delta_time_pd.py::test_init_fit
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_delta_time_pd.py:12: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    X = pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_ordinal_day_of_week_dd.py::test_dd
+gators/feature_generation_dt/tests/test_ordinal_day_of_week_dd.py::test_dd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_ordinal_day_of_week_dd.py:14: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_ordinal_day_of_week_pd.py::test_pd
+gators/feature_generation_dt/tests/test_ordinal_day_of_week_pd.py::test_pd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_ordinal_day_of_week_pd.py:12: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    X = pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_ordinal_hour_of_day_dd.py::test_dd
+gators/feature_generation_dt/tests/test_ordinal_hour_of_day_dd.py::test_dd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_ordinal_hour_of_day_dd.py:13: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    pd.DataFrame(
+
+gators/feature_generation_dt/tests/test_ordinal_hour_of_day_pd.py::test_pd
+gators/feature_generation_dt/tests/test_ordinal_hour_of_day_pd.py::test_pd_np
+  /Users/cpoli/opensource/gators/gators/feature_generation_dt/tests/test_ordinal_hour_of_day_pd.py:11: FutureWarning: Inferring datetime64[ns] from data containing strings is deprecated and will be removed in a future version. To retain the old behavior explicitly pass Series(data, dtype={value.dtype})
+    X = pd.DataFrame(
+
+gators/imputers/tests/test_imputers_pd.py::test_empty_columns_object
+  /Users/cpoli/opensource/gators/gators/imputers/object_imputer.py:157: UserWarning: `X` does not contain object columns:
+                  `ObjectImputer` is not needed
+    warnings.warn(
+
+gators/imputers/tests/test_imputers_pd.py::test_num_idx_columns_empty
+  /Users/cpoli/opensource/gators/gators/imputers/numerics_imputer.py:149: UserWarning: `X` does not contain numerical columns,
+                  `NumericsImputer` is not needed
+    warnings.warn(
+
+gators/model_building/tests/test_xgb_booster_builder.py::test_num_class
+gators/model_building/tests/test_xgb_booster_builder.py::test_input
+  /Users/cpoli/gators38/lib/python3.8/site-packages/xgboost/sklearn.py:1224: UserWarning: The use of label encoder in XGBClassifier is deprecated and will be removed in a future release. To remove this warning, do the following: 1) Pass option use_label_encoder=False when constructing XGBClassifier object; and 2) Encode your labels (y) as integers starting with 0, i.e. 0, 1, 2, ..., [num_class - 1].
+    warnings.warn(label_encoder_deprecation_msg, UserWarning)
+
+gators/sampling/tests/test_supervised_sampling_dd.py::test_dd
+gators/sampling/tests/test_supervised_sampling_pd.py::test_pd
+  /Users/cpoli/opensource/gators/gators/sampling/supervised_sampling.py:81: DeprecationWarning: The default dtype for empty Series will be 'object' instead of 'float64' in a future version. Specify a dtype explicitly to silence this warning.
+    self.frac_vec = pd.Series([])
+
+gators/transformers/tests/test_transformer.py::test_checks
+gators/transformers/tests/test_transformer.py::test_checks
+gators/transformers/tests/test_transformer.py::test_checks
+gators/transformers/tests/test_transformer.py::test_checks
+gators/transformers/tests/test_transformer_xy.py::test_checks
+gators/transformers/tests/test_transformer_xy.py::test_checks
+gators/transformers/tests/test_transformer_xy.py::test_checks
+gators/transformers/tests/test_transformer_xy.py::test_checks
+  /Users/cpoli/gators38/lib/python3.8/site-packages/databricks/koalas/typedef/typehints.py:158: DeprecationWarning: Converting `np.character` to a dtype is deprecated. The current result is `np.dtype(np.str_)` which is not strictly correct. Note that `np.character` is generally deprecated and 'S1' should be used.
+    elif tpe in (bytes, np.character, np.bytes_, np.string_):
+
+-- Docs: https://docs.pytest.org/en/stable/warnings.html
+=========================== short test summary info ============================
+FAILED gators/model_building/tests/test_train_test_split_dd.py::test_ordered
+FAILED gators/model_building/tests/test_train_test_split_dd.py::test_random
+FAILED gators/model_building/tests/test_train_test_split_dd.py::test_stratified
+FAILED gators/model_building/tests/test_train_test_split_pd.py::test_ordered
+FAILED gators/model_building/tests/test_train_test_split_pd.py::test_random
+FAILED gators/model_building/tests/test_train_test_split_pd.py::test_stratified
+FAILED gators/pipeline/tests/test_pipeline.py::test_pipeline_numpy - NameErro...
+ERROR gators/encoders/tests/test_regression_encoder_dd.py::test_pd - ValueErr...
+ERROR gators/encoders/tests/test_regression_encoder_dd.py::test_pd_np - Value...
+ERROR gators/encoders/tests/test_regression_encoder_dd.py::test_float32_pd - ...
+ERROR gators/encoders/tests/test_regression_encoder_dd.py::test_float32_pd_np
+==== 7 failed, 632 passed, 272 deselected, 66 warnings, 4 errors in 32.23s =====

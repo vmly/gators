@@ -10,5 +10,5 @@ Converter
    :toctree: api/
 
     ConvertColumnDatatype
-    KoalasToPandas
+    ToPandas
     ToNumpy

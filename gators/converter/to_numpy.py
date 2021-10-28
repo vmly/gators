@@ -1,8 +1,12 @@
-from ..transformers.transformer_xy import TransformerXY
-from typing import Tuple, Union
+from typing import Tuple, TypeVar
+
 import numpy as np
-import pandas as pd
-import databricks.koalas as ks
+
+from ..transformers.transformer_xy import TransformerXY
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class ToNumpy(TransformerXY):
@@ -39,7 +43,7 @@ class ToNumpy(TransformerXY):
     >>> y = ks.Series([0, 0, 1], name='TARGET')
     >>> obj = ToNumpy()
     >>> X, y = obj.transform(X, y)
-    >>> X 
+    >>> X
     array([[0., 1., 2.],
            [3., 4., 5.],
            [6., 7., 8.]])
@@ -51,15 +55,16 @@ class ToNumpy(TransformerXY):
     def __init__(self):
         TransformerXY.__init__(self)
 
-    def transform(self,
-                  X: Union[pd.DataFrame, ks.DataFrame],
-                  y: Union[pd.Series, ks.Series],
-                  ) -> Tuple[np.ndarray, np.ndarray]:
+    def transform(
+        self,
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Dataframe.
         y : [pd.Series, ks.Series]:
             Target values.
@@ -73,4 +78,4 @@ class ToNumpy(TransformerXY):
         """
         self.check_dataframe(X)
         self.check_y(X, y)
-        return X.to_numpy(), y.to_numpy()
+        return util.get_function(X).to_numpy(X), util.get_function(X).to_numpy(y)

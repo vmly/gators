@@ -152,18 +152,19 @@
               <div>
                 
   <h1>Source code for gators.sampling.supervised_sampling</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="n">TransformerXY</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="n">TransformerXY</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SupervisedSampling"><a class="viewcode-back" href="../../../reference/api/gators.sampling.SupervisedSampling.html#gators.sampling.SupervisedSampling">[docs]</a><span class="k">class</span> <span class="nc">SupervisedSampling</span><span class="p">(</span><span class="n">TransformerXY</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Sample each class depending on its occurrence.</span>
-
-<span class="sd">    For example, in a stronly imbalanced binary classification problem,</span>
-<span class="sd">    only the majority is undersampled.</span>
+    <span class="sd">&quot;&quot;&quot;Sample each class depending on the user input.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -177,153 +178,93 @@
 <span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
 <span class="sd">    &gt;&gt;&gt; from gators.sampling import SupervisedSampling</span>
 <span class="sd">    &gt;&gt;&gt; X = pd.DataFrame({</span>
-<span class="sd">    ...     &#39;A&#39;: {0: 0, 1: 3, 2: 6, 3: 9, 4: 12, 5: 15},</span>
-<span class="sd">    ...     &#39;B&#39;: {0: 1, 1: 4, 2: 7, 3: 10, 4: 13, 5: 16},</span>
-<span class="sd">    ...     &#39;C&#39;: {0: 2, 1: 5, 2: 8, 3: 11, 4: 14, 5: 17}})</span>
+<span class="sd">    ... &#39;A&#39;: [0, 3, 6, 9, 12, 15],</span>
+<span class="sd">    ... &#39;B&#39;: [1, 4, 7, 10, 13, 16],</span>
+<span class="sd">    ... &#39;C&#39;: [2, 5, 8, 11, 14, 17]})</span>
 <span class="sd">    &gt;&gt;&gt; y = pd.Series([0, 0, 1, 1, 2, 3], name=&#39;TARGET&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; obj = SupervisedSampling(n_samples=3)</span>
+<span class="sd">    &gt;&gt;&gt; obj = SupervisedSampling(frac_dict={0: 0.5, 1:0.5, 2:1, 3:1})</span>
 <span class="sd">    &gt;&gt;&gt; X, y = obj.transform(X, y)</span>
 <span class="sd">    &gt;&gt;&gt; X</span>
 <span class="sd">        A   B   C</span>
-<span class="sd">    1   3   4   5</span>
-<span class="sd">    3   9  10  11</span>
-<span class="sd">    4  12  13  14</span>
-<span class="sd">    5  15  16  17</span>
+<span class="sd">    0   3   4   5</span>
+<span class="sd">    1   9  10  11</span>
+<span class="sd">    2  12  13  14</span>
+<span class="sd">    3  15  16  17</span>
 <span class="sd">    &gt;&gt;&gt; y</span>
-<span class="sd">    1    0</span>
-<span class="sd">    3    1</span>
-<span class="sd">    4    2</span>
-<span class="sd">    5    3</span>
+<span class="sd">    0    0</span>
+<span class="sd">    1    1</span>
+<span class="sd">    2    2</span>
+<span class="sd">    3    3</span>
 <span class="sd">    Name: TARGET, dtype: int64</span>
 
 <span class="sd">    * koalas transform</span>
 
-<span class="sd">    &gt;&gt;&gt; import pandas as ks</span>
+<span class="sd">    &gt;&gt;&gt; import databricks.koalas as ks</span>
 <span class="sd">    &gt;&gt;&gt; from gators.sampling import SupervisedSampling</span>
 <span class="sd">    &gt;&gt;&gt; X = ks.DataFrame({</span>
 <span class="sd">    ...     &#39;A&#39;: {0: 0, 1: 3, 2: 6, 3: 9, 4: 12, 5: 15},</span>
 <span class="sd">    ...     &#39;B&#39;: {0: 1, 1: 4, 2: 7, 3: 10, 4: 13, 5: 16},</span>
 <span class="sd">    ...     &#39;C&#39;: {0: 2, 1: 5, 2: 8, 3: 11, 4: 14, 5: 17}})</span>
 <span class="sd">    &gt;&gt;&gt; y = ks.Series([0, 0, 1, 1, 2, 3], name=&#39;TARGET&#39;)</span>
-<span class="sd">    &gt;&gt;&gt; obj = SupervisedSampling(n_samples=3)</span>
+<span class="sd">    &gt;&gt;&gt; obj = SupervisedSampling(frac_dict={0: 0.5, 1:0.5, 2:1, 3:1})</span>
 <span class="sd">    &gt;&gt;&gt; X, y = obj.transform(X, y)</span>
 <span class="sd">    &gt;&gt;&gt; X</span>
 <span class="sd">        A   B   C</span>
-<span class="sd">    1   3   4   5</span>
-<span class="sd">    3   9  10  11</span>
-<span class="sd">    4  12  13  14</span>
-<span class="sd">    5  15  16  17</span>
+<span class="sd">    0   3   4   5</span>
+<span class="sd">    1   9  10  11</span>
+<span class="sd">    2  12  13  14</span>
+<span class="sd">    3  15  16  17</span>
 <span class="sd">    &gt;&gt;&gt; y</span>
-<span class="sd">    1    0</span>
-<span class="sd">    3    1</span>
-<span class="sd">    4    2</span>
-<span class="sd">    5    3</span>
+<span class="sd">    0    0</span>
+<span class="sd">    1    1</span>
+<span class="sd">    2    2</span>
+<span class="sd">    3    3</span>
 <span class="sd">    Name: TARGET, dtype: int64</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SupervisedSampling.__init__"><a class="viewcode-back" href="../../../reference/api/gators.sampling.SupervisedSampling.html#gators.sampling.SupervisedSampling.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`n_samples` should be an int.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span> <span class="o">=</span> <span class="n">n_samples</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frac_vec</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">([])</span></div>
+<div class="viewcode-block" id="SupervisedSampling.__init__"><a class="viewcode-back" href="../../../reference/api/gators.sampling.SupervisedSampling.html#gators.sampling.SupervisedSampling.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frac_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">random_state</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`random_state` should be a positive int.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frac_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`frac_dict` should be a dict.&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">frac_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;the keys of `frac_dict` should be an int.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">v</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;the values of `frac_dict` should be float beting 0 an 1.&quot;</span>
+                <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frac_dict</span> <span class="o">=</span> <span class="n">frac_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span></div>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                  <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span>
-                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                             <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Fit and transform the dataframe `X` and the series `y`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series]</span>
+<span class="sd">        y : Series</span>
 <span class="sd">            Input target.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Tuple[Union[pd.DataFrame, ks.DataFrame], Union[pd.Series, ks.Series]]:</span>
+<span class="sd">        Tuple[DataFrame, Series]:</span>
 <span class="sd">            Transformed dataframe and the series.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="n">y_name</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frac_vec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_sampling_fractions</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_samples</span><span class="p">)</span>
+        <span class="n">index_name</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
+
+        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">frac_dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="n">frac_dict</span><span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="n">y</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]],</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+
         <span class="n">Xy</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
-        <span class="n">Xy_sampled</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_dataframe</span><span class="p">(</span>
-            <span class="n">Xy</span><span class="o">=</span><span class="n">Xy</span><span class="p">,</span>
-            <span class="n">frac_vec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">frac_vec</span><span class="p">,</span>
-            <span class="n">y_name</span><span class="o">=</span><span class="n">y_name</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">Xy_sampled</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Xy_sampled</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">compute_sampling_fractions</span><span class="p">(</span><span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
-                                   <span class="n">n_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Compute the sampling fractions.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        y : Union[pd.Series, ks.Series]</span>
-<span class="sd">            Target values.</span>
-<span class="sd">        n_samples : int</span>
-<span class="sd">            Number of samples to keep.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        pd.Series</span>
-<span class="sd">            Fraction to keep for each label.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">class_count</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span>
-        <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">class_count</span><span class="p">)</span>
-        <span class="n">n_samples_per_class</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n_samples</span> <span class="o">/</span> <span class="n">n_classes</span><span class="p">)</span>
-        <span class="n">mask</span> <span class="o">=</span> <span class="n">class_count</span> <span class="o">&gt;</span> <span class="n">n_samples_per_class</span>
-        <span class="n">n_classes_</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">n_samples_</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">class_count</span><span class="p">[</span><span class="o">~</span> <span class="n">mask</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">frac_vec</span> <span class="o">=</span> <span class="n">n_samples_</span> <span class="o">/</span> <span class="p">(</span><span class="n">class_count</span> <span class="o">*</span> <span class="n">n_classes_</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">frac_vec</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-            <span class="n">frac_vec</span> <span class="o">=</span> <span class="n">frac_vec</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
-        <span class="n">frac_vec</span><span class="p">[</span><span class="n">frac_vec</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.</span>
-        <span class="n">frac_vec</span> <span class="o">=</span> <span class="n">frac_vec</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">frac_vec</span> <span class="o">&lt;</span> <span class="mf">1.</span><span class="o">/</span><span class="n">n_samples</span><span class="p">,</span> <span class="mf">1.</span><span class="o">/</span><span class="n">n_samples</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">frac_vec</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">sample_dataframe</span><span class="p">(</span><span class="n">Xy</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                         <span class="n">frac_vec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">y_name</span><span class="p">:</span> <span class="nb">str</span>
-                         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Sample dataframe.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        Xy : Union[pd.DataFrame, ks.DataFrame]</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        frac_vec : pd.Series</span>
-<span class="sd">            Fraction to keep for each label.</span>
-<span class="sd">        y_name : str</span>
-<span class="sd">            Target name.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
-<span class="sd">            Transformed dataframe.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="n">Xy_sampled</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">Xy</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">Xy_sampled</span> <span class="o">=</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">Xy</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">frac</span> <span class="ow">in</span> <span class="n">frac_vec</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="k">if</span> <span class="n">frac</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">Xy_sampled</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">Xy_sampled</span><span class="p">,</span> <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">Xy_sampled</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">Xy_sampled</span><span class="p">,</span>
-                     <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
-                         <span class="n">frac</span><span class="o">=</span><span class="n">frac</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)],</span>
-                    <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
-                <span class="p">)</span>
-        <span class="k">return</span> <span class="n">Xy_sampled</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">Xy</span><span class="o">.</span><span class="n">dtypes</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span></div>
+        <span class="n">Xy_sampled</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frac_dict</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">Xy_sampled</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">index_name</span>
+        <span class="k">return</span> <span class="n">Xy_sampled</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Xy_sampled</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span></div>
 </pre></div>
 
               </div>

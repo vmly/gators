@@ -228,6 +228,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="api/gators.binning.CustomDiscretizer.html">
+     gators.binning.CustomDiscretizer
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="api/gators.binning.Discretizer.html">
      gators.binning.Discretizer
     </a>
@@ -238,8 +243,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.binning.CustomDiscretizer.html">
-     gators.binning.CustomDiscretizer
+    <a class="reference internal" href="api/gators.binning.TreeDiscretizer.html">
+     gators.binning.TreeDiscretizer
     </a>
    </li>
   </ul>
@@ -301,16 +306,6 @@
    <li class="toctree-l2">
     <a class="reference internal" href="api/gators.imputers.NumericsImputer.html">
      gators.imputers.NumericsImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.imputers.IntImputer.html">
-     gators.imputers.IntImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.imputers.FloatImputer.html">
-     gators.imputers.FloatImputer
     </a>
    </li>
    <li class="toctree-l2">
@@ -660,8 +655,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.converter.KoalasToPandas.html">
-     gators.converter.KoalasToPandas
+    <a class="reference internal" href="api/gators.converter.ToPandas.html">
+     gators.converter.ToPandas
     </a>
    </li>
    <li class="toctree-l2">
@@ -719,13 +714,8 @@
   </a>
  </li>
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#numerical-imputers">
-   Numerical Imputers
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#categorical-imputer">
-   Categorical Imputer
+  <a class="reference internal nav-link" href="#id1">
+   Imputers
   </a>
  </li>
 </ul>
@@ -751,22 +741,12 @@
                 
   <div class="section" id="imputers">
 <span id="api-imputers"></span><h1>Imputers<a class="headerlink" href="#imputers" title="Permalink to this headline">¶</a></h1>
-<p>Four different types of imputers are available depending on the variable datatype,
-namely: numerical, integer, float, and categorical (string or object).</p>
+<p>Two different types of imputers are available depending on the variable datatype,
+namely: numerical and categorical (string or object).</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<ul>
+<ul class="simple">
 <li><p><em>NumericsImputer</em> imputes numerical variables.</p></li>
-<li><p><em>FloatImputer</em> imputes only numerical variables satisfying the condition:</p>
-<blockquote>
-<div><p>x != x.round().</p>
-</div></blockquote>
-</li>
-<li><p><em>IntImputer</em> imputes only numerical variables satisfying the condition:</p>
-<blockquote>
-<div><p>x == x.round()</p>
-</div></blockquote>
-</li>
 <li><p><em>ObjectImputer</em> imputes only categorical variables.</p></li>
 </ul>
 </div>
@@ -784,8 +764,8 @@ namely: numerical, integer, float, and categorical (string or object).</p>
 </tbody>
 </table>
 </div>
-<div class="section" id="numerical-imputers">
-<h2>Numerical Imputers<a class="headerlink" href="#numerical-imputers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h2>Imputers<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <table class="longtable table autosummary">
 <colgroup>
 <col style="width: 10%" />
@@ -795,24 +775,7 @@ namely: numerical, integer, float, and categorical (string or object).</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="api/gators.imputers.NumericsImputer.html#gators.imputers.NumericsImputer" title="gators.imputers.NumericsImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NumericsImputer</span></code></a>(strategy[, value, columns])</p></td>
 <td><p>Impute the numerical columns using the strategy passed by the user.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="api/gators.imputers.IntImputer.html#gators.imputers.IntImputer" title="gators.imputers.IntImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntImputer</span></code></a>(strategy[, value, columns])</p></td>
-<td><p>Impute the numerical columns satisfying the condition X == X.round() using the strategy passed by the user.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/gators.imputers.FloatImputer.html#gators.imputers.FloatImputer" title="gators.imputers.FloatImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FloatImputer</span></code></a>(strategy[, value, columns])</p></td>
-<td><p>Impute the numerical columns satisfying the condition X != X.round() using the strategy passed by the user.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section" id="categorical-imputer">
-<h2>Categorical Imputer<a class="headerlink" href="#categorical-imputer" title="Permalink to this headline">¶</a></h2>
-<table class="longtable table autosummary">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="api/gators.imputers.ObjectImputer.html#gators.imputers.ObjectImputer" title="gators.imputers.ObjectImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectImputer</span></code></a>(strategy[, value, columns])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="api/gators.imputers.ObjectImputer.html#gators.imputers.ObjectImputer" title="gators.imputers.ObjectImputer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ObjectImputer</span></code></a>(strategy[, value, columns])</p></td>
 <td><p>Impute the categorical columns using the strategy passed by the user.</p></td>
 </tr>
 </tbody>

@@ -153,13 +153,18 @@
                 
   <h1>Source code for gators.feature_selection.regression_information_value</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">from</span> <span class="nn">..binning._base_discretizer</span> <span class="kn">import</span> <span class="n">_BaseDiscretizer</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">._base_feature_selection</span> <span class="kn">import</span> <span class="n">_BaseFeatureSelection</span>
 <span class="kn">from</span> <span class="nn">.multiclass_information_value</span> <span class="kn">import</span> <span class="n">MultiClassInformationValue</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">..binning._base_discretizer</span> <span class="kn">import</span> <span class="n">_BaseDiscretizer</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="RegressionInformationValue"><a class="viewcode-back" href="../../../reference/api/gators.feature_selection.RegressionInformationValue.html#gators.feature_selection.RegressionInformationValue">[docs]</a><span class="k">class</span> <span class="nc">RegressionInformationValue</span><span class="p">(</span><span class="n">_BaseFeatureSelection</span><span class="p">):</span>
@@ -282,25 +287,21 @@
 
 <div class="viewcode-block" id="RegressionInformationValue.__init__"><a class="viewcode-back" href="../../../reference/api/gators.feature_selection.RegressionInformationValue.html#gators.feature_selection.RegressionInformationValue.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">discretizer</span><span class="p">:</span> <span class="n">_BaseDiscretizer</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`k` should be an int.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`k` should be an int.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">discretizer</span><span class="p">,</span> <span class="n">_BaseDiscretizer</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`discretizer` should inherite from _BaseDiscretizer.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`discretizer` should inherite from _BaseDiscretizer.&quot;</span><span class="p">)</span>
         <span class="n">_BaseFeatureSelection</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">discretizer</span> <span class="o">=</span> <span class="n">discretizer</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;RegressionInformationValue&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;RegressionInformationValue&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series], default to None.</span>
+<span class="sd">        y : Series, default to None.</span>
 <span class="sd">            Labels.</span>
 
 <span class="sd">        Returns</span>
@@ -315,26 +316,24 @@
             <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">discretizer</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="o">.</span><span class="n">index</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span>
-        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="o">.</span><span class="n">index</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">k</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_drop</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_selected_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span><span class="p">)</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">compute_information_value</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
-            <span class="n">discretizer</span><span class="p">:</span> <span class="n">_BaseDiscretizer</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span> <span class="n">discretizer</span><span class="p">:</span> <span class="n">_BaseDiscretizer</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Compute information value.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series], default to None.</span>
+<span class="sd">        y : Series, default to None.</span>
 <span class="sd">            Labels.</span>
 <span class="sd">        discretizer : _BaseDiscretizer</span>
 <span class="sd">            Discretizer Transformer.</span>
@@ -349,9 +348,8 @@
         <span class="n">discretizer</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">discretizer</span><span class="o">.</span><span class="n">output_columns</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">return</span> <span class="n">MultiClassInformationValue</span><span class="o">.</span><span class="n">compute_information_value</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">,</span>
-            <span class="n">y_binned</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
-            <span class="n">discretizer</span><span class="o">=</span><span class="n">discretizer</span><span class="p">)</span></div>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y_binned</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="n">discretizer</span><span class="o">=</span><span class="n">discretizer</span>
+        <span class="p">)</span></div>
 </pre></div>
 
               </div>

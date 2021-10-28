@@ -17,7 +17,6 @@
       ~TrainTestSplit.check_dataframe
       ~TrainTestSplit.check_y
       ~TrainTestSplit.ordered_split
-      ~TrainTestSplit.random_split
       ~TrainTestSplit.stratified_split
       ~TrainTestSplit.transform
    

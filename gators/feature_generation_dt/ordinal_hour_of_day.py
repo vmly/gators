@@ -1,10 +1,17 @@
 # Licence Apache-2.0
-import feature_gen_dt
-from ._base_datetime_feature import _BaseDatetimeFeature
-from typing import List, Union
+
+from typing import List, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
+import feature_gen_dt
+
+from ..util import util
+from ._base_datetime_feature import _BaseDatetimeFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class OrdinalHourOfDay(_BaseDatetimeFeature):
@@ -71,40 +78,34 @@ class OrdinalHourOfDay(_BaseDatetimeFeature):
 
     def __init__(self, columns: List[str]):
         if not isinstance(columns, list):
-            raise TypeError('`columns` should be a list.')
+            raise TypeError("`columns` should be a list.")
         if not columns:
-            raise ValueError('`columns` should not be empty.')
-        column_names = [f'{c}__hour_of_day' for c in columns]
+            raise ValueError("`columns` should not be empty.")
+        column_names = [f"{c}__hour_of_day" for c in columns]
         column_mapping = dict(zip(column_names, columns))
-        _BaseDatetimeFeature.__init__(
-            self, columns, column_names, column_mapping)
+        _BaseDatetimeFeature.__init__(self, columns, column_names, column_mapping)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
-        if isinstance(X, pd.DataFrame):
-            X_ordinal = X[self.columns].apply(
-                lambda x: x.dt.hour.astype(np.float64).astype(str))
-            X_ordinal.columns = self.column_names
-            return X.join(X_ordinal)
+        self.check_dataframe(X)
 
-        for col, name in zip(self.columns, self.column_names):
-            X = X.assign(
-                dummy=X[col].dt.hour.astype(np.float64).astype(str)
-            ).rename(columns={'dummy': name})
-        return X
+        def f(x):
+            return x.dt.hour.astype(np.float64).astype(str)
+
+        X_new = util.get_function(X).apply(X[self.columns], f)
+        X_new.columns = self.column_names
+        return X.join(X_new)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the array X.
@@ -120,5 +121,4 @@ class OrdinalHourOfDay(_BaseDatetimeFeature):
             Array with the datetime features added.
         """
         self.check_array(X)
-        return feature_gen_dt.ordinal_hour_of_day(
-            X, self.idx_columns)
+        return feature_gen_dt.ordinal_hour_of_day(X, self.idx_columns)

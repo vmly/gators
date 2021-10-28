@@ -1,9 +1,11 @@
 # License: Apache-2.0
-from typing import List, Union
-import pandas as pd
-import databricks.koalas as ks
+from typing import List, TypeVar
+
 from ..util import util
 from ._base_data_cleaning import _BaseDataCleaning
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropHighNaNRatio(_BaseDataCleaning):
@@ -77,12 +79,11 @@ class DropHighNaNRatio(_BaseDataCleaning):
 
     def __init__(self, max_ratio: float):
         if not isinstance(max_ratio, float):
-            raise TypeError('`max_ratio` should be a float.')
+            raise TypeError("`max_ratio` should be a float.")
         _BaseDataCleaning.__init__(self)
         self.max_ratio = max_ratio
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y=None) -> 'DropHighNaNRatio':
+    def fit(self, X: DataFrame, y=None) -> "DropHighNaNRatio":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -90,7 +91,7 @@ class DropHighNaNRatio(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         y : None
            None
@@ -100,21 +101,17 @@ class DropHighNaNRatio(_BaseDataCleaning):
         DropHighNaNRatio: Instance of itself.
         """
         self.check_dataframe(X)
-        self.columns = self.get_columns_to_drop(
-            X=X,
-            max_ratio=self.max_ratio)
+        self.columns = self.get_columns_to_drop(X=X, max_ratio=self.max_ratio)
         self.columns_to_keep = util.exclude_columns(
-            columns=list(X.columns),
-            excluded_columns=self.columns)
+            columns=list(X.columns), excluded_columns=self.columns
+        )
         self.idx_columns_to_keep = self.get_idx_columns_to_keep(
-            columns=X.columns,
-            columns_to_drop=self.columns)
+            columns=X.columns, columns_to_drop=self.columns
+        )
         return self
 
     @staticmethod
-    def get_columns_to_drop(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            max_ratio: float) -> List[str]:
+    def get_columns_to_drop(X: DataFrame, max_ratio: float) -> List[str]:
         """Get  the list of column names to drop.
 
         Parameters
@@ -129,8 +126,6 @@ class DropHighNaNRatio(_BaseDataCleaning):
         List[str]
             List of column names to drop.
         """
-        mask_columns = X.isnull().mean() > max_ratio
-        columns_to_drop = mask_columns[mask_columns].index
-        if isinstance(columns_to_drop, ks.indexes.Index):
-            columns_to_drop = columns_to_drop.to_pandas()
+        mask_columns = util.get_function(X).to_pandas(X.isnull().mean()) > max_ratio
+        columns_to_drop = list(mask_columns[mask_columns].index)
         return columns_to_drop

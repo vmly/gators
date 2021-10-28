@@ -153,14 +153,21 @@
                 
   <h1>Source code for gators.feature_generation_str.string_length</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">feature_gen_str</span> <span class="kn">import</span> <span class="n">string_length</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
-<span class="n">from</span><span class="o">.</span><span class="n">_base_string_feature</span> <span class="kn">import</span> <span class="nn">_BaseStringFeature</span>
+
+<span class="kn">from</span> <span class="nn">feature_gen_str</span> <span class="kn">import</span> <span class="n">string_length</span>
+
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">._base_string_feature</span> <span class="kn">import</span> <span class="n">_BaseStringFeature</span>
+
 <span class="n">pd</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">mode</span><span class="o">.</span><span class="n">chained_assignment</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="StringLength"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation_str.StringLength.html#gators.feature_generation_str.StringLength">[docs]</a><span class="k">class</span> <span class="nc">StringLength</span><span class="p">(</span><span class="n">_BaseStringFeature</span><span class="p">):</span>
@@ -178,7 +185,7 @@
 <span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
 <span class="sd">    &gt;&gt;&gt; from gators.feature_generation_str import StringLength</span>
 <span class="sd">    &gt;&gt;&gt; X = pd.DataFrame({&#39;A&#39;: [&#39;qwe&#39;, &#39;as&#39;, &#39;&#39;], &#39;B&#39;: [1, 22, 333]})</span>
-<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;,&#39;B&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;, &#39;B&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; obj.fit_transform(X)</span>
 <span class="sd">         A    B  A__length  B__length</span>
 <span class="sd">    0  qwe    1        3.0        1.0</span>
@@ -190,7 +197,7 @@
 <span class="sd">    &gt;&gt;&gt; import databricks.koalas as ks</span>
 <span class="sd">    &gt;&gt;&gt; from gators.feature_generation_str import StringLength</span>
 <span class="sd">    &gt;&gt;&gt; X = ks.DataFrame({&#39;A&#39;: [&#39;qwe&#39;, &#39;as&#39;, &#39;&#39;], &#39;B&#39;: [1, 22, 333]})</span>
-<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;,&#39;B&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;, &#39;B&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; obj.fit_transform(X)</span>
 <span class="sd">         A    B  A__length  B__length</span>
 <span class="sd">    0  qwe    1        3.0        1.0</span>
@@ -202,7 +209,7 @@
 <span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
 <span class="sd">    &gt;&gt;&gt; from gators.feature_generation_str import StringLength</span>
 <span class="sd">    &gt;&gt;&gt; X = pd.DataFrame({&#39;A&#39;: [&#39;qwe&#39;, &#39;as&#39;, &#39;&#39;], &#39;B&#39;: [1, 22, 333]})</span>
-<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;,&#39;B&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;, &#39;B&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; _ = obj.fit(X)</span>
 <span class="sd">    &gt;&gt;&gt; obj.transform_numpy(X.to_numpy())</span>
 <span class="sd">    array([[&#39;qwe&#39;, 1, 3.0, 1.0],</span>
@@ -214,7 +221,7 @@
 <span class="sd">    &gt;&gt;&gt; import databricks.koalas as ks</span>
 <span class="sd">    &gt;&gt;&gt; from gators.feature_generation_str import StringLength</span>
 <span class="sd">    &gt;&gt;&gt; X = ks.DataFrame({&#39;A&#39;: [&#39;qwe&#39;, &#39;as&#39;, &#39;&#39;], &#39;B&#39;: [1, 22, 333]})</span>
-<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;,&#39;B&#39;])</span>
+<span class="sd">    &gt;&gt;&gt; obj = StringLength(columns=[&#39;A&#39;, &#39;B&#39;])</span>
 <span class="sd">    &gt;&gt;&gt; _ = obj.fit(X)</span>
 <span class="sd">    &gt;&gt;&gt; obj.transform_numpy(X.to_numpy())</span>
 <span class="sd">    array([[&#39;qwe&#39;, 1, 3.0, 1.0],</span>
@@ -226,21 +233,18 @@
 
 <div class="viewcode-block" id="StringLength.__init__"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation_str.StringLength.html#gators.feature_generation_str.StringLength.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">column_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">column_names</span><span class="p">:</span>
-            <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">__length&#39;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
-        <span class="n">_BaseStringFeature</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">column_names</span><span class="p">)</span></div>
+            <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">__length&quot;</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
+        <span class="n">_BaseStringFeature</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">column_names</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;StringLength&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;StringLength&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : None</span>
-<span class="sd">            None.</span>
+<span class="sd">        y : Series, default to None.</span>
+<span class="sd">            Target values.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -249,32 +253,40 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">):</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
-                <span class="p">{</span><span class="s1">&#39;nan&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
-            <span class="k">pass</span>
-        <span class="k">return</span> <span class="n">X</span>
+
+        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">(</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+                <span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s2">&quot;nan&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">})</span>
+                <span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">len</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">X_new</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="n">f</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">)))</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">X_new</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">transform_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the NumPy array `X`.</span>

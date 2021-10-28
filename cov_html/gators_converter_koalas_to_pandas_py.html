@@ -59,7 +59,7 @@
     <p id="t5" class="run"><span class="n"><a href="#t5">5</a></span><span class="t"><span class="key">import</span> <span class="nam">databricks</span><span class="op">.</span><span class="nam">koalas</span> <span class="key">as</span> <span class="nam">ks</span>&nbsp;</span><span class="r"></span></p>
     <p id="t6" class="pln"><span class="n"><a href="#t6">6</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t7" class="pln"><span class="n"><a href="#t7">7</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t8" class="run"><span class="n"><a href="#t8">8</a></span><span class="t"><span class="key">class</span> <span class="nam">KoalasToPandas</span><span class="op">(</span><span class="nam">TransformerXY</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t8" class="run"><span class="n"><a href="#t8">8</a></span><span class="t"><span class="key">class</span> <span class="nam">ToPandas</span><span class="op">(</span><span class="nam">TransformerXY</span><span class="op">)</span><span class="op">:</span>&nbsp;</span><span class="r"></span></p>
     <p id="t9" class="pln"><span class="n"><a href="#t9">9</a></span><span class="t">    <span class="str">"""Convert koalas dataframe and series to a pandas dataframe and series.</span>&nbsp;</span><span class="r"></span></p>
     <p id="t10" class="pln"><span class="n"><a href="#t10">10</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t11" class="pln"><span class="n"><a href="#t11">11</a></span><span class="t"><span class="str">    Examples</span>&nbsp;</span><span class="r"></span></p>
@@ -68,14 +68,14 @@
     <p id="t14" class="pln"><span class="n"><a href="#t14">14</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
     <p id="t15" class="pln"><span class="n"><a href="#t15">15</a></span><span class="t"><span class="str">    >>> import databricks.koalas as kspandas</span>&nbsp;</span><span class="r"></span></p>
     <p id="t16" class="pln"><span class="n"><a href="#t16">16</a></span><span class="t">&nbsp;</span><span class="r"></span></p>
-    <p id="t17" class="pln"><span class="n"><a href="#t17">17</a></span><span class="t"><span class="str">    >>> from gators.converter import KoalasToPandas</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t17" class="pln"><span class="n"><a href="#t17">17</a></span><span class="t"><span class="str">    >>> from gators.converter import ToPandas</span>&nbsp;</span><span class="r"></span></p>
     <p id="t18" class="pln"><span class="n"><a href="#t18">18</a></span><span class="t"><span class="str">    >>> X = ks.DataFrame(</span>&nbsp;</span><span class="r"></span></p>
     <p id="t19" class="pln"><span class="n"><a href="#t19">19</a></span><span class="t"><span class="str">    ... {'q': {0: 0.0, 1: 3.0, 2: 6.0},</span>&nbsp;</span><span class="r"></span></p>
     <p id="t20" class="pln"><span class="n"><a href="#t20">20</a></span><span class="t"><span class="str">    ... 'w': {0: 1.0, 1: 4.0, 2: 7.0},</span>&nbsp;</span><span class="r"></span></p>
     <p id="t21" class="pln"><span class="n"><a href="#t21">21</a></span><span class="t"><span class="str">    ... 'e': {0: 2.0, 1: 5.0, 2: 8.0}</span>&nbsp;</span><span class="r"></span></p>
     <p id="t22" class="pln"><span class="n"><a href="#t22">22</a></span><span class="t"><span class="str">    })</span>&nbsp;</span><span class="r"></span></p>
     <p id="t23" class="pln"><span class="n"><a href="#t23">23</a></span><span class="t"><span class="str">    >>> y = ks.Series([0, 0, 1], name='TARGET')</span>&nbsp;</span><span class="r"></span></p>
-    <p id="t24" class="pln"><span class="n"><a href="#t24">24</a></span><span class="t"><span class="str">    >>> obj = KoalasToPandas()</span>&nbsp;</span><span class="r"></span></p>
+    <p id="t24" class="pln"><span class="n"><a href="#t24">24</a></span><span class="t"><span class="str">    >>> obj = ToPandas()</span>&nbsp;</span><span class="r"></span></p>
     <p id="t25" class="pln"><span class="n"><a href="#t25">25</a></span><span class="t"><span class="str">    >>> obj.transform(X, y)</span>&nbsp;</span><span class="r"></span></p>
     <p id="t26" class="pln"><span class="n"><a href="#t26">26</a></span><span class="t"><span class="str">    (     q    w    e</span>&nbsp;</span><span class="r"></span></p>
     <p id="t27" class="pln"><span class="n"><a href="#t27">27</a></span><span class="t"><span class="str">    0  0.0  1.0  2.0</span>&nbsp;</span><span class="r"></span></p>

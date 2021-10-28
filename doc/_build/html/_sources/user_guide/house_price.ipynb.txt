@@ -90,7 +90,7 @@
     "# sampling\n",
     "from gators.sampling import UnsupervisedSampling\n",
     "# frame converter\n",
-    "from gators.converter import KoalasToPandas\n",
+    "from gators.converter import ToPandas\n",
     "# data cleaninng\n",
     "from gators.data_cleaning import (\n",
     "    DropHighNaNRatio,\n",

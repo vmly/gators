@@ -153,17 +153,20 @@
                 
   <h1>Source code for gators.binning._base_discretizer</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">binning</span> <span class="kn">import</span> <span class="n">discretizer</span><span class="p">,</span> <span class="n">discretizer_inplace</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">..transformers.transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
-<span class="kn">from</span> <span class="nn">pyspark.ml.feature</span> <span class="kn">import</span> <span class="n">Bucketizer</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="kn">from</span> <span class="nn">binning</span> <span class="kn">import</span> <span class="n">discretizer</span><span class="p">,</span> <span class="n">discretizer_inplace</span>
+
+<span class="kn">from</span> <span class="nn">.bin_factory</span> <span class="kn">import</span> <span class="n">get_bin</span>
+<span class="kn">from</span> <span class="nn">..transformers.transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
 
 
-<span class="n">EPSILON</span> <span class="o">=</span> <span class="mf">1e-10</span>
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="_BaseDiscretizer"><a class="viewcode-back" href="../../../reference/api/gators.binning._BaseDiscretizer.html#gators.binning._BaseDiscretizer">[docs]</a><span class="k">class</span> <span class="nc">_BaseDiscretizer</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
@@ -179,11 +182,12 @@
 <span class="sd">        return the dataframe with the existing binned columns.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
 <div class="viewcode-block" id="_BaseDiscretizer.__init__"><a class="viewcode-back" href="../../../reference/api/gators.binning._BaseDiscretizer.html#gators.binning._BaseDiscretizer.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">inplace</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_bins</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`n_bins` should be an int.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">n_bins</span><span class="p">,</span> <span class="nb">int</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="n">n_bins</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`n_bins` should be a positive int.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">inplace</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`inplace` should be a bool.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`inplace` should be a bool.&quot;</span><span class="p">)</span>
         <span class="n">Transformer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span> <span class="o">=</span> <span class="n">n_bins</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span> <span class="o">=</span> <span class="n">inplace</span>
@@ -194,15 +198,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bins_ks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[[]]</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;_BaseDiscretizer&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;_BaseDiscretizer&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series], default to None.</span>
+<span class="sd">        y : Series, default to None.</span>
 <span class="sd">            Labels.</span>
 
 <span class="sd">        Returns</span>
@@ -212,51 +215,34 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_numerical_columns</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s1">__bin&#39;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">__bin&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_bins</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_bins</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_bins</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                  <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">bin</span> <span class="o">=</span> <span class="n">get_bin</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">X</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_pd_inplace</span><span class="p">(</span>
-                    <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_pd</span><span class="p">(</span>
-                <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_ks_inplace</span><span class="p">(</span>
-                <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)[</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_ks</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">bin</span><span class="o">.</span><span class="n">bin_inplace</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">bin</span><span class="o">.</span><span class="n">bin</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_columns</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">transform_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the NumPy array.</span>
@@ -276,149 +262,11 @@
             <span class="k">return</span> <span class="n">X</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">inplace</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">object</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">discretizer_inplace</span><span class="p">(</span>
-                    <span class="n">X</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span>
-                <span class="p">)</span>
-            <span class="k">return</span> <span class="n">discretizer_inplace</span><span class="p">(</span>
-                <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span>
-            <span class="p">)</span>
+                <span class="k">return</span> <span class="n">discretizer_inplace</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">discretizer_inplace</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">object</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">discretizer</span><span class="p">(</span>
-                <span class="n">X</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span>
-            <span class="p">)</span>
-        <span class="k">return</span> <span class="n">discretizer</span><span class="p">(</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span>
-        <span class="p">)</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">bin_pd_inplace</span><span class="p">(</span><span class="n">X</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-                       <span class="n">output_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">bins</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform the binning inplace for pandas dataframes.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : pd.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        columns : List[str]</span>
-<span class="sd">            Columns to be binnned.</span>
-<span class="sd">        output_columns : List[str]</span>
-<span class="sd">            Binnned column names.</span>
-<span class="sd">        bins : [type]</span>
-<span class="sd">            [description]</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        pd.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">x</span>
-            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span>
-                <span class="n">x</span><span class="p">,</span>
-                <span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
-                <span class="n">labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-                <span class="n">duplicates</span><span class="o">=</span><span class="s1">&#39;drop&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">columns</span><span class="p">))</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">bin_pd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">output_columns</span><span class="p">,</span> <span class="n">bins</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform the binning not inplace for pandas dataframes.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : pd.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        columns : List[str]</span>
-<span class="sd">            Columns to be binnned.</span>
-<span class="sd">        output_columns : List[str]</span>
-<span class="sd">            Binnned column names.</span>
-<span class="sd">        bins : [type]</span>
-<span class="sd">            [description]</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        pd.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span>
-                <span class="n">x</span><span class="p">,</span>
-                <span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
-                <span class="n">labels</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
-                <span class="n">duplicates</span><span class="o">=</span><span class="s1">&#39;drop&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-                <span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">columns</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                    <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">output_columns</span><span class="p">))))</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">bin_ks_inplace</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">output_columns</span><span class="p">,</span> <span class="n">bins</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform the binning not inplace for kolas dataframes.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : pd.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        columns : List[str]</span>
-<span class="sd">            Columns to be binnned.</span>
-<span class="sd">        output_columns : List[str]</span>
-<span class="sd">            Binnned column names.</span>
-<span class="sd">        bins : [type]</span>
-<span class="sd">            [description]</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        ks.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">Bucketizer</span><span class="p">(</span>
-            <span class="n">splitsArray</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
-            <span class="n">inputCols</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">outputCols</span><span class="o">=</span><span class="n">output_columns</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">to_spark</span><span class="p">())</span><span class="o">.</span><span class="n">to_koalas</span><span class="p">(</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">output_columns</span><span class="p">,</span> <span class="n">columns</span><span class="p">)))</span>
-        <span class="n">X</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">X</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">bin_ks</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">output_columns</span><span class="p">,</span> <span class="n">bins</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Perform the binning inplace for kolas dataframes.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        X : pd.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        columns : List[str]</span>
-<span class="sd">            Columns to be binnned.</span>
-<span class="sd">        output_columns : List[str]</span>
-<span class="sd">            Binnned column names.</span>
-<span class="sd">        bins : [type]</span>
-<span class="sd">            [description]</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        ks.DataFrame</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">Bucketizer</span><span class="p">(</span>
-            <span class="n">splitsArray</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span>
-            <span class="n">inputCols</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">outputCols</span><span class="o">=</span><span class="n">output_columns</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">to_spark</span><span class="p">())</span><span class="o">.</span><span class="n">to_koalas</span><span class="p">()</span>
-        <span class="n">X</span><span class="p">[</span><span class="n">output_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">output_columns</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">X</span></div>
+            <span class="k">return</span> <span class="n">discretizer</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">discretizer</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bins_np</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="p">)</span></div>
 </pre></div>
 
               </div>

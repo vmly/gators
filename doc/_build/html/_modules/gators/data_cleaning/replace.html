@@ -153,13 +153,17 @@
                 
   <h1>Source code for gators.data_cleaning.replace</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">..transformers.transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
 <span class="kn">from</span> <span class="nn">data_cleaning</span> <span class="kn">import</span> <span class="n">replace</span>
+
+<span class="kn">from</span> <span class="nn">..transformers.transformer</span> <span class="kn">import</span> <span class="n">Transformer</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Replace"><a class="viewcode-back" href="../../../reference/api/gators.data_cleaning.Replace.html#gators.data_cleaning.Replace">[docs]</a><span class="k">class</span> <span class="nc">Replace</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
@@ -180,7 +184,7 @@
 <span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
 <span class="sd">    &gt;&gt;&gt; from gators.data_cleaning import Replace</span>
 <span class="sd">    &gt;&gt;&gt; X = pd.DataFrame(</span>
-<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;,&#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
+<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;, &#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
 <span class="sd">    &gt;&gt;&gt; to_replace_dict = {&#39;A&#39;: {&#39;a&#39;: &#39;X&#39;, &#39;b&#39;: &#39;Z&#39;}, &#39;B&#39;: {&#39;d&#39;: &#39;Y&#39;}}</span>
 <span class="sd">    &gt;&gt;&gt; obj = Replace(to_replace_dict=to_replace_dict)</span>
 <span class="sd">    &gt;&gt;&gt; obj.fit_transform(X)</span>
@@ -194,7 +198,7 @@
 <span class="sd">    &gt;&gt;&gt; import databricks.koalas as ks</span>
 <span class="sd">    &gt;&gt;&gt; from gators.data_cleaning import Replace</span>
 <span class="sd">    &gt;&gt;&gt; X = ks.DataFrame(</span>
-<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;,&#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
+<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;, &#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
 <span class="sd">    &gt;&gt;&gt; to_replace_dict = {&#39;A&#39;: {&#39;a&#39;: &#39;X&#39;, &#39;b&#39;: &#39;Z&#39;}, &#39;B&#39;: {&#39;d&#39;: &#39;Y&#39;}}</span>
 <span class="sd">    &gt;&gt;&gt; obj = Replace(to_replace_dict=to_replace_dict)</span>
 <span class="sd">    &gt;&gt;&gt; obj.fit_transform(X)</span>
@@ -208,7 +212,7 @@
 <span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
 <span class="sd">    &gt;&gt;&gt; from gators.data_cleaning import Replace</span>
 <span class="sd">    &gt;&gt;&gt; X = pd.DataFrame(</span>
-<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;,&#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
+<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;, &#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
 <span class="sd">    &gt;&gt;&gt; to_replace_dict = {&#39;A&#39;: {&#39;a&#39;: &#39;X&#39;, &#39;b&#39;: &#39;Z&#39;}, &#39;B&#39;: {&#39;d&#39;: &#39;Y&#39;}}</span>
 <span class="sd">    &gt;&gt;&gt; obj = Replace(to_replace_dict=to_replace_dict)</span>
 <span class="sd">    &gt;&gt;&gt; _ = obj.fit(X)</span>
@@ -222,7 +226,7 @@
 <span class="sd">    &gt;&gt;&gt; import databricks.koalas as ks</span>
 <span class="sd">    &gt;&gt;&gt; from gators.data_cleaning import Replace</span>
 <span class="sd">    &gt;&gt;&gt; X = ks.DataFrame(</span>
-<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;,&#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
+<span class="sd">    ...     {&#39;A&#39;: [&#39;a&#39;, &#39;b&#39;, &#39;c&#39;], &#39;B&#39;: [&#39;d&#39;, &#39;e&#39;, &#39;f&#39;],&#39;C&#39;: [1, 2, 3]})</span>
 <span class="sd">    &gt;&gt;&gt; to_replace_dict = {&#39;A&#39;: {&#39;a&#39;: &#39;X&#39;, &#39;b&#39;: &#39;Z&#39;}, &#39;B&#39;: {&#39;d&#39;: &#39;Y&#39;}}</span>
 <span class="sd">    &gt;&gt;&gt; obj = Replace(to_replace_dict=to_replace_dict)</span>
 <span class="sd">    &gt;&gt;&gt; _ = obj.fit(X)</span>
@@ -236,7 +240,7 @@
 
 <div class="viewcode-block" id="Replace.__init__"><a class="viewcode-back" href="../../../reference/api/gators.data_cleaning.Replace.html#gators.data_cleaning.Replace.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_replace_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_replace_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`to_replace_dict` should be a dict.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`to_replace_dict` should be a dict.&quot;</span><span class="p">)</span>
         <span class="n">Transformer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span> <span class="o">=</span> <span class="n">to_replace_dict</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">to_replace_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -249,12 +253,13 @@
             <span class="n">n_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">n_elements_vec</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_elements</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_np_keys</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">n_elements</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:</span><span class="n">n_elements</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+            <span class="p">)[:</span><span class="n">n_elements</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_np_vals</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:</span><span class="n">n_elements</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())[:</span><span class="n">n_elements</span><span class="p">]</span></div>
+                <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="p">)[:</span><span class="n">n_elements</span><span class="p">]</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;Replace&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Replace&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe X.</span>
 
 <span class="sd">        Get the list of column names to remove and the array of</span>
@@ -262,9 +267,9 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series], default to None.</span>
+<span class="sd">        y : Series, default to None.</span>
 <span class="sd">            Labels.</span>
 
 <span class="sd">        Returns</span>
@@ -276,28 +281,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-
-        <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">to_replace_dict</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span>
-            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">x</span>
-            <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">to_replace_dict</span><span class="p">[</span><span class="n">name</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_replace_dict</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">transform_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the NumPy array `X`.</span>
@@ -314,10 +312,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">replace</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="p">,</span>
+            <span class="n">X</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_np_keys</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">to_replace_np_vals</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">n_elements_vec</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_elements_vec</span><span class="p">,</span>
+        <span class="p">)</span></div>
 </pre></div>
 
               </div>

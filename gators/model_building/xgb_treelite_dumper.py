@@ -1,9 +1,8 @@
 # License: Apache-2.0
 import os
-import numpy as np
-import xgboost
-from xgboost.sklearn import XGBClassifier
+
 import treelite
+import xgboost
 
 
 class XGBTreeliteDumper:
@@ -35,9 +34,13 @@ class XGBTreeliteDumper:
     """
 
     @staticmethod
-    def dump(model: xgboost.core.Booster, toolchain: str,
-             parallel_comp: int,
-             model_path: str, model_name: str):
+    def dump(
+        model: xgboost.core.Booster,
+        toolchain: str,
+        parallel_comp: int,
+        model_path: str,
+        model_name: str,
+    ):
         """Dump the XGBoost treelite as a .so and a
         .dylib file.
 
@@ -58,35 +61,32 @@ class XGBTreeliteDumper:
             Model name.
         """
         if not isinstance(model, xgboost.core.Booster):
-            raise TypeError('`model` should be an xgboost.core.Booster.')
+            raise TypeError("`model` should be an xgboost.core.Booster.")
         if not isinstance(toolchain, str):
-            raise TypeError('`toolchain` should be a str.')
-        if toolchain not in ['gcc', 'clang', 'msvc']:
-            raise ValueError(
-                '`toolchain` should be `gcc`, `clang`, or `msvc`.')
+            raise TypeError("`toolchain` should be a str.")
+        if toolchain not in ["gcc", "clang", "msvc"]:
+            raise ValueError("`toolchain` should be `gcc`, `clang`, or `msvc`.")
         if not isinstance(parallel_comp, int):
-            raise TypeError('`parallel_comp` should be an int.')
+            raise TypeError("`parallel_comp` should be an int.")
         if not isinstance(model_path, str):
-            raise TypeError('`model_path` should be a str.')
+            raise TypeError("`model_path` should be a str.")
         if not isinstance(model_name, str):
-            raise TypeError('`model_name` should be a str.')
+            raise TypeError("`model_name` should be a str.")
         model_ = treelite.Model.from_xgboost(model)
-        platform_dict = {'gcc': 'unix', 'clang': 'osx', 'msvc': 'windows'}
-        format_dict = {'gcc': '.so', 'clang': '.dylib', 'msvc': '.dll'}
+        platform_dict = {"gcc": "unix", "clang": "osx", "msvc": "windows"}
+        format_dict = {"gcc": ".so", "clang": ".dylib", "msvc": ".dll"}
         model_.export_lib(
             toolchain=toolchain,
-            libpath=os.path.join(
-                model_path, model_name + format_dict[toolchain]),
+            libpath=os.path.join(model_path, model_name + format_dict[toolchain]),
             verbose=False,
-            params={'parallel_comp': parallel_comp},
+            params={"parallel_comp": parallel_comp},
             nthread=1,
         )
         model_.export_srcpkg(
             platform=platform_dict[toolchain],
             toolchain=toolchain,
-            params={'parallel_comp': parallel_comp},
-            pkgpath=os.path.join(model_path, model_name + '.zip'),
-            libname=os.path.join(
-                model_path, model_name + format_dict[toolchain]),
+            params={"parallel_comp": parallel_comp},
+            pkgpath=os.path.join(model_path, model_name + ".zip"),
+            libname=os.path.join(model_path, model_name + format_dict[toolchain]),
             verbose=True,
         )

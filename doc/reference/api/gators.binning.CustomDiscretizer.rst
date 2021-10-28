@@ -14,10 +14,6 @@
    .. autosummary::
    
       ~CustomDiscretizer.__init__
-      ~CustomDiscretizer.bin_ks
-      ~CustomDiscretizer.bin_ks_inplace
-      ~CustomDiscretizer.bin_pd
-      ~CustomDiscretizer.bin_pd_inplace
       ~CustomDiscretizer.check_array
       ~CustomDiscretizer.check_array_is_numerics
       ~CustomDiscretizer.check_binary_target

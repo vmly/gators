@@ -153,13 +153,33 @@
                 
   <h1>Source code for gators.feature_generation_dt.delta_time</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Licence Apache-2.0</span>
-<span class="kn">import</span> <span class="nn">feature_gen_dt</span>
-<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="n">Transformer</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="kn">import</span> <span class="nn">feature_gen_dt</span>
+
+<span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="n">Transformer</span>
+<span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+
+
+<span class="c1"># class ComputerPandas(ComputerFactory):</span>
+<span class="c1">#     def compute(self, X, column_names, columns_a, columns_b, deltatime_dtype):</span>
+<span class="c1">#         for name, c_a, c_b in zip(column_names, columns_a, columns_b):</span>
+<span class="c1">#             X[name] = (X[c_a] - X[c_b])</span>
+<span class="c1">#         return X</span>
+
+
+<span class="c1"># class ComputerKoalas(ComputerFactory):</span>
+<span class="c1">#     def compute(self, X, column_names, columns_a, columns_b, deltatime_dtype):</span>
+<span class="c1">#         for name, c_a, c_b in zip(column_names, columns_a, columns_b):</span>
+<span class="c1">#             X = X.assign(dummy=(X[c_a].astype(float) - X[c_b].astype(float))).rename(</span>
+<span class="c1">#                 columns={&quot;dummy&quot;: name}</span>
+<span class="c1">#             )</span>
 
 
 <div class="viewcode-block" id="DeltaTime"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation_dt.DeltaTime.html#gators.feature_generation_dt.DeltaTime">[docs]</a><span class="k">class</span> <span class="nc">DeltaTime</span><span class="p">(</span><span class="n">Transformer</span><span class="p">):</span>
@@ -235,47 +255,41 @@
 <span class="sd">           [Timestamp(&#39;2020-01-15 18:00:00&#39;), 1,</span>
 <span class="sd">            Timestamp(&#39;2020-01-15 23:00:00&#39;), 18000.0],</span>
 <span class="sd">           [NaT, 0, NaT, nan]], dtype=object)</span>
-
-
-
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="DeltaTime.__init__"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation_dt.DeltaTime.html#gators.feature_generation_dt.DeltaTime.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_a</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">columns_b</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
         <span class="n">Transformer</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns_a</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`columns_a` should be a list.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`columns_a` should be a list.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">columns_a</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`columns_a` should not be empty.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`columns_a` should not be empty.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns_b</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`columns_b` should be a list.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`columns_b` should be a list.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">columns_b</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`columns_b` should not be empty.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`columns_b` should not be empty.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns_b</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns_a</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;`columns_a` and `columns_b` should have the same length.&#39;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="s1">&#39;s&#39;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`columns_a` and `columns_b` should have the same length.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="s2">&quot;s&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span> <span class="o">=</span> <span class="n">columns_a</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span> <span class="o">=</span> <span class="n">columns_b</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deltatime_dtype</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;timedelta64[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s1">]&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltatime_dtype</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;timedelta64[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s2">]&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_a</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">c_b</span><span class="si">}</span><span class="s1">__Deltatime[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s1">]&#39;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c_a</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">c_b</span><span class="si">}</span><span class="s2">__Deltatime[</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="si">}</span><span class="s2">]&quot;</span>
             <span class="k">for</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span>
-            <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
+            <span class="n">name</span><span class="p">:</span> <span class="p">[</span><span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
         <span class="p">}</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DeltaTime&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DeltaTime&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        X : pd.DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series], default to None.</span>
+<span class="sd">        y : Series, default to None.</span>
 <span class="sd">            Target values.</span>
 
 <span class="sd">        Returns</span>
@@ -284,15 +298,16 @@
 <span class="sd">            Instance of itself.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">))</span>
-        <span class="n">X_datetime_dtype</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">5000</span><span class="p">][</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">))</span>
+        <span class="n">X_datetime_dtype</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">dtypes</span>
         <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">issubdtype</span><span class="p">(</span><span class="n">X_datetime_dtype</span><span class="p">[</span><span class="n">column</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
                     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                    Datetime columns should be of subtype np.datetime64.</span>
 <span class="sd">                    Use `ConvertColumnDatatype` to convert the dtype.</span>
-<span class="sd">                &quot;&quot;&quot;</span><span class="p">)</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
             <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
             <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="p">,</span>
@@ -303,30 +318,24 @@
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">):</span>
-                <span class="n">X</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">c_a</span><span class="p">]</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="n">c_b</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltatime_dtype</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">X</span>
-        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">):</span>
-            <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
-                <span class="n">dummy</span><span class="o">=</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">c_a</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="n">c_b</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-                <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;dummy&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">})</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">delta_time</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltatime_dtype</span>
+        <span class="p">)</span>
+        <span class="c1"># X[self.column_names] = X[self.column_names].astype()</span>
         <span class="k">return</span> <span class="n">X</span>
 
     <span class="k">def</span> <span class="nf">transform_numpy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -343,8 +352,7 @@
 <span class="sd">            Array with the datetime features added.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">feature_gen_dt</span><span class="o">.</span><span class="n">deltatime</span><span class="p">(</span>
-            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_b</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">feature_gen_dt</span><span class="o">.</span><span class="n">deltatime</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_b</span><span class="p">)</span></div>
 </pre></div>
 
               </div>

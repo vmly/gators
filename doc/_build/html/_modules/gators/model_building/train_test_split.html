@@ -152,11 +152,13 @@
               <div>
                 
   <h1>Source code for gators.model_building.train_test_split</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="n">TransformerXY</span>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">TypeVar</span>
+
+<span class="kn">from</span> <span class="nn">..transformers</span> <span class="kn">import</span> <span class="n">TransformerXY</span>
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="TrainTestSplit"><a class="viewcode-back" href="../../../reference/api/gators.model_building.TrainTestSplit.html#gators.model_building.TrainTestSplit">[docs]</a><span class="k">class</span> <span class="nc">TrainTestSplit</span><span class="p">(</span><span class="n">TransformerXY</span><span class="p">):</span>
@@ -233,27 +235,27 @@
 <span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = obj.transform(X, y)</span>
 <span class="sd">        &gt;&gt;&gt; X_train</span>
 <span class="sd">            A   B   C</span>
-<span class="sd">        0   0   1   2</span>
-<span class="sd">        3   9  10  11</span>
-<span class="sd">        4  12  13  14</span>
-<span class="sd">        5  15  16  17</span>
-<span class="sd">        &gt;&gt;&gt; X_test</span>
-<span class="sd">            A   B   C</span>
 <span class="sd">        6  18  19  20</span>
 <span class="sd">        2   6   7   8</span>
 <span class="sd">        1   3   4   5</span>
 <span class="sd">        7  21  22  23</span>
+<span class="sd">        &gt;&gt;&gt; X_test</span>
+<span class="sd">            A   B   C</span>
+<span class="sd">        0   0   1   2</span>
+<span class="sd">        3   9  10  11</span>
+<span class="sd">        4  12  13  14</span>
+<span class="sd">        5  15  16  17</span>
 <span class="sd">        &gt;&gt;&gt; y_train</span>
-<span class="sd">        0    0</span>
-<span class="sd">        3    0</span>
-<span class="sd">        4    1</span>
-<span class="sd">        5    2</span>
-<span class="sd">        Name: TARGET, dtype: int64</span>
-<span class="sd">        &gt;&gt;&gt; y_test</span>
 <span class="sd">        6    0</span>
 <span class="sd">        2    2</span>
 <span class="sd">        1    1</span>
 <span class="sd">        7    1</span>
+<span class="sd">        Name: TARGET, dtype: int64</span>
+<span class="sd">        &gt;&gt;&gt; y_test</span>
+<span class="sd">        0    0</span>
+<span class="sd">        3    0</span>
+<span class="sd">        4    1</span>
+<span class="sd">        5    2</span>
 <span class="sd">        Name: TARGET, dtype: int64</span>
 
 <span class="sd">        - stratified split</span>
@@ -267,28 +269,28 @@
 <span class="sd">        &gt;&gt;&gt; obj = TrainTestSplit(test_ratio=test_ratio, strategy=&#39;stratified&#39;)</span>
 <span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = obj.transform(X, y)</span>
 <span class="sd">        &gt;&gt;&gt; X_train</span>
-<span class="sd">           A  B  C</span>
-<span class="sd">        0  0  1  2</span>
-<span class="sd">        1  3  4  5</span>
-<span class="sd">        2  6  7  8</span>
-<span class="sd">        &gt;&gt;&gt; X_test</span>
 <span class="sd">            A   B   C</span>
 <span class="sd">        6  18  19  20</span>
 <span class="sd">        3   9  10  11</span>
 <span class="sd">        7  21  22  23</span>
 <span class="sd">        4  12  13  14</span>
 <span class="sd">        5  15  16  17</span>
+<span class="sd">        &gt;&gt;&gt; X_test</span>
+<span class="sd">           A  B  C</span>
+<span class="sd">        0  0  1  2</span>
+<span class="sd">        1  3  4  5</span>
+<span class="sd">        2  6  7  8</span>
 <span class="sd">        &gt;&gt;&gt; y_train</span>
-<span class="sd">        0    0</span>
-<span class="sd">        1    1</span>
-<span class="sd">        2    2</span>
-<span class="sd">        Name: TARGET, dtype: int64</span>
-<span class="sd">        &gt;&gt;&gt; y_test</span>
 <span class="sd">        6    0</span>
 <span class="sd">        3    0</span>
 <span class="sd">        7    1</span>
 <span class="sd">        4    1</span>
 <span class="sd">        5    2</span>
+<span class="sd">        Name: TARGET, dtype: int64</span>
+<span class="sd">        &gt;&gt;&gt; y_test</span>
+<span class="sd">        0    0</span>
+<span class="sd">        1    1</span>
+<span class="sd">        2    2</span>
 <span class="sd">        Name: TARGET, dtype: int64</span>
 
 <span class="sd">    * transform with `koalas`</span>
@@ -340,27 +342,27 @@
 <span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = obj.transform(X, y)</span>
 <span class="sd">        &gt;&gt;&gt; X_train</span>
 <span class="sd">            A   B   C</span>
-<span class="sd">        0   0   1   2</span>
-<span class="sd">        7  21  22  23</span>
-<span class="sd">        3   9  10  11</span>
 <span class="sd">        2   6   7   8</span>
+<span class="sd">        3   9  10  11</span>
+<span class="sd">        5  15  16  17</span>
+<span class="sd">        6  18  19  20</span>
 <span class="sd">        &gt;&gt;&gt; X_test</span>
 <span class="sd">            A   B   C</span>
-<span class="sd">        6  18  19  20</span>
-<span class="sd">        5  15  16  17</span>
+<span class="sd">        0   0   1   2</span>
 <span class="sd">        1   3   4   5</span>
 <span class="sd">        4  12  13  14</span>
+<span class="sd">        7  21  22  23</span>
 <span class="sd">        &gt;&gt;&gt; y_train</span>
-<span class="sd">        0    0</span>
-<span class="sd">        7    1</span>
-<span class="sd">        3    0</span>
 <span class="sd">        2    2</span>
+<span class="sd">        3    0</span>
+<span class="sd">        5    2</span>
+<span class="sd">        6    0</span>
 <span class="sd">        Name: TARGET, dtype: int64</span>
 <span class="sd">        &gt;&gt;&gt; y_test</span>
-<span class="sd">        6    0</span>
-<span class="sd">        5    2</span>
+<span class="sd">        0    0</span>
 <span class="sd">        1    1</span>
 <span class="sd">        4    1</span>
+<span class="sd">        7    1</span>
 <span class="sd">        Name: TARGET, dtype: int64</span>
 
 <span class="sd">        - stratified split</span>
@@ -375,57 +377,54 @@
 <span class="sd">        &gt;&gt;&gt; X_train, X_test, y_train, y_test = obj.transform(X, y)</span>
 <span class="sd">        &gt;&gt;&gt; X_train</span>
 <span class="sd">            A   B   C</span>
-<span class="sd">        0   0   1   2</span>
-<span class="sd">        3   9  10  11</span>
+<span class="sd">        6  18  19  20</span>
 <span class="sd">        7  21  22  23</span>
-<span class="sd">        2   6   7   8</span>
 <span class="sd">        &gt;&gt;&gt; X_test</span>
 <span class="sd">            A   B   C</span>
-<span class="sd">        6  18  19  20</span>
+<span class="sd">        0   0   1   2</span>
+<span class="sd">        3   9  10  11</span>
 <span class="sd">        1   3   4   5</span>
 <span class="sd">        4  12  13  14</span>
+<span class="sd">        2   6   7   8</span>
 <span class="sd">        5  15  16  17</span>
 <span class="sd">        &gt;&gt;&gt; y_train</span>
-<span class="sd">        0    0</span>
-<span class="sd">        3    0</span>
+<span class="sd">        6    0</span>
 <span class="sd">        7    1</span>
-<span class="sd">        2    2</span>
 <span class="sd">        Name: TARGET, dtype: int64</span>
 <span class="sd">        &gt;&gt;&gt; y_test</span>
-<span class="sd">        6    0</span>
+<span class="sd">        0    0</span>
+<span class="sd">        3    0</span>
 <span class="sd">        1    1</span>
 <span class="sd">        4    1</span>
+<span class="sd">        2    2</span>
 <span class="sd">        5    2</span>
 <span class="sd">        Name: TARGET, dtype: int64</span>
-<span class="sd">    </span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="TrainTestSplit.__init__"><a class="viewcode-back" href="../../../reference/api/gators.model_building.TrainTestSplit.html#gators.model_building.TrainTestSplit.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-                 <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="TrainTestSplit.__init__"><a class="viewcode-back" href="../../../reference/api/gators.model_building.TrainTestSplit.html#gators.model_building.TrainTestSplit.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`strategy` must be a string.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`strategy` should be a string.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_ratio</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`test_ratio` must be a float.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`test_ratio` should be a positive float between 0 and 1.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">random_state</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`random_state` must be an int.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">strategy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;ordered&#39;</span><span class="p">,</span> <span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="s1">&#39;stratified&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`strategy` not implemented.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`random_state` should be a positive int.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">strategy</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;ordered&quot;</span><span class="p">,</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span> <span class="s2">&quot;stratified&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`strategy` not implemented.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">=</span> <span class="n">test_ratio</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">=</span> <span class="n">strategy</span></div>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                  <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
-                  <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span>
-            <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">],</span>
-            <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">Series</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">Series</span><span class="p">,</span> <span class="n">Series</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Transform dataframe and series.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X: Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X: DataFrame</span>
 <span class="sd">            Dataframe.</span>
 <span class="sd">        y: np.ndarray</span>
 <span class="sd">            Labels</span>
@@ -434,142 +433,81 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        --------</span>
-<span class="sd">        Tuple[Union[pd.DataFrame, ks.DataFrame], Union[pd.DataFrame, ks.DataFrame],</span>
-<span class="sd">              Union[pd.Series, ks.Series], Union[pd.Series, ks.Series]]</span>
+<span class="sd">        Tuple[DataFrame, DataFrame,</span>
+<span class="sd">              Series, Series]</span>
 <span class="sd">            Train-Test split.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;ordered&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
         <span class="n">y_name</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">x_name</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="n">X</span><span class="p">[</span><span class="s1">&#39;index&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">index</span>
         <span class="n">Xy</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s2">&quot;ordered&quot;</span><span class="p">:</span>
+            <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ordered_split</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s2">&quot;random&quot;</span><span class="p">:</span>
+            <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">random_split</span><span class="p">(</span>
+                <span class="n">Xy</span><span class="p">,</span> <span class="n">frac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>   <span class="c1"># self.strategy == &quot;stratified&quot;</span>
+            <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratified_split</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">y_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">Xy_train</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">Xy_test</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">Xy_train</span><span class="p">[</span><span class="n">y_name</span><span class="p">],</span>
+            <span class="n">Xy_test</span><span class="p">[</span><span class="n">y_name</span><span class="p">],</span>
+        <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">strategy</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
-            <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">random_split</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">x_name</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stratified_split</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">x_name</span><span class="p">,</span> <span class="n">y_name</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Xy_train</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Xy_test</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">y_name</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">Xy_train</span><span class="p">[</span><span class="n">y_name</span><span class="p">],</span> <span class="n">Xy_test</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">ordered_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                      <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span>
-                      <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">ordered_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xy</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Perform random split.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Dataframe</span>
-<span class="sd">        y : Union[pd.Series, ks.Series]</span>
-<span class="sd">            Series</span>
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]:</span>
+<span class="sd">        DataFrame:</span>
 <span class="sd">            Train set.</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]:</span>
+<span class="sd">        DataFrame:</span>
 <span class="sd">            Test set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">n_samples</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">Xy</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">n_test</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">*</span> <span class="n">n_samples</span><span class="p">)</span>
         <span class="n">n_train</span> <span class="o">=</span> <span class="n">n_samples</span> <span class="o">-</span> <span class="n">n_test</span>
-        <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_train</span><span class="p">),</span> <span class="n">X</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">n_test</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">n_train</span><span class="p">),</span> <span class="n">y</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span><span class="n">n_test</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">n_train</span><span class="p">),</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">tail</span><span class="p">(</span>
+            <span class="n">Xy</span><span class="p">,</span> <span class="n">n_test</span>
+        <span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">random_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                     <span class="n">Xy</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                     <span class="n">x_name</span><span class="p">:</span> <span class="nb">str</span>
-                     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                                <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
-        <span class="sd">&quot;&quot;&quot;Perform random split.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        Xy : Union[pd.DataFrame, ks.DataFrame]</span>
-<span class="sd">            Dataframe.</span>
-<span class="sd">        x_name: str</span>
-<span class="sd">            Dataframe index name.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]:</span>
-<span class="sd">            Train set.</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]:</span>
-<span class="sd">            Test set.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">-=</span> <span class="mf">1e-6</span>
-            <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">to_spark</span><span class="p">()</span><span class="o">.</span><span class="n">randomSplit</span><span class="p">(</span>
-                <span class="p">[</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">],</span>
-                <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
-            <span class="p">)</span>
-            <span class="n">Xy_train</span> <span class="o">=</span> <span class="n">Xy_train</span><span class="o">.</span><span class="n">to_koalas</span><span class="p">()</span>
-            <span class="n">Xy_test</span> <span class="o">=</span> <span class="n">Xy_test</span><span class="o">.</span><span class="n">to_koalas</span><span class="p">()</span>
-            <span class="n">Xy_train</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">Xy_train</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">x_name</span>
-            <span class="n">Xy_test</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="n">Xy_test</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">x_name</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">Xy_test</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
-                <span class="n">frac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
-            <span class="n">Xy_train</span> <span class="o">=</span> <span class="n">Xy</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">Xy_test</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span>
-
-    <span class="k">def</span> <span class="nf">stratified_split</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                         <span class="n">Xy</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-                         <span class="n">x_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">y_name</span><span class="p">:</span> <span class="nb">str</span>
-                         <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]:</span>
+    <span class="k">def</span> <span class="nf">stratified_split</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">Xy</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y_name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Perform stratified split.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        Xy : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        Xy : DataFrame</span>
 <span class="sd">            Dataframe.</span>
-<span class="sd">        x_name: str</span>
-<span class="sd">            Dataframe index name.</span>
-<span class="sd">        y_name: str</span>
-<span class="sd">            Target column name.</span>
+
+<span class="sd">        y_name : str</span>
+<span class="sd">            Target name.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]:</span>
+<span class="sd">        DataFrame:</span>
 <span class="sd">            Train set.</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]:</span>
+<span class="sd">        DataFrame:</span>
 <span class="sd">            Test set.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">y_values</span> <span class="o">=</span> <span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">(</span><span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">Xy_test_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">Xy_train_list</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">Xy</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span> <span class="o">-=</span> <span class="mf">1e-6</span>
-            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ratio</span> <span class="ow">in</span> <span class="n">y_values</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-                <span class="n">Xy_label</span> <span class="o">=</span> <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span>
-                <span class="n">Xy_train_label</span><span class="p">,</span> <span class="n">Xy_test_label</span> <span class="o">=</span> <span class="n">Xy_label</span><span class="o">.</span><span class="n">to_spark</span><span class="p">(</span>
-                <span class="p">)</span><span class="o">.</span><span class="n">randomSplit</span><span class="p">(</span>
-                    <span class="p">[</span><span class="mf">1.</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">],</span>
-                    <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span>
-                <span class="p">)</span>
-                <span class="n">Xy_train_label</span> <span class="o">=</span> <span class="n">Xy_train_label</span><span class="o">.</span><span class="n">to_koalas</span><span class="p">()</span>
-                <span class="n">Xy_test_label</span> <span class="o">=</span> <span class="n">Xy_test_label</span><span class="o">.</span><span class="n">to_koalas</span><span class="p">()</span>
-                <span class="n">Xy_train_label</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">Xy_train_label</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">x_name</span>
-                <span class="n">Xy_test_label</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;index&#39;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-                <span class="n">Xy_test_label</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">x_name</span>
-                <span class="n">Xy_test_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xy_test_label</span><span class="p">)</span>
-                <span class="n">Xy_train_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xy_train_label</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">Xy_train_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> \
-                <span class="n">util</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">Xy_test_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">ratio</span> <span class="ow">in</span> <span class="n">y_values</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
-            <span class="n">Xy_label</span> <span class="o">=</span> <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">==</span> <span class="n">label</span><span class="p">]</span>
-            <span class="n">Xy_label_test</span> <span class="o">=</span> <span class="n">Xy_label</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
-                <span class="n">frac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span>
-                <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
-            <span class="n">Xy_test_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xy_label_test</span><span class="p">)</span>
-            <span class="n">Xy_train_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Xy_label</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">Xy_label_test</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">Xy_train_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">util</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">Xy_test_list</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="n">labels</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">(</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+        <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">random_split</span><span class="p">(</span>
+            <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">])],</span> <span class="n">frac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">labels</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="n">dummy_train</span><span class="p">,</span> <span class="n">dummy_test</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">random_split</span><span class="p">(</span>
+                <span class="n">Xy</span><span class="p">[</span><span class="n">Xy</span><span class="p">[</span><span class="n">y_name</span><span class="p">]</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">t</span><span class="p">)],</span> <span class="n">frac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">test_ratio</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span>
+            <span class="p">)</span>
+            <span class="n">Xy_train</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">Xy_train</span><span class="p">,</span> <span class="n">dummy_train</span><span class="p">])</span>
+            <span class="n">Xy_test</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">Xy</span><span class="p">)</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">Xy_test</span><span class="p">,</span> <span class="n">dummy_test</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">Xy_train</span><span class="p">,</span> <span class="n">Xy_test</span></div>
 </pre></div>
 
               </div>

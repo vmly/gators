@@ -153,15 +153,18 @@
                 
   <h1>Source code for gators.feature_generation.elementary_arithmethics</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
-<span class="kn">from</span> <span class="nn">gators.feature_generation._base_feature_generation</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_BaseFeatureGeneration</span><span class="p">)</span>
+
 <span class="kn">from</span> <span class="nn">feature_gen</span> <span class="kn">import</span> <span class="n">elementary_arithmetics</span>
+<span class="kn">from</span> <span class="nn">gators.feature_generation._base_feature_generation</span> <span class="kn">import</span> <span class="n">_BaseFeatureGeneration</span>
 
 <span class="n">EPSILON</span> <span class="o">=</span> <span class="mf">1e-10</span>
+
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="ElementaryArithmetics"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation.ElementaryArithmetics.html#gators.feature_generation.ElementaryArithmetics">[docs]</a><span class="k">class</span> <span class="nc">ElementaryArithmetics</span><span class="p">(</span><span class="n">_BaseFeatureGeneration</span><span class="p">):</span>
@@ -279,55 +282,62 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="ElementaryArithmetics.__init__"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation.ElementaryArithmetics.html#gators.feature_generation.ElementaryArithmetics.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns_a</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">columns_b</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-                 <span class="n">operator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">column_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-                 <span class="n">coef</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span> <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">):</span>
+<div class="viewcode-block" id="ElementaryArithmetics.__init__"><a class="viewcode-back" href="../../../reference/api/gators.feature_generation.ElementaryArithmetics.html#gators.feature_generation.ElementaryArithmetics.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">columns_a</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">columns_b</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">operator</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">column_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">coef</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns_a</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`columns_a` should be a list.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`columns_a` should be a list.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns_b</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`columns_b` should be a list.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`columns_b` should be a list.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns_a</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`columns_a` should not be empty.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`columns_a` should not be empty.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">operator</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`operator` should be a str.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`operator` should be a str.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coef</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`coef` should be a float.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`coef` should be a float.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">column_names</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column_names</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`column_names` should be a list.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`column_names` should be a list.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns_a</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns_b</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Length of `columns_a` and `columns_a` should match.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">operator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;+&#39;</span><span class="p">,</span> <span class="s1">&#39;*&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;`operator` should be &quot;+&quot;, &quot;*&quot;, or &quot;/&quot;.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Length of `columns_a` and `columns_a` should match.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">operator</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;`operator` should be &quot;+&quot;, &quot;*&quot;, or &quot;/&quot;.&#39;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">column_names</span><span class="p">:</span>
             <span class="n">str_operator</span> <span class="o">=</span> <span class="n">operator</span>
             <span class="k">if</span> <span class="n">coef</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">str_operator</span> <span class="o">=</span> <span class="s1">&#39;-&#39;</span>
+                <span class="n">str_operator</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span>
             <span class="n">column_names</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_a</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">str_operator</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">c_b</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c_a</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">str_operator</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">c_b</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="k">for</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
             <span class="p">]</span>
             <span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">c_a</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">str_operator</span><span class="si">}</span><span class="s1">__</span><span class="si">{</span><span class="n">c_b</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">]</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">c_a</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">str_operator</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">c_b</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">]</span>
                 <span class="k">for</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
             <span class="p">}</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">column_mapping</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">c</span><span class="p">:</span> <span class="p">[</span><span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">]</span>
-                <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span>
-                <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">column_names</span><span class="p">,</span> <span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
+                <span class="n">c</span><span class="p">:</span> <span class="p">[</span><span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">column_names</span><span class="p">,</span> <span class="n">columns_a</span><span class="p">,</span> <span class="n">columns_b</span><span class="p">)</span>
             <span class="p">}</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">column_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns_a</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sd">&#39;&#39;&#39;Length of `columns_a`, `columns_b`,</span>
-<span class="sd">                and `column_names` should match.&#39;&#39;&#39;</span><span class="p">)</span>
+                <span class="sd">&quot;&quot;&quot;Length of `columns_a`, `columns_b`,</span>
+<span class="sd">                and `column_names` should match.&quot;&quot;&quot;</span>
+            <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_datatype</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">])</span>
         <span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">columns_a</span> <span class="o">+</span> <span class="n">columns_b</span><span class="p">))</span>
         <span class="n">_BaseFeatureGeneration</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-            <span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span> <span class="n">column_names</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span>
-            <span class="n">column_mapping</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">columns_a</span><span class="o">+</span><span class="n">columns_b</span><span class="p">))</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
+            <span class="n">column_names</span><span class="o">=</span><span class="n">column_names</span><span class="p">,</span>
+            <span class="n">column_mapping</span><span class="o">=</span><span class="n">column_mapping</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">columns_a</span> <span class="o">+</span> <span class="n">columns_b</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span> <span class="o">=</span> <span class="n">columns_a</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span> <span class="o">=</span> <span class="n">columns_b</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
@@ -335,17 +345,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="n">operator</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coef</span> <span class="o">=</span> <span class="n">coef</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;ElementaryArithmetics&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ElementaryArithmetics&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : None</span>
-<span class="sd">            None.</span>
+<span class="sd">        y : Series, default to None.</span>
+<span class="sd">            Target values.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -355,37 +363,32 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe_is_numerics</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">selected_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Transform the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        DataFrame</span>
 <span class="sd">            Transformed dataframe.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe_is_numerics</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">):</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;+&#39;</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">c_a</span><span class="p">,</span> <span class="n">c_b</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_b</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">column_names</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;+&quot;</span><span class="p">:</span>
                 <span class="n">X</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">c_a</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef</span> <span class="o">*</span> <span class="n">X</span><span class="p">[</span><span class="n">c_b</span><span class="p">]</span>
-            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s1">&#39;*&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">==</span> <span class="s2">&quot;*&quot;</span><span class="p">:</span>
                 <span class="n">X</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">c_a</span><span class="p">]</span> <span class="o">*</span> <span class="n">X</span><span class="p">[</span><span class="n">c_b</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">X</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">c_a</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">c_b</span><span class="p">]</span> <span class="o">+</span> <span class="n">EPSILON</span><span class="p">)</span>
@@ -408,14 +411,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">elementary_arithmetics</span><span class="p">(</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_b</span><span class="p">,</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="p">,</span> <span class="n">EPSILON</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_a</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_b</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">coef</span><span class="p">,</span>
+            <span class="n">EPSILON</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_idx_columns</span><span class="p">(</span>
-            <span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-            <span class="n">selected_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">get_idx_columns</span><span class="p">(</span><span class="n">columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">selected_columns</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Get the indices of the columns used for the combination.</span>
 
 <span class="sd">        Parameters</span>

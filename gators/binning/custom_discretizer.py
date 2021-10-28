@@ -1,13 +1,16 @@
 # License: Apache-2.0
-from ._base_discretizer import _BaseDiscretizer
-from ..util import util
-from typing import List, Dict, Union
-import numpy as np
-import pandas as pd
-import databricks.koalas as ks
+from typing import Dict, List, TypeVar
 
+import numpy as np
+
+from ..util import util
+from ._base_discretizer import _BaseDiscretizer
 
 EPSILON = 1e-10
+
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class CustomDiscretizer(_BaseDiscretizer):
@@ -42,7 +45,7 @@ class CustomDiscretizer(_BaseDiscretizer):
             0  0.0  0.0
             1  0.0  1.0
             2  1.0  1.0
-            
+
         - add discretization
 
             >>> import pandas as pd
@@ -105,24 +108,24 @@ class CustomDiscretizer(_BaseDiscretizer):
         Discretize using equal splits.
     gators.binning.QuantileDiscretizer
         Discretize using splits based on quantiles.
-
+    gators.binning.TreeDiscretizer
+        Discretize using tree-based splits.
     """
 
     def __init__(self, bins: Dict[str, List[float]], inplace=False):
         if not isinstance(bins, dict):
-            raise TypeError('`bins` should be a dict.')
-        _BaseDiscretizer.__init__(self, n_bins=0, inplace=inplace)
+            raise TypeError("`bins` should be a dict.")
+        _BaseDiscretizer.__init__(self, n_bins=1, inplace=inplace)
         self.bins = {key: np.array(val) for key, val in bins.items()}
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y=None) -> 'CustomDiscretizer':
+    def fit(self, X: DataFrame, y=None) -> "CustomDiscretizer":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -132,19 +135,14 @@ class CustomDiscretizer(_BaseDiscretizer):
         """
         self.check_dataframe(X)
         self.columns = list(self.bins.keys())
-        self.output_columns = [f'{c}__bin' for c in self.columns]
-        self.idx_columns = util.get_idx_columns(
-            X.columns, self.columns
-        )
+        self.output_columns = [f"{c}__bin" for c in self.columns]
+        self.idx_columns = util.get_idx_columns(X.columns, self.columns)
         n_cols = len(self.idx_columns)
         if n_cols == 0:
             return self
         max_bins = max([len(v) for v in self.bins.values()])
-        self.labels = np.arange(max_bins-1)
+        self.labels = np.arange(max_bins - 1)
         self.bins_np = np.inf * np.ones((max_bins, n_cols))
         for i, b in enumerate(self.bins.values()):
-            self.bins_np[:len(b), i] = b
-        if isinstance(X, ks.DataFrame):
-            self.bins = self.bins_np.T.tolist()
-            self.bins = [np.unique(b)+EPSILON for b in self.bins]
+            self.bins_np[: len(b), i] = b
         return self

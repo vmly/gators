@@ -153,11 +153,13 @@
                 
   <h1>Source code for gators.feature_selection.variance_filter</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
+
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">._base_feature_selection</span> <span class="kn">import</span> <span class="n">_BaseFeatureSelection</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="VarianceFilter"><a class="viewcode-back" href="../../../reference/api/gators.feature_selection.VarianceFilter.html#gators.feature_selection.VarianceFilter">[docs]</a><span class="k">class</span> <span class="nc">VarianceFilter</span><span class="p">(</span><span class="n">_BaseFeatureSelection</span><span class="p">):</span>
@@ -226,21 +228,19 @@
 
 <div class="viewcode-block" id="VarianceFilter.__init__"><a class="viewcode-back" href="../../../reference/api/gators.feature_selection.VarianceFilter.html#gators.feature_selection.VarianceFilter.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_var</span><span class="p">:</span> <span class="nb">float</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">min_var</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`min_var` should be a float.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`min_var` should be a float.&quot;</span><span class="p">)</span>
         <span class="n">_BaseFeatureSelection</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_var</span> <span class="o">=</span> <span class="n">min_var</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-            <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;VarianceFilter&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">Series</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;VarianceFilter&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe `X`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame].</span>
+<span class="sd">        X : DataFrame.</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : None</span>
-<span class="sd">            None.</span>
+<span class="sd">        y : Series, default to None.</span>
+<span class="sd">            Target values.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -248,16 +248,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">numerical_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_numerical_columns</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">numerical_columns</span><span class="p">]</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_function</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">[</span><span class="n">numerical_columns</span><span class="p">]</span><span class="o">.</span><span class="n">var</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="c1"># if isinstance(self.feature_importances_, ks.Series):</span>
+        <span class="c1">#     self.feature_importances_ = self.feature_importances_.to_pandas()</span>
         <span class="n">mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_var</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_drop</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_importances_</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">exclude_columns</span><span class="p">(</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_drop</span>
-        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">exclude_columns</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_drop</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_selected_columns</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">get_idx_columns</span><span class="p">(</span>
-            <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span><span class="p">)</span>
+            <span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selected_columns</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 </pre></div>
 

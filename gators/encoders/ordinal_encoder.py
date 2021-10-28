@@ -1,11 +1,14 @@
 # License: Apache-2.0
-from typing import List, Union, Dict
 import warnings
+from typing import Dict, List, TypeVar
+
 import numpy as np
-import pandas as pd
-import databricks.koalas as ks
+
 from ..util import util
 from ._base_encoder import _BaseEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class OrdinalEncoder(_BaseEncoder):
@@ -72,23 +75,20 @@ class OrdinalEncoder(_BaseEncoder):
            [0., 0.]])
     """
 
-    def __init__(self, dtype: type = np.float64,
-                 add_other_columns: bool = True):
+    def __init__(self, dtype: type = np.float64, add_other_columns: bool = True):
         _BaseEncoder.__init__(self, dtype=dtype)
         if not isinstance(add_other_columns, bool):
-            raise TypeError('`add_other_columns` shouldbe a bool.')
+            raise TypeError("`add_other_columns` shouldbe a bool.")
         self.add_other_columns = add_other_columns
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'OrdinalEncoder':
+    def fit(self, X: DataFrame, y: Series = None) -> "OrdinalEncoder":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -100,33 +100,28 @@ class OrdinalEncoder(_BaseEncoder):
         self.check_nans(X, self.columns)
         if not self.columns:
             warnings.warn(
-                f'''`X` does not contain object columns:
-                `{self.__class__.__name__}` is not needed''')
-            return self
-        self.mapping = self.generate_mapping(
-            X, self.columns, self.add_other_columns)
-        self.num_categories_vec = np.array(
-            [len(m) for m in self.mapping.values()]
-        )
-        columns, self.values_vec, self.encoded_values_vec = \
-            self.decompose_mapping(
-                mapping=self.mapping,
+                f"""`X` does not contain object columns:
+                `{self.__class__.__name__}` is not needed"""
             )
+            return self
+        self.mapping = self.generate_mapping(X, self.columns, self.add_other_columns)
+        self.num_categories_vec = np.array([len(m) for m in self.mapping.values()])
+        columns, self.values_vec, self.encoded_values_vec = self.decompose_mapping(
+            mapping=self.mapping,
+        )
         self.idx_columns = util.get_idx_columns(
             columns=X.columns, selected_columns=columns
         )
         return self
 
-    @staticmethod
     def generate_mapping(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            columns: List[str],
-            add_other_columns: bool) -> Dict[str, Dict[str, float]]:
+        self, X: DataFrame, columns: List[str], add_other_columns: bool
+    ) -> Dict[str, Dict[str, float]]:
         """Generate the mapping to perform the encoding.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         self.columns : List[str]
             List of  columns.
@@ -142,18 +137,16 @@ class OrdinalEncoder(_BaseEncoder):
         """
         mapping = {}
         for c in columns:
-            categories = X[c].value_counts().to_dict()
+            categories = util.get_function(X).to_pandas(X[c].value_counts()).to_dict()
             n_categories = len(categories)
             category_names = list(categories.keys())
             category_names = sorted(category_names)
-            category_mapping = dict(zip(
-                category_names,
-                np.arange(n_categories-1, -1, -1).astype(str)
-            ))
-            if add_other_columns and 'MISSING' not in category_mapping:
-                category_mapping['MISSING'] = str(len(category_mapping))
-            if add_other_columns and 'OTHERS' not in category_mapping:
-                category_mapping['OTHERS'] = str(len(category_mapping))
+            category_mapping = dict(
+                zip(category_names, np.arange(n_categories - 1, -1, -1).astype(str))
+            )
+            if add_other_columns and "MISSING" not in category_mapping:
+                category_mapping["MISSING"] = str(len(category_mapping))
+            if add_other_columns and "OTHERS" not in category_mapping:
+                category_mapping["OTHERS"] = str(len(category_mapping))
             mapping[c] = category_mapping
-
         return mapping

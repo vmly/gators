@@ -14,10 +14,6 @@
    .. autosummary::
    
       ~QuantileDiscretizer.__init__
-      ~QuantileDiscretizer.bin_ks
-      ~QuantileDiscretizer.bin_ks_inplace
-      ~QuantileDiscretizer.bin_pd
-      ~QuantileDiscretizer.bin_pd_inplace
       ~QuantileDiscretizer.check_array
       ~QuantileDiscretizer.check_array_is_numerics
       ~QuantileDiscretizer.check_binary_target

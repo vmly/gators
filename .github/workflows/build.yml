@@ -1,8 +1,14 @@
 name: Build and test
 
 on:
-  - push
-  - pull_request
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches:
+      - master
+      - develop
 
 jobs:
   build:
@@ -10,7 +16,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7]
-        os: ['windows-latest'] #[macos-latest, ubuntu-latest]   # 
+        os: ['ubuntu-latest', 'windows-latest'] #[macos-latest, ubuntu-latest]   # 
 
     env:
       PYTHON_VERSION: ${{ matrix.python-version }}

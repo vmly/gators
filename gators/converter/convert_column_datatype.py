@@ -1,26 +1,30 @@
 # License: Apache-2.0
-from ..transformers import Transformer
-from typing import List, Union
+from typing import List, TypeVar
+
 import numpy as np
-import pandas as pd
-import databricks.koalas as ks
+
+from ..transformers import Transformer
 
 LIST_NUMPY_NUM_DTYPES = [
     bool,
     int,
-    'np.int8',
-    'np.int16',
-    'np.int32',
-    'np.int64',
-    'np.uint8',
-    'np.uint16',
-    'np.uint32',
-    'np.uint64',
+    "np.int8",
+    "np.int16",
+    "np.int32",
+    "np.int64",
+    "np.uint8",
+    "np.uint16",
+    "np.uint32",
+    "np.uint64",
     float,
-    'np.float16',
-    'np.float32',
-    'np.float64',
+    "np.float16",
+    "np.float32",
+    "np.float64",
 ]
+
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class ConvertColumnDatatype(Transformer):
@@ -88,23 +92,22 @@ class ConvertColumnDatatype(Transformer):
 
     def __init__(self, columns: List[str], datatype: type):
         if not isinstance(columns, list):
-            raise TypeError('`columns` should be a list.')
+            raise TypeError("`columns` should be a list.")
         if not columns:
-            raise ValueError('`columns` should not be empty.')
-        if type(datatype) != type and not str(datatype).startswith('datetime'):
-            raise TypeError('`datatype` should be a type.')
+            raise ValueError("`columns` should not be empty.")
+        if type(datatype) != type and not str(datatype).startswith("datetime"):
+            raise TypeError("`datatype` should be a type.")
         self.columns = columns
         self.datatype = datatype
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y=None) -> 'ConvertColumnDatatype':
+    def fit(self, X: DataFrame, y=None) -> "ConvertColumnDatatype":
         """Fit the transformer on the dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -114,25 +117,23 @@ class ConvertColumnDatatype(Transformer):
         self.check_dataframe(X)
         return self
 
-    def transform(self, X: Union[pd.DataFrame, ks.DataFrame],
-                  y=None) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame, y=None) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         X[self.columns] = X[self.columns].astype(self.datatype)
         return X
 
-    def transform_numpy(self, X: np.ndarray,
-                        y=None) -> np.ndarray:
+    def transform_numpy(self, X: np.ndarray, y=None) -> np.ndarray:
         """Transform the array `X`.
 
         Parameters

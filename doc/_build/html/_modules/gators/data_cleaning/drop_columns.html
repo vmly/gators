@@ -153,11 +153,13 @@
                 
   <h1>Source code for gators.data_cleaning.drop_columns</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">TypeVar</span>
+
 <span class="kn">from</span> <span class="nn">..util</span> <span class="kn">import</span> <span class="n">util</span>
 <span class="kn">from</span> <span class="nn">._base_data_cleaning</span> <span class="kn">import</span> <span class="n">_BaseDataCleaning</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
-<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="DropColumns"><a class="viewcode-back" href="../../../reference/api/gators.data_cleaning.DropColumns.html#gators.data_cleaning.DropColumns">[docs]</a><span class="k">class</span> <span class="nc">DropColumns</span><span class="p">(</span><span class="n">_BaseDataCleaning</span><span class="p">):</span>
@@ -222,13 +224,12 @@
 
 <div class="viewcode-block" id="DropColumns.__init__"><a class="viewcode-back" href="../../../reference/api/gators.data_cleaning.DropColumns.html#gators.data_cleaning.DropColumns.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`columns` should be a list.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`columns` should be a list.&quot;</span><span class="p">)</span>
 
         <span class="n">_BaseDataCleaning</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">columns</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ks</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">],</span>
-            <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;DropColumns&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;DropColumns&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit the transformer on the dataframe X.</span>
 
 <span class="sd">        Get the list of column names to remove and the array of</span>
@@ -236,9 +237,9 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        X : Union[pd.DataFrame, ks.DataFrame]</span>
+<span class="sd">        X : DataFrame</span>
 <span class="sd">            Input dataframe.</span>
-<span class="sd">        y : Union[pd.Series, ks.Series], default to None.</span>
+<span class="sd">        y : Series, default to None.</span>
 <span class="sd">            Labels.</span>
 
 <span class="sd">        Returns</span>
@@ -247,11 +248,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_dataframe</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">columns_to_keep</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">exclude_columns</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">excluded_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">excluded_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">idx_columns_to_keep</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">exclude_idx_columns</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>
-            <span class="n">excluded_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
+            <span class="n">columns</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">excluded_columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">columns</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 </pre></div>

@@ -1,11 +1,15 @@
 # License: Apache-2.0
-from ..util import util
-from feature_gen_str import upper_case
-from typing import List, Union
+from typing import List, TypeVar
+
 import numpy as np
-import pandas as pd
-import databricks.koalas as ks
-from._base_string_feature import _BaseStringFeature
+
+from feature_gen_str import upper_case
+
+from ..util import util
+from ._base_string_feature import _BaseStringFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class UpperCase(_BaseStringFeature):
@@ -23,7 +27,7 @@ class UpperCase(_BaseStringFeature):
     >>> import pandas as pd
     >>> from gators.feature_generation_str import UpperCase
     >>> X = pd.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = UpperCase(columns=['A','B'])
+    >>> obj = UpperCase(columns=['A', 'B'])
     >>> obj.fit_transform(X)
          A     B
     0  ABC   ABC
@@ -35,7 +39,7 @@ class UpperCase(_BaseStringFeature):
     >>> import databricks.koalas as ks
     >>> from gators.feature_generation_str import UpperCase
     >>> X = ks.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = UpperCase(columns=['A','B'])
+    >>> obj = UpperCase(columns=['A', 'B'])
     >>> obj.fit_transform(X)
          A     B
     0  ABC   ABC
@@ -47,7 +51,7 @@ class UpperCase(_BaseStringFeature):
     >>> import pandas as pd
     >>> from gators.feature_generation_str import UpperCase
     >>> X = pd.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = UpperCase(columns=['A','B'])
+    >>> obj = UpperCase(columns=['A', 'B'])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['ABC', 'ABC'],
@@ -59,7 +63,7 @@ class UpperCase(_BaseStringFeature):
     >>> import databricks.koalas as ks
     >>> from gators.feature_generation_str import UpperCase
     >>> X = ks.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = UpperCase(columns=['A','B'])
+    >>> obj = UpperCase(columns=['A', 'B'])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['ABC', 'ABC'],
@@ -71,22 +75,20 @@ class UpperCase(_BaseStringFeature):
 
     def __init__(self, columns: List[str], column_names: List[str] = None):
         if not isinstance(columns, list):
-            raise TypeError('`columns` should be a list.')
+            raise TypeError("`columns` should be a list.")
         if not columns:
-            raise ValueError('`columns` should not be empty.')
+            raise ValueError("`columns` should not be empty.")
         self.columns = columns
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'StringLength':
+    def fit(self, X: DataFrame, y: Series = None) -> "UpperCase":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -95,35 +97,31 @@ class UpperCase(_BaseStringFeature):
         """
         self.check_dataframe(X)
         self.idx_columns = util.get_idx_columns(
-            columns=X.columns,
-            selected_columns=self.columns
+            columns=X.columns, selected_columns=self.columns
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
 
-        def f(x):  # -> ks.Series[str]:
+        def f(x):
             if x.name in self.columns:
-                return x.astype(str).str.upper().replace(
-                    {'NAN': 'nan', 'NONE': None})
+                return x.astype(str).str.upper().replace({"NAN": "nan", "NONE": None})
             return x
-        # X[self.columns] = X[self.columns]
-        return X.apply(f)
+
+        return util.get_function(X).apply(X, f)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.

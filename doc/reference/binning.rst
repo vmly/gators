@@ -28,7 +28,8 @@ Discretizers
 .. autosummary::
    :toctree: api/
 
+    CustomDiscretizer
     Discretizer
     QuantileDiscretizer
-    CustomDiscretizer
+    TreeDiscretizer
 

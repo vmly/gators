@@ -14,8 +14,6 @@
    .. autosummary::
    
       ~SelectFromModel.__init__
-      ~SelectFromModel.calculate_feature_importances_ks
-      ~SelectFromModel.calculate_feature_importances_pd
       ~SelectFromModel.check_array
       ~SelectFromModel.check_array_is_numerics
       ~SelectFromModel.check_binary_target

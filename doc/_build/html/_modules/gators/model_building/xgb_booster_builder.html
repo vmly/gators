@@ -154,14 +154,10 @@
   <h1>Source code for gators.model_building.xgb_booster_builder</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">xgboost</span>
-<span class="kn">from</span> <span class="nn">xgboost</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">XGBClassifier</span><span class="p">,</span>
-    <span class="n">XGBRegressor</span><span class="p">,</span>
-    <span class="n">XGBRFClassifier</span><span class="p">,</span>
-    <span class="n">XGBRFRegressor</span>
-<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">xgboost</span> <span class="kn">import</span> <span class="n">XGBClassifier</span><span class="p">,</span> <span class="n">XGBRegressor</span><span class="p">,</span> <span class="n">XGBRFClassifier</span><span class="p">,</span> <span class="n">XGBRFRegressor</span>
 
 
 <div class="viewcode-block" id="XGBBoosterBuilder"><a class="viewcode-back" href="../../../reference/api/gators.model_building.XGBBoosterBuilder.html#gators.model_building.XGBBoosterBuilder">[docs]</a><span class="k">class</span> <span class="nc">XGBBoosterBuilder</span><span class="p">:</span>
@@ -186,11 +182,11 @@
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">train</span><span class="p">(</span>
-            <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
-                <span class="n">XGBClassifier</span><span class="p">,</span> <span class="n">XGBRegressor</span><span class="p">,</span> <span class="n">XGBRFClassifier</span><span class="p">,</span> <span class="n">XGBRFRegressor</span><span class="p">],</span>
-            <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">,</span>
-            <span class="n">y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-            <span class="n">num_class</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">XGBClassifier</span><span class="p">,</span> <span class="n">XGBRegressor</span><span class="p">,</span> <span class="n">XGBRFClassifier</span><span class="p">,</span> <span class="n">XGBRFRegressor</span><span class="p">],</span>
+        <span class="n">X_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">y_train</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">num_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert the XGBoost model to a XGB Booster model.</span>
 
 <span class="sd">        Parameters</span>
@@ -207,18 +203,19 @@
 <span class="sd">        xgboost.Booster</span>
 <span class="sd">            Trained xgboost Booster model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="p">(</span><span class="n">XGBClassifier</span><span class="p">,</span> <span class="n">XGBRegressor</span><span class="p">,</span> <span class="n">XGBRFClassifier</span><span class="p">,</span> <span class="n">XGBRFRegressor</span><span class="p">)):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`model` should be a `xgboost.sklearn` model.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="n">model</span><span class="p">,</span> <span class="p">(</span><span class="n">XGBClassifier</span><span class="p">,</span> <span class="n">XGBRegressor</span><span class="p">,</span> <span class="n">XGBRFClassifier</span><span class="p">,</span> <span class="n">XGBRFRegressor</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`model` should be a `xgboost.sklearn` model.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`X_train` should be a NumPy array.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`X_train` should be a NumPy array.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`y_train` should be a NumPy array.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`y_train` should be a NumPy array.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">num_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">num_class</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`num_class` should be an int.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`num_class` should be an int.&quot;</span><span class="p">)</span>
         <span class="n">params</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_xgb_params</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">num_class</span><span class="p">:</span>
-            <span class="n">params</span><span class="p">[</span><span class="s1">&#39;num_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_class</span>
+            <span class="n">params</span><span class="p">[</span><span class="s2">&quot;num_class&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">num_class</span>
         <span class="n">n_estimators</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">n_estimators</span>
         <span class="n">dtrain</span> <span class="o">=</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">DMatrix</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y_train</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">dtrain</span><span class="p">,</span> <span class="n">n_estimators</span><span class="p">)</span></div>

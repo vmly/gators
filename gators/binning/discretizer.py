@@ -1,12 +1,16 @@
 # License: Apache-2.0
-from ._base_discretizer import _BaseDiscretizer
-from typing import List, Tuple, Union
+from typing import List, Tuple, TypeVar
+
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
 from ..util import util
+from ._base_discretizer import _BaseDiscretizer
 
 EPSILON = 1e-10
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Discretizer(_BaseDiscretizer):
@@ -51,7 +55,7 @@ class Discretizer(_BaseDiscretizer):
             0 -1  1    0.0    0.0
             1  0  2    1.0    1.0
             2  1  3    2.0    2.0
-            
+
     * fit & transform with `koalas`
 
     >>> import databricks.koalas as ks
@@ -101,15 +105,14 @@ class Discretizer(_BaseDiscretizer):
         _BaseDiscretizer.__init__(self, n_bins=n_bins, inplace=inplace)
 
     @staticmethod
-    def compute_bins(X: Union[pd.DataFrame, ks.DataFrame], n_bins: int
-                     ) -> Tuple[List[List[float]], np.ndarray]:
+    def compute_bins(X: DataFrame, n_bins: int) -> Tuple[List[List[float]], np.ndarray]:
         """Compute the bins list and the bins array.
         The bin list is used for dataframes and
         the bins array is used for arrays.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         n_bins : int
             Number of bins to use.
@@ -125,25 +128,13 @@ class Discretizer(_BaseDiscretizer):
         """
         n_cols = X.shape[1]
         X_dtype = X.dtypes.to_numpy()[0]
-        if isinstance(X, pd.DataFrame):
-            deltas = X.max() - X.min()
-            bins_np = np.empty((n_bins+1, n_cols))
-            bins_np[0, :] = util.get_bounds(X_dtype)[0]
-            bins_np[-1, :] = util.get_bounds(X_dtype)[1]
-            for i in range(1, n_bins):
-                bins_np[i, :] = X.min() + i * deltas / n_bins
-
-            bins = pd.DataFrame(
-                bins_np, columns=X.columns).to_dict(
-                    orient='list')
-            return bins, bins_np
-        x_min = X.min().to_pandas()
-        x_max = X.max().to_pandas()
+        x_min = util.get_function(X).to_pandas(X.min())
+        x_max = util.get_function(X).to_pandas(X.max())
         deltas = x_max - x_min
-        bins_np = np.empty((n_bins+1, n_cols))
+        bins_np = np.empty((n_bins + 1, n_cols))
         bins_np[0, :] = util.get_bounds(X_dtype)[0]
         bins_np[-1, :] = util.get_bounds(X_dtype)[1]
         for i in range(1, n_bins):
             bins_np[i, :] = x_min + i * deltas / n_bins
-        bins = (bins_np.T + EPSILON).tolist()
+        bins = pd.DataFrame(bins_np, columns=X.columns).to_dict(orient="list")
         return bins, bins_np

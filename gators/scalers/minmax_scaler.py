@@ -1,10 +1,16 @@
 # License: Apache-2.0
-from scaler import minmax_scaler
-from ..transformers.transformer import Transformer
+from typing import TypeVar
+
 import numpy as np
-from typing import Union
 import pandas as pd
-import databricks.koalas as ks
+
+from scaler import minmax_scaler
+
+from ..transformers.transformer import Transformer
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class MinMaxScaler(Transformer):
@@ -70,20 +76,19 @@ class MinMaxScaler(Transformer):
 
     def __init__(self, dtype: type = np.float64):
         self.dtype = dtype
-        self.X_min: Union[pd.DataFrame, ks.DataFrame] = None
-        self.X_max: Union[pd.DataFrame, ks.DataFrame] = None
+        self.X_min: DataFrame = None
+        self.X_max: DataFrame = None
         self.X_min_np = np.array([])
         self.X_max_np = np.array([])
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'MinMaxScaler':
+    def fit(self, X: DataFrame, y: Series = None) -> "MinMaxScaler":
         """Fit the transformer on the pandas/koalas dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -92,10 +97,10 @@ class MinMaxScaler(Transformer):
         """
         self.check_dataframe(X)
         self.check_dataframe_is_numerics(X)
-        self.X_min = X.min().astype(self.dtype)
-        self.X_max = X.max().astype(self.dtype)
-        self.X_min_np = self.X_min.to_numpy().astype(self.dtype)
-        self.X_max_np = self.X_max.to_numpy().astype(self.dtype)
+        self.X_min = util.get_function(X).to_pandas(X.min()).astype(self.dtype)
+        self.X_max = util.get_function(X).to_pandas(X.max()).astype(self.dtype)
+        self.X_min_np = util.get_function(self.X_min).to_numpy(self.X_min)
+        self.X_max_np = util.get_function(self.X_max).to_numpy(self.X_max)
         return self
 
     def transform(self, X):
@@ -103,22 +108,24 @@ class MinMaxScaler(Transformer):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
         self.check_dataframe_is_numerics(X)
 
-        def f(x: ks.Series[self.dtype]):
+        def f(x, X_min, X_max):
             c = x.name
-            return (x - self.X_min.loc[c]) / (self.X_max[c] - self.X_min[c])
+            return (x - X_min.loc[c]) / (X_max[c] - X_min.loc[c])
 
-        return X.astype(self.dtype).apply(f)
+        return util.get_function(X).apply(
+            X.astype(self.dtype), f, args=(self.X_min, self.X_max)
+        )
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the array X.
@@ -132,5 +139,4 @@ class MinMaxScaler(Transformer):
             np.ndarray: Imputed ndarray.
         """
         self.check_array(X)
-        return minmax_scaler(
-            X.astype(self.dtype), self.X_min_np, self.X_max_np)
+        return minmax_scaler(X.astype(self.dtype), self.X_min_np, self.X_max_np)

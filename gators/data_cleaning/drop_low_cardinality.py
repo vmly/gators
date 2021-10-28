@@ -1,9 +1,11 @@
 # License: Apache-2.0
+from typing import List, TypeVar
+
 from ..util import util
 from ._base_data_cleaning import _BaseDataCleaning
-from typing import List, Union
-import pandas as pd
-import databricks.koalas as ks
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropLowCardinality(_BaseDataCleaning):
@@ -69,12 +71,11 @@ class DropLowCardinality(_BaseDataCleaning):
 
     def __init__(self, min_categories: int):
         if not isinstance(min_categories, int):
-            raise TypeError('`min_categories` should be an int.')
+            raise TypeError("`min_categories` should be an int.")
         _BaseDataCleaning.__init__(self)
         self.min_categories: int = min_categories
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame],
-            y=None) -> 'DropLowCardinality':
+    def fit(self, X: DataFrame, y=None) -> "DropLowCardinality":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -82,7 +83,7 @@ class DropLowCardinality(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         y : None
            None
@@ -91,23 +92,18 @@ class DropLowCardinality(_BaseDataCleaning):
         DropLowCardinality: Instance of itself.
         """
         self.check_dataframe(X)
-        self.columns = self.get_columns_to_drop(
-            X=X,
-            min_categories=self.min_categories
-        )
+        self.columns = self.get_columns_to_drop(X=X, min_categories=self.min_categories)
         self.columns_to_keep = util.exclude_columns(
             columns=X.columns,
             excluded_columns=self.columns,
         )
         self.idx_columns_to_keep = self.get_idx_columns_to_keep(
-            columns=X.columns,
-            columns_to_drop=self.columns)
+            columns=X.columns, columns_to_drop=self.columns
+        )
         return self
 
     @staticmethod
-    def get_columns_to_drop(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            min_categories: float) -> List[str]:
+    def get_columns_to_drop(X: DataFrame, min_categories: float) -> List[str]:
         """Get the list of column names to remove.
 
         Parameters
@@ -122,14 +118,14 @@ class DropLowCardinality(_BaseDataCleaning):
         List[str]
             List of column names to drop.
         """
-        object_columns = util.get_datatype_columns(X, 'object')
+        object_columns = util.get_datatype_columns(X, "object")
         if not object_columns:
             return []
-        if isinstance(X, pd.DataFrame):
-            X_nunique = X[object_columns].nunique()
-        else:
-            X_nunique = X[object_columns].nunique().to_pandas()
-            X_nunique = X[object_columns].nunique(approx=True).to_pandas()
+        
+        def f(x):
+            return x.nunique()
+        
+        X_nunique = util.get_function(X).apply_to_pandas(X, f)
         mask_columns = X_nunique < min_categories
         columns_to_drop = mask_columns[mask_columns].index
-        return list(columns_to_drop.to_numpy())
+        return list(columns_to_drop)

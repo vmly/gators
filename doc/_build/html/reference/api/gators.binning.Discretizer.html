@@ -36,7 +36,7 @@
     <link rel="shortcut icon" href="../../_static/gators_logo.ico"/>
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="gators.binning.QuantileDiscretizer" href="gators.binning.QuantileDiscretizer.html" />
-    <link rel="prev" title="gators.binning._BaseDiscretizer" href="gators.binning._BaseDiscretizer.html" />
+    <link rel="prev" title="gators.binning.CustomDiscretizer" href="gators.binning.CustomDiscretizer.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="en">
     
@@ -227,6 +227,11 @@
      gators.binning._BaseDiscretizer
     </a>
    </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="gators.binning.CustomDiscretizer.html">
+     gators.binning.CustomDiscretizer
+    </a>
+   </li>
    <li class="toctree-l2 current active">
     <a class="current reference internal" href="#">
      gators.binning.Discretizer
@@ -238,8 +243,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="gators.binning.CustomDiscretizer.html">
-     gators.binning.CustomDiscretizer
+    <a class="reference internal" href="gators.binning.TreeDiscretizer.html">
+     gators.binning.TreeDiscretizer
     </a>
    </li>
   </ul>
@@ -301,16 +306,6 @@
    <li class="toctree-l2">
     <a class="reference internal" href="gators.imputers.NumericsImputer.html">
      gators.imputers.NumericsImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="gators.imputers.IntImputer.html">
-     gators.imputers.IntImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="gators.imputers.FloatImputer.html">
-     gators.imputers.FloatImputer
     </a>
    </li>
    <li class="toctree-l2">
@@ -660,8 +655,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="gators.converter.KoalasToPandas.html">
-     gators.converter.KoalasToPandas
+    <a class="reference internal" href="gators.converter.ToPandas.html">
+     gators.converter.ToPandas
     </a>
    </li>
    <li class="toctree-l2">
@@ -848,25 +843,13 @@ the dataframe with the existing binned columns.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#gators.binning.Discretizer.__init__" title="gators.binning.Discretizer.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(n_bins[, inplace])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_ks</span></code>(X, columns, output_columns, bins)</p></td>
-<td><p>Perform the binning inplace for kolas dataframes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_ks_inplace</span></code>(X, columns, output_columns, bins)</p></td>
-<td><p>Perform the binning not inplace for kolas dataframes.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_pd</span></code>(X, columns, output_columns, bins)</p></td>
-<td><p>Perform the binning not inplace for pandas dataframes.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bin_pd_inplace</span></code>(X, columns, output_columns, bins)</p></td>
-<td><p>Perform the binning inplace for pandas dataframes.</p></td>
-</tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_array</span></code>(X)</p></td>
 <td><p>Validate array.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_array_is_numerics</span></code>(X)</p></td>
 <td><p>Check if array is only numerics.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_binary_target</span></code>(y)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_binary_target</span></code>(X, y)</p></td>
 <td><p>Raise an error if the target datatype is not binary.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_dataframe</span></code>(X)</p></td>
@@ -923,11 +906,11 @@ the dataframe with the existing binned columns.</p>
               
               <!-- Previous / next buttons -->
 <div class='prev-next-area'> 
-    <a class='left-prev' id="prev-link" href="gators.binning._BaseDiscretizer.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="gators.binning.CustomDiscretizer.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">gators.binning._BaseDiscretizer</p>
+            <p class="prev-next-title">gators.binning.CustomDiscretizer</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="gators.binning.QuantileDiscretizer.html" title="next page">

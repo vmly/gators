@@ -1,11 +1,15 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
+
 import pandas as pd
-import databricks.koalas as ks
+
+from ..binning._base_discretizer import _BaseDiscretizer
+from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
 from .information_value import InformationValue
-from ..util import util
-from ..binning._base_discretizer import _BaseDiscretizer
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class MultiClassInformationValue(_BaseFeatureSelection):
@@ -124,25 +128,21 @@ class MultiClassInformationValue(_BaseFeatureSelection):
 
     def __init__(self, k: int, discretizer: _BaseDiscretizer):
         if not isinstance(k, int):
-            raise TypeError('`k` should be an int.')
+            raise TypeError("`k` should be an int.")
         if not isinstance(discretizer, _BaseDiscretizer):
-            raise TypeError(
-                '`discretizer` should inherite from _BaseDiscretizer.')
+            raise TypeError("`discretizer` should inherite from _BaseDiscretizer.")
         _BaseFeatureSelection.__init__(self)
         self.k = k
         self.discretizer = discretizer
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None
-            ) -> 'MultiClassInformationValue':
+    def fit(self, X: DataFrame, y: Series = None) -> "MultiClassInformationValue":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -157,26 +157,24 @@ class MultiClassInformationValue(_BaseFeatureSelection):
             X, y, self.discretizer
         )
         self.feature_importances_.sort_values(ascending=False, inplace=True)
-        self.selected_columns = list(self.feature_importances_.index[:self.k])
-        self.columns_to_drop = [
-            c for c in columns if c not in self.selected_columns
-        ]
+        self.selected_columns = list(self.feature_importances_.index[: self.k])
+        self.columns_to_drop = [c for c in columns if c not in self.selected_columns]
         self.idx_selected_columns = util.get_idx_columns(
-            X.columns, self.selected_columns)
+            X.columns, self.selected_columns
+        )
         return self
 
     @staticmethod
     def compute_information_value(
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series],
-            discretizer: _BaseDiscretizer) -> pd.Series:
+        X: DataFrame, y: Series, discretizer: _BaseDiscretizer
+    ) -> pd.Series:
         """Compute information value.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
         discretizer : _BaseDiscretizer
             Discretizer Transformer.
@@ -187,18 +185,15 @@ class MultiClassInformationValue(_BaseFeatureSelection):
             Information value.
         """
         discretizer.inplace = False
-        if isinstance(X, pd.DataFrame):
-            y_onehot = pd.get_dummies(y, prefix=y.name)
-        else:
-            y_onehot = ks.get_dummies(y, prefix=y.name)
+        y_onehot = util.get_function(y).get_dummies(
+            y.astype(str).to_frame(), columns=[y.name]
+        )
         y_onehot = y_onehot.drop(y_onehot.columns[0], axis=1)
-        information_values = pd.DataFrame(
-            index=X.columns, columns=y_onehot.columns[1:])
+        information_values = pd.DataFrame(index=X.columns, columns=y_onehot.columns[1:])
         iv = InformationValue(discretizer=discretizer, k=X.shape[1])
         object_columns = util.get_datatype_columns(X, object)
         columns = object_columns + discretizer.output_columns
         for col in y_onehot.columns[1:]:
             _ = iv.fit(X[columns], y_onehot.loc[:, col])
             information_values.loc[:, col] = iv.feature_importances_
-        return information_values.fillna(0).max(1).sort_values(
-            ascending=False)
+        return information_values.fillna(0).max(1).sort_values(ascending=False)

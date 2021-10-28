@@ -1,5 +1,5 @@
 # gators
-
+![PyPI](https://img.shields.io/pypi/v/gators)
 [![Build Status](https://img.shields.io/travis/dmlc/treelite.svg?label=build&logo=travis&branch=mainline)](https://travis-ci.org/dmlc/treelite)
 [![Documentation Status](https://readthedocs.org/projects/treelite/badge/?version=latest)](http://treelite.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/scikit-learn-contrib/imbalanced-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/scikit-learn-contrib/imbalanced-learn)

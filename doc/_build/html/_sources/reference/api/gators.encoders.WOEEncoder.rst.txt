@@ -26,6 +26,7 @@
       ~WOEEncoder.check_nans
       ~WOEEncoder.check_regression_target
       ~WOEEncoder.check_y
+      ~WOEEncoder.clean_mapping
       ~WOEEncoder.decompose_mapping
       ~WOEEncoder.fit
       ~WOEEncoder.fit_transform

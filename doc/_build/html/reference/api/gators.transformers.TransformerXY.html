@@ -228,6 +228,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="gators.binning.CustomDiscretizer.html">
+     gators.binning.CustomDiscretizer
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="gators.binning.Discretizer.html">
      gators.binning.Discretizer
     </a>
@@ -238,8 +243,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="gators.binning.CustomDiscretizer.html">
-     gators.binning.CustomDiscretizer
+    <a class="reference internal" href="gators.binning.TreeDiscretizer.html">
+     gators.binning.TreeDiscretizer
     </a>
    </li>
   </ul>
@@ -301,16 +306,6 @@
    <li class="toctree-l2">
     <a class="reference internal" href="gators.imputers.NumericsImputer.html">
      gators.imputers.NumericsImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="gators.imputers.IntImputer.html">
-     gators.imputers.IntImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="gators.imputers.FloatImputer.html">
-     gators.imputers.FloatImputer
     </a>
    </li>
    <li class="toctree-l2">
@@ -660,8 +655,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="gators.converter.KoalasToPandas.html">
-     gators.converter.KoalasToPandas
+    <a class="reference internal" href="gators.converter.ToPandas.html">
+     gators.converter.ToPandas
     </a>
    </li>
    <li class="toctree-l2">
@@ -734,7 +729,7 @@
 <dl class="py class">
 <dt class="sig sig-object py" id="gators.transformers.TransformerXY">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">gators.transformers.</span></span><span class="sig-name descname"><span class="pre">TransformerXY</span></span><a class="reference internal" href="../../_modules/gators/transformers/transformer_xy.html#TransformerXY"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#gators.transformers.TransformerXY" title="Permalink to this definition">¶</a></dt>
-<dd><p>Abstract <strong>gators</strong> class to transform both X and y.</p>
+<dd><p>Abstract <strong>gators</strong> transformer class to transform both X and y.</p>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">gators.transformers</span> <span class="kn">import</span> <span class="n">TransformerXY</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">class</span> <span class="nc">FirsRows</span><span class="p">(</span><span class="n">TransformerXY</span><span class="p">):</span>

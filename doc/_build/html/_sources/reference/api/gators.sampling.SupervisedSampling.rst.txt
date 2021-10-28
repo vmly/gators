@@ -16,8 +16,6 @@
       ~SupervisedSampling.__init__
       ~SupervisedSampling.check_dataframe
       ~SupervisedSampling.check_y
-      ~SupervisedSampling.compute_sampling_fractions
-      ~SupervisedSampling.sample_dataframe
       ~SupervisedSampling.transform
    
    

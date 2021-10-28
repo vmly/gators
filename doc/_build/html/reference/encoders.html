@@ -228,6 +228,11 @@
     </a>
    </li>
    <li class="toctree-l2">
+    <a class="reference internal" href="api/gators.binning.CustomDiscretizer.html">
+     gators.binning.CustomDiscretizer
+    </a>
+   </li>
+   <li class="toctree-l2">
     <a class="reference internal" href="api/gators.binning.Discretizer.html">
      gators.binning.Discretizer
     </a>
@@ -238,8 +243,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.binning.CustomDiscretizer.html">
-     gators.binning.CustomDiscretizer
+    <a class="reference internal" href="api/gators.binning.TreeDiscretizer.html">
+     gators.binning.TreeDiscretizer
     </a>
    </li>
   </ul>
@@ -301,16 +306,6 @@
    <li class="toctree-l2">
     <a class="reference internal" href="api/gators.imputers.NumericsImputer.html">
      gators.imputers.NumericsImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.imputers.IntImputer.html">
-     gators.imputers.IntImputer
-    </a>
-   </li>
-   <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.imputers.FloatImputer.html">
-     gators.imputers.FloatImputer
     </a>
    </li>
    <li class="toctree-l2">
@@ -660,8 +655,8 @@
     </a>
    </li>
    <li class="toctree-l2">
-    <a class="reference internal" href="api/gators.converter.KoalasToPandas.html">
-     gators.converter.KoalasToPandas
+    <a class="reference internal" href="api/gators.converter.ToPandas.html">
+     gators.converter.ToPandas
     </a>
    </li>
    <li class="toctree-l2">
@@ -829,7 +824,7 @@ Before calling an encoder, all the transformations on categorical columns should
 <p class="admonition-title">Note</p>
 <p>The <em>MultiClassEncoder</em> takes as input a binary encoder and apply it
 to each class. For example, if a n-class classification is composed of
-<em>c</em> categorical columns, the number encoded columns with be <em>n x c</em>.</p>
+<em>c</em> categorical columns, the number of encoded columns is <em>n x c</em>.</p>
 </div>
 <table class="longtable table autosummary">
 <colgroup>

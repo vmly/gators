@@ -153,19 +153,21 @@
                 
   <h1>Source code for gators.model_building.hyperopt</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
-<span class="kn">from</span> <span class="nn">hyperopt.pyll.base</span> <span class="kn">import</span> <span class="n">Apply</span>
-<span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">Trials</span>
-<span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">fmin</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">cross_val_score</span>
-<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span><span class="p">,</span> <span class="n">StratifiedKFold</span>
-<span class="kn">from</span> <span class="nn">sklearn.metrics._scorer</span> <span class="kn">import</span> <span class="n">_PredictScorer</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Callable</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">TypeVar</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-<span class="kn">import</span> <span class="nn">databricks.koalas</span> <span class="k">as</span> <span class="nn">ks</span>
+<span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">Trials</span><span class="p">,</span> <span class="n">fmin</span>
+<span class="kn">from</span> <span class="nn">hyperopt.pyll.base</span> <span class="kn">import</span> <span class="n">Apply</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics._scorer</span> <span class="kn">import</span> <span class="n">_PredictScorer</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">KFold</span><span class="p">,</span> <span class="n">StratifiedKFold</span><span class="p">,</span> <span class="n">cross_val_score</span>
+
+<span class="n">DataFrame</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
+<span class="n">Series</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]&quot;</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="HyperOpt"><a class="viewcode-back" href="../../../reference/api/gators.model_building.HyperOpt.html#gators.model_building.HyperOpt">[docs]</a><span class="k">class</span> <span class="nc">HyperOpt</span><span class="p">():</span>
+<div class="viewcode-block" id="HyperOpt"><a class="viewcode-back" href="../../../reference/api/gators.model_building.HyperOpt.html#gators.model_building.HyperOpt">[docs]</a><span class="k">class</span> <span class="nc">HyperOpt</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Hyper parameter optimization using the Hyperopt package.</span>
 
 <span class="sd">    Parameters</span>
@@ -217,37 +219,40 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="HyperOpt.__init__"><a class="viewcode-back" href="../../../reference/api/gators.model_building.HyperOpt.html#gators.model_building.HyperOpt.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">scoring</span><span class="p">:</span> <span class="n">_PredictScorer</span><span class="p">,</span>
-                 <span class="n">algo</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
-                 <span class="n">space</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Apply</span><span class="p">],</span>
-                 <span class="n">kfold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">KFold</span><span class="p">,</span> <span class="n">StratifiedKFold</span><span class="p">],</span>
-                 <span class="n">max_evals</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-                 <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="s1">&#39;HyperOpt&#39;</span><span class="p">:</span>
+<div class="viewcode-block" id="HyperOpt.__init__"><a class="viewcode-back" href="../../../reference/api/gators.model_building.HyperOpt.html#gators.model_building.HyperOpt.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">model</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="n">scoring</span><span class="p">:</span> <span class="n">_PredictScorer</span><span class="p">,</span>
+        <span class="n">algo</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span>
+        <span class="n">space</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Apply</span><span class="p">],</span>
+        <span class="n">kfold</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">KFold</span><span class="p">,</span> <span class="n">StratifiedKFold</span><span class="p">],</span>
+        <span class="n">max_evals</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">features</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;HyperOpt&quot;</span><span class="p">:</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;fit&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s1">&#39;predict&#39;</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`model` should have the methods `fit` and `predict`&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="s2">&quot;predict&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`model` should have the methods `fit` and `predict`&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="n">algo</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sd">&#39;&#39;&#39;</span>
+                <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">                `algo` should be:</span>
-<span class="sd">                hyperopt.rand, hyperopt.tpe, or hyperopt.atpe&#39;&#39;&#39;</span><span class="p">)</span>
+<span class="sd">                hyperopt.rand, hyperopt.tpe, or hyperopt.atpe&quot;&quot;&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">scoring</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">_PredictScorer</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sd">&#39;&#39;&#39;`scoring` should be a str or</span>
-<span class="sd">                a sklearn.metrics._scorer._PredictScorer&#39;&#39;&#39;</span><span class="p">)</span>
+                <span class="sd">&quot;&quot;&quot;`scoring` should be a str or</span>
+<span class="sd">                a sklearn.metrics._scorer._PredictScorer&quot;&quot;&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`space` should be a dict&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`space` should be a dict&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kfold</span><span class="p">,</span> <span class="p">(</span><span class="n">KFold</span><span class="p">,</span> <span class="n">StratifiedKFold</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`scoring` should be a sklearn.metrics._scorer._PredictScorer&#39;</span><span class="p">)</span>
+                <span class="s2">&quot;`scoring` should be a sklearn.metrics._scorer._PredictScorer&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">max_evals</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`max_evals` should be an int&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`max_evals` should be an int&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="s1">&#39;`features` should be a list&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`features` should be a list&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">=</span> <span class="n">algo</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">scoring</span> <span class="o">=</span> <span class="n">scoring</span>
@@ -258,7 +263,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">int_parameters</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_int_parameters</span><span class="p">(</span><span class="n">space</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">features</span> <span class="o">=</span> <span class="n">features</span></div>
 
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s1">&#39;HyperOpt&#39;</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;HyperOpt&quot;</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Fit model on X with y.</span>
 
 <span class="sd">        Parameters</span>
@@ -274,11 +279,9 @@
 <span class="sd">            Instance of itself.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sd">&#39;&#39;&#39;`X` must be a NumPy array.&#39;&#39;&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;`X` should be a NumPy array.&quot;&quot;&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-                <span class="sd">&#39;&#39;&#39;`y` must be a NumPy array.&#39;&#39;&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;`y` should be a NumPy array.&quot;&quot;&quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">fn</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kfold</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">int_parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_parameters</span><span class="p">:</span>
@@ -286,9 +289,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
             <span class="n">score</span> <span class="o">=</span> <span class="n">cross_val_score</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span>
-                <span class="n">scoring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-            <span class="k">return</span> <span class="o">-</span> <span class="n">score</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">scoring</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">scoring</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+            <span class="k">return</span> <span class="o">-</span><span class="n">score</span>
 
         <span class="n">trials</span> <span class="o">=</span> <span class="n">Trials</span><span class="p">()</span>
         <span class="n">best</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span>
@@ -297,7 +300,7 @@
             <span class="n">algo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">,</span>
             <span class="n">max_evals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_evals</span><span class="p">,</span>
             <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">,</span>
-            <span class="n">rstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">rstate</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">int_parameter</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">int_parameters</span><span class="p">:</span>
             <span class="n">best</span><span class="p">[</span><span class="n">int_parameter</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">best</span><span class="p">[</span><span class="n">int_parameter</span><span class="p">])</span>
@@ -314,8 +317,7 @@
 <span class="sd">        pd.Series</span>
 <span class="sd">            Feature importances.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">feature_importances_</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">feature_importances_</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">features</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">feature_importances_</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="nd">@staticmethod</span>
@@ -332,14 +334,15 @@
 <span class="sd">        pd.DataFrame</span>
 <span class="sd">            Hyperparameter tuning history.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ks</span><span class="o">.</span><span class="n">Series</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">]:</span>
             <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">val</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
         <span class="n">loss</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">results</span><span class="p">)</span>
-        <span class="n">params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">miscs</span><span class="p">)[</span><span class="s1">&#39;vals&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">miscs</span><span class="p">)[</span><span class="s2">&quot;vals&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
         <span class="n">history</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">params</span><span class="p">,</span> <span class="n">loss</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">history</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">index</span>
-        <span class="n">history</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;loss&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">history</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">history</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">history</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">history</span>
 
     <span class="nd">@staticmethod</span>
@@ -358,7 +361,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">int_parameters</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">space</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="k">if</span> <span class="s1">&#39;qlog&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">space</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="ow">or</span> <span class="s1">&#39;quni&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">space</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="s2">&quot;qlog&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">space</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="ow">or</span> <span class="s2">&quot;quni&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">space</span><span class="p">[</span><span class="n">key</span><span class="p">]):</span>
                 <span class="n">int_parameters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">int_parameters</span></div>
 </pre></div>

@@ -130,7 +130,7 @@
     "    InformationValue\n",
     ")\n",
     "#frame converter\n",
-    "from gators.converter import KoalasToPandas\n",
+    "from gators.converter import ToPandas\n",
     "# model building\n",
     "from gators.model_building import (\n",
     "    TrainTestSplit,\n",

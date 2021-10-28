@@ -1,12 +1,15 @@
-from .bin_rare_events import BinRareEvents
 from ._base_discretizer import _BaseDiscretizer
-from .discretizer import Discretizer
+from .bin_rare_events import BinRareEvents
 from .custom_discretizer import CustomDiscretizer
+from .discretizer import Discretizer
 from .quantile_discretizer import QuantileDiscretizer
+from .tree_discretizer import TreeDiscretizer
+
 __all__ = [
-    '_BaseDiscretizer',
-    'Discretizer',
-    'CustomDiscretizer',
-    'QuantileDiscretizer',
-    'BinRareEvents',
+    "_BaseDiscretizer",
+    "Discretizer",
+    "CustomDiscretizer",
+    "QuantileDiscretizer",
+    "BinRareEvents",
+    "TreeDiscretizer"
 ]

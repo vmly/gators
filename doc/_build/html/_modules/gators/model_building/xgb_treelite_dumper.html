@@ -154,10 +154,9 @@
   <h1>Source code for gators.model_building.xgb_treelite_dumper</h1><div class="highlight"><pre>
 <span></span><span class="c1"># License: Apache-2.0</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">xgboost</span>
-<span class="kn">from</span> <span class="nn">xgboost.sklearn</span> <span class="kn">import</span> <span class="n">XGBClassifier</span>
+
 <span class="kn">import</span> <span class="nn">treelite</span>
+<span class="kn">import</span> <span class="nn">xgboost</span>
 
 
 <div class="viewcode-block" id="XGBTreeliteDumper"><a class="viewcode-back" href="../../../reference/api/gators.model_building.XGBTreeliteDumper.html#gators.model_building.XGBTreeliteDumper">[docs]</a><span class="k">class</span> <span class="nc">XGBTreeliteDumper</span><span class="p">:</span>
@@ -189,9 +188,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Booster</span><span class="p">,</span> <span class="n">toolchain</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-             <span class="n">parallel_comp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-             <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">dump</span><span class="p">(</span>
+        <span class="n">model</span><span class="p">:</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Booster</span><span class="p">,</span>
+        <span class="n">toolchain</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">parallel_comp</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">model_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dump the XGBoost treelite as a .so and a</span>
 <span class="sd">        .dylib file.</span>
 
@@ -212,36 +215,33 @@
 <span class="sd">            Model name.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">xgboost</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">Booster</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`model` should be an xgboost.core.Booster.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`model` should be an xgboost.core.Booster.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">toolchain</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`toolchain` should be a str.&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">toolchain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;gcc&#39;</span><span class="p">,</span> <span class="s1">&#39;clang&#39;</span><span class="p">,</span> <span class="s1">&#39;msvc&#39;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;`toolchain` should be `gcc`, `clang`, or `msvc`.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`toolchain` should be a str.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">toolchain</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;gcc&quot;</span><span class="p">,</span> <span class="s2">&quot;clang&quot;</span><span class="p">,</span> <span class="s2">&quot;msvc&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;`toolchain` should be `gcc`, `clang`, or `msvc`.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parallel_comp</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`parallel_comp` should be an int.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`parallel_comp` should be an int.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`model_path` should be a str.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`model_path` should be a str.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;`model_name` should be a str.&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;`model_name` should be a str.&quot;</span><span class="p">)</span>
         <span class="n">model_</span> <span class="o">=</span> <span class="n">treelite</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">from_xgboost</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
-        <span class="n">platform_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gcc&#39;</span><span class="p">:</span> <span class="s1">&#39;unix&#39;</span><span class="p">,</span> <span class="s1">&#39;clang&#39;</span><span class="p">:</span> <span class="s1">&#39;osx&#39;</span><span class="p">,</span> <span class="s1">&#39;msvc&#39;</span><span class="p">:</span> <span class="s1">&#39;windows&#39;</span><span class="p">}</span>
-        <span class="n">format_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;gcc&#39;</span><span class="p">:</span> <span class="s1">&#39;.so&#39;</span><span class="p">,</span> <span class="s1">&#39;clang&#39;</span><span class="p">:</span> <span class="s1">&#39;.dylib&#39;</span><span class="p">,</span> <span class="s1">&#39;msvc&#39;</span><span class="p">:</span> <span class="s1">&#39;.dll&#39;</span><span class="p">}</span>
+        <span class="n">platform_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gcc&quot;</span><span class="p">:</span> <span class="s2">&quot;unix&quot;</span><span class="p">,</span> <span class="s2">&quot;clang&quot;</span><span class="p">:</span> <span class="s2">&quot;osx&quot;</span><span class="p">,</span> <span class="s2">&quot;msvc&quot;</span><span class="p">:</span> <span class="s2">&quot;windows&quot;</span><span class="p">}</span>
+        <span class="n">format_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;gcc&quot;</span><span class="p">:</span> <span class="s2">&quot;.so&quot;</span><span class="p">,</span> <span class="s2">&quot;clang&quot;</span><span class="p">:</span> <span class="s2">&quot;.dylib&quot;</span><span class="p">,</span> <span class="s2">&quot;msvc&quot;</span><span class="p">:</span> <span class="s2">&quot;.dll&quot;</span><span class="p">}</span>
         <span class="n">model_</span><span class="o">.</span><span class="n">export_lib</span><span class="p">(</span>
             <span class="n">toolchain</span><span class="o">=</span><span class="n">toolchain</span><span class="p">,</span>
-            <span class="n">libpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="n">format_dict</span><span class="p">[</span><span class="n">toolchain</span><span class="p">]),</span>
+            <span class="n">libpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="n">format_dict</span><span class="p">[</span><span class="n">toolchain</span><span class="p">]),</span>
             <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;parallel_comp&#39;</span><span class="p">:</span> <span class="n">parallel_comp</span><span class="p">},</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;parallel_comp&quot;</span><span class="p">:</span> <span class="n">parallel_comp</span><span class="p">},</span>
             <span class="n">nthread</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">model_</span><span class="o">.</span><span class="n">export_srcpkg</span><span class="p">(</span>
             <span class="n">platform</span><span class="o">=</span><span class="n">platform_dict</span><span class="p">[</span><span class="n">toolchain</span><span class="p">],</span>
             <span class="n">toolchain</span><span class="o">=</span><span class="n">toolchain</span><span class="p">,</span>
-            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;parallel_comp&#39;</span><span class="p">:</span> <span class="n">parallel_comp</span><span class="p">},</span>
-            <span class="n">pkgpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s1">&#39;.zip&#39;</span><span class="p">),</span>
-            <span class="n">libname</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="n">format_dict</span><span class="p">[</span><span class="n">toolchain</span><span class="p">]),</span>
+            <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;parallel_comp&quot;</span><span class="p">:</span> <span class="n">parallel_comp</span><span class="p">},</span>
+            <span class="n">pkgpath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="s2">&quot;.zip&quot;</span><span class="p">),</span>
+            <span class="n">libname</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">model_name</span> <span class="o">+</span> <span class="n">format_dict</span><span class="p">[</span><span class="n">toolchain</span><span class="p">]),</span>
             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="p">)</span></div>
 </pre></div>

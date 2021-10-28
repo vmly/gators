@@ -1,10 +1,15 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
+
+import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import databricks.koalas as ks
+
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Pipeline(Transformer):
@@ -22,18 +27,17 @@ class Pipeline(Transformer):
 
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = pd.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> obj.fit_transform(X)
          A    B        C
@@ -46,18 +50,17 @@ class Pipeline(Transformer):
 
     >>> import databricks.koalas as ks
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = ks.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> obj.fit_transform(X)
          A    B        C
@@ -70,18 +73,17 @@ class Pipeline(Transformer):
 
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = pd.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
@@ -94,18 +96,17 @@ class Pipeline(Transformer):
 
     >>> import databricks.koalas as ks
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = ks.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
@@ -117,25 +118,26 @@ class Pipeline(Transformer):
 
     def __init__(self, steps: List[Transformer]):
         if not isinstance(steps, list):
-            raise TypeError('`steps` should be a list.')
+            raise TypeError("`steps` should be a list.")
         if not steps:
-            raise TypeError('`steps` should be an empty list.')
+            raise TypeError("`steps` should be an empty list.")
         self.steps = steps
-        self.is_model = hasattr(self.steps[-1], 'predict')
+        self.is_model = (hasattr(self.steps[-1], "predict")) or (
+            "pyspark.ml" in str(type(self.steps[-1]))
+        )
         self.n_steps = len(self.steps)
         self.n_transformations = self.n_steps - 1 if self.is_model else self.n_steps
+        self.problem_category = ""
 
-    def fit(self,
-            X: Union[pd.DataFrame, ks.DataFrame],
-            y: Union[pd.Series, ks.Series] = None) -> 'Pipeline':
+    def fit(self, X: DataFrame, y: Series = None) -> "Pipeline":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -143,30 +145,28 @@ class Pipeline(Transformer):
             Instance of itself.
         """
         self.base_columns = list(X.columns)
-        for step in self.steps[:self.n_transformations]:
+        for step in self.steps[: self.n_transformations]:
             step = step.fit(X, y)
             X = step.transform(X)
         if self.is_model:
-            _ = self.steps[-1].fit(X, y)
+            self.steps[-1] = util.get_function(X).fit(self.steps[-1], X, y)
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        for step in self.steps[:self.n_transformations]:
+        for step in self.steps[: self.n_transformations]:
             X = step.transform(X)
         return X
 
@@ -184,41 +184,36 @@ class Pipeline(Transformer):
             Transformed array.
         """
         self.check_array(X)
-        for step in self.steps[:self.n_transformations]:
+        for step in self.steps[: self.n_transformations]:
             X = step.transform_numpy(X)
         return X
 
-    def fit_transform(self,
-                      X: Union[pd.DataFrame, ks.DataFrame],
-                      y: Union[pd.Series, ks.Series] = None
-                      ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def fit_transform(self, X: DataFrame, y: Series = None) -> DataFrame:
         """Fit and transform the pandas dataframe.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed pandas dataframe.
         """
         self.base_columns = list(X.columns).copy()
-        # import time
-        for step in self.steps[:self.n_transformations]:
+        # self.problem_category = self.define_problem_category(y=y)
+        for step in self.steps[: self.n_transformations]:
             step = step.fit(X, y)
             X = step.transform(X)
         return X
 
-    def predict(self,
-                X: Union[pd.DataFrame, ks.DataFrame],
-                y: Union[pd.Series, ks.Series] = None) -> np.ndarray:
+    def predict(self, X: DataFrame, y: Series = None) -> np.ndarray:
         """Predict on X, and predict.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
@@ -228,16 +223,15 @@ class Pipeline(Transformer):
         """
         for step in self.steps[:-1]:
             X = step.transform(X)
-        return self.steps[-1].predict(X)
 
-    def predict_proba(self,
-                      X: Union[pd.DataFrame, ks.DataFrame],
-                      y: np.array = None) -> np.ndarray:
+        return util.get_function(X).predict(self.steps[-1], X)
+
+    def predict_proba(self, X: DataFrame, y: np.array = None) -> np.ndarray:
         """Predict on X, and return the probability of success.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
@@ -247,17 +241,14 @@ class Pipeline(Transformer):
         """
         for step in self.steps[:-1]:
             X = step.transform(X)
-        return self.steps[-1].predict_proba(X)
+        return util.get_function(X).predict_proba(self.steps[-1], X)
 
-    def predict_numpy(self,
-                      X: np.ndarray,
-                      y: Union[pd.Series, ks.Series] = None
-                      ) -> np.ndarray:
+    def predict_numpy(self, X: np.ndarray, y: Series = None) -> np.ndarray:
         """Predict on X, and predict.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
@@ -269,8 +260,7 @@ class Pipeline(Transformer):
             X = step.transform_numpy(X)
         return self.steps[-1].predict(X)
 
-    def predict_proba_numpy(self,
-                            X: np.ndarray) -> np.ndarray:
+    def predict_proba_numpy(self, X: np.ndarray) -> np.ndarray:
         """Predict on X, and return the probability of success.
 
         Parameters
@@ -300,10 +290,11 @@ class Pipeline(Transformer):
         pd.Series
             Feature importances.
         """
-        if not hasattr(self.steps[-1], 'feature_importances_'):
+        if not hasattr(self.steps[-1], "feature_importances_"):
             raise AttributeError(
-                '''The last step of the pipeline should have
-                 the attribute `feature_importances_`''')
+                """The last step of the pipeline should have
+                 the attribute `feature_importances_`"""
+            )
         feature_importances_ = self.steps[-1].feature_importances_
         return feature_importances_.sort_values(ascending=False).iloc[:k]
 
@@ -320,31 +311,30 @@ class Pipeline(Transformer):
         List[str]
             List of features.
         """
-        if not hasattr(self.steps[-1], 'selected_columns'):
+        if not hasattr(self.steps[-1], "selected_columns"):
             raise AttributeError(
-                '''The last step of the pipeline should have
-                 the attribute `selected_columns`''')
+                """The last step of the pipeline should have
+                 the attribute `selected_columns`"""
+            )
         return self.steps[-1].selected_columns
 
     def get_production_columns(self):
-        has_feature_importances_ = hasattr(
-            self.steps[-1], 'feature_importances_')
+        has_feature_importances_ = hasattr(self.steps[-1], "feature_importances_")
         if not has_feature_importances_:
             raise AttributeError(
-                '''The last step of the pipeline should contains
-                the atrribute `feature_importances_`''')
+                """The last step of the pipeline should contains
+                the atrribute `feature_importances_`"""
+            )
         features = self.steps[-1].selected_columns
 
         base_columns_ = features.copy()
         for step in self.steps[::-1]:
-            if not hasattr(step, 'column_names'):
+            if not hasattr(step, "column_names"):
                 continue
             for i, col in enumerate(base_columns_):
                 if col in step.column_mapping:
                     base_columns_[i] = step.column_mapping[col]
             base_columns_ = list(set(util.flatten_list(base_columns_)))
         base_columns_ = list(set(base_columns_))
-        prod_columns = [
-            c for c in self.base_columns
-            if c in base_columns_]
+        prod_columns = [c for c in self.base_columns if c in base_columns_]
         return prod_columns

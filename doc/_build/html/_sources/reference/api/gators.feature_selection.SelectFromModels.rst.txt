@@ -30,8 +30,6 @@
       ~SelectFromModels.fit
       ~SelectFromModels.fit_transform
       ~SelectFromModels.get_feature_importances_frame
-      ~SelectFromModels.get_feature_importances_pd
-      ~SelectFromModels.get_feature_importances_sk
       ~SelectFromModels.transform
       ~SelectFromModels.transform_numpy
    
