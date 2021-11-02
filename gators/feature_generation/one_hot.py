@@ -1,7 +1,6 @@
 # License: Apache-2.0
-from typing import Dict, List, Union
+from typing import Dict, List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 
@@ -9,6 +8,9 @@ from feature_gen import one_hot
 
 from ..util import util
 from ._base_feature_generation import _BaseFeatureGeneration
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class OneHot(_BaseFeatureGeneration):
@@ -111,17 +113,13 @@ class OneHot(_BaseFeatureGeneration):
         )
         self.mapping = dict(zip(self.column_names, self.columns))
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ):
+    def fit(self, X: DataFrame, y: Series = None):
         """
         Fit the dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
             y (np.ndarray, optional): labels. Defaults to None.
 
@@ -139,29 +137,24 @@ class OneHot(_BaseFeatureGeneration):
         self.idx_columns = util.get_idx_columns(X, cols_flatten)
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        if isinstance(X, pd.DataFrame):
-            for name, col, cat in zip(self.column_names, self.columns, self.cats):
-                X.loc[:, name] = X[col] == cat
-            return X
-
+        util.get_function(X).set_options("compute.ops_on_diff_frames", True)
         for name, col, cat in zip(self.column_names, self.columns, self.cats):
-            X = X.assign(dummy=(X[col] == cat)).rename(columns={"dummy": name})
+            X[name] = X[col] == cat
+        util.get_function(X).set_options("compute.ops_on_diff_frames", False)
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

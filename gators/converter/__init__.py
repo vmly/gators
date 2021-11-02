@@ -1,9 +1,9 @@
 from .convert_column_datatype import ConvertColumnDatatype
-from .koalas_to_pandas import KoalasToPandas
 from .to_numpy import ToNumpy
+from .to_pandas import ToPandas
 
 __all__ = [
     "ToNumpy",
-    "KoalasToPandas",
+    "ToPandas",
     "ConvertColumnDatatype",
 ]

@@ -10,7 +10,13 @@ from gators.feature_generation.elementary_arithmethics import ElementaryArithmet
 
 @pytest.fixture
 def data_add():
-    X = pd.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"))
+    X = pd.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -30,7 +36,13 @@ def data_add():
 
 @pytest.fixture
 def data_float32_add():
-    X = pd.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"))
+    X = pd.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -54,7 +66,13 @@ def data_float32_add():
 
 @pytest.fixture
 def data_name_add():
-    X = pd.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"), dtype=np.float64)
+    X = pd.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -78,7 +96,13 @@ def data_name_add():
 
 @pytest.fixture
 def data_mult():
-    X = pd.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"), dtype=np.float64)
+    X = pd.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
     X_expected = pd.DataFrame(
         np.array(
             [
@@ -97,7 +121,13 @@ def data_mult():
 
 @pytest.fixture
 def data_div():
-    X = pd.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"), dtype=np.float64)
+    X = pd.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -117,7 +147,13 @@ def data_div():
 
 @pytest.fixture
 def data_add_ks():
-    X = ks.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"))
+    X = ks.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -137,7 +173,13 @@ def data_add_ks():
 
 @pytest.fixture
 def data_float32_add_ks():
-    X = ks.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"))
+    X = ks.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -161,7 +203,13 @@ def data_float32_add_ks():
 
 @pytest.fixture
 def data_name_add_ks():
-    X = ks.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"), dtype=np.float64)
+    X = ks.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(
@@ -204,7 +252,13 @@ def data_mult_ks():
 
 @pytest.fixture
 def data_div_ks():
-    X = ks.DataFrame(np.arange(9).reshape(3, 3), columns=list("ABC"), dtype=np.float64)
+    X = ks.DataFrame(
+        {
+            "A": [0.0, 3.0, 6.0],
+            "B": [1.0, 4.0, 7.0],
+            "C": [2.0, 5.0, 8.0],
+        }
+    )
 
     X_expected = pd.DataFrame(
         np.array(

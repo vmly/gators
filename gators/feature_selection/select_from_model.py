@@ -1,12 +1,11 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
-import pandas as pd
-
-from ..converter import KoalasToPandas
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class SelectFromModel(_BaseFeatureSelection):
@@ -36,19 +35,19 @@ class SelectFromModel(_BaseFeatureSelection):
     ... 'C': [3.0, 1.0, 3.0, 1.0, 3.0, 3.0, 1.0, 3.0, 3.0, 2.0]})
     >>> y = pd.Series([0, 1, 1, 1, 0, 0, 0, 0, 1, 1], name='TARGET')
     >>> model = RFC(n_estimators=1, max_depth=2, random_state=0)
-    >>> obj = SelectFromModel(model=model, k=2)
+    >>> obj = SelectFromModel(model=model, k=1)
     >>> obj.fit_transform(X, y)
-           A    C
-    0  22.00  3.0
-    1  38.00  1.0
-    2  26.00  3.0
-    3  35.00  1.0
-    4  35.00  3.0
-    5  28.11  3.0
-    6  54.00  1.0
-    7   2.00  3.0
-    8  27.00  3.0
-    9  14.00  2.0
+           A
+    0  22.00
+    1  38.00
+    2  26.00
+    3  35.00
+    4  35.00
+    5  28.11
+    6  54.00
+    7   2.00
+    8  27.00
+    9  14.00
 
     * fit & transform with `koalas`
 
@@ -61,19 +60,19 @@ class SelectFromModel(_BaseFeatureSelection):
     ... 'C': [3.0, 1.0, 3.0, 1.0, 3.0, 3.0, 1.0, 3.0, 3.0, 2.0]})
     >>> y = ks.Series([0, 1, 1, 1, 0, 0, 0, 0, 1, 1], name='TARGET')
     >>> model = RFCSpark(numTrees=1, maxDepth=2, labelCol=y.name, seed=0)
-    >>> obj = SelectFromModel(model=model, k=2)
+    >>> obj = SelectFromModel(model=model, k=1)
     >>> obj.fit_transform(X, y)
-           A      B
-    0  22.00   7.25
-    1  38.00  71.28
-    2  26.00   7.92
-    3  35.00  53.10
-    4  35.00   8.05
-    5  28.11   8.46
-    6  54.00  51.86
-    7   2.00  21.08
-    8  27.00  11.13
-    9  14.00  30.07
+           A
+    0  22.00
+    1  38.00
+    2  26.00
+    3  35.00
+    4  35.00
+    5  28.11
+    6  54.00
+    7   2.00
+    8  27.00
+    9  14.00
 
     See Also
     --------
@@ -91,18 +90,14 @@ class SelectFromModel(_BaseFeatureSelection):
         self.model = model
         self.k = k
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "SelectFromModel":
+    def fit(self, X: DataFrame, y: Series = None) -> "SelectFromModel":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -112,20 +107,9 @@ class SelectFromModel(_BaseFeatureSelection):
         self.check_dataframe(X)
         self.check_y(X, y)
         columns = list(X.columns)
-        if isinstance(X, pd.DataFrame):
-            self.feature_importances_ = self.calculate_feature_importances_pd(
-                model=self.model, X=X, y=y, columns=columns
-            )
-        else:
-            if hasattr(self.model, "labelCol"):
-                self.feature_importances_ = self.calculate_feature_importances_ks(
-                    model=self.model, X=X, y=y, columns=columns
-                )
-            else:
-                X_, y_ = KoalasToPandas().transform(X, y)
-                self.feature_importances_ = self.calculate_feature_importances_pd(
-                    model=self.model, X=X_, y=y_, columns=columns
-                )
+        self.feature_importances_ = util.get_function(X).feature_importances_(
+            self.model, X, y
+        )
         mask = self.feature_importances_ != 0
         self.feature_importances_ = self.feature_importances_[mask]
         self.feature_importances_.sort_values(ascending=False, inplace=True)
@@ -135,25 +119,3 @@ class SelectFromModel(_BaseFeatureSelection):
             X.columns, self.selected_columns
         )
         return self
-
-    @staticmethod
-    def calculate_feature_importances_pd(
-        model: object, X: pd.DataFrame, y: Union[pd.Series, ks.Series], columns: list
-    ) -> pd.Series:
-        model.fit(X.to_numpy(), y)
-        feature_importances_ = pd.Series(
-            model.feature_importances_,
-            index=columns,
-        )
-        return feature_importances_
-
-    @staticmethod
-    def calculate_feature_importances_ks(
-        model: object, X: ks.DataFrame, y: ks.Series, columns: list
-    ) -> pd.Series:
-        spark_df = util.generate_spark_dataframe(X=X, y=y)
-        trained_model = model.fit(spark_df)
-        feature_importances_ = pd.Series(
-            trained_model.featureImportances.toArray(), index=columns
-        )
-        return feature_importances_

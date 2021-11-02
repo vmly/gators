@@ -1,13 +1,16 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 
 from feature_gen_str import contains
 
+from ..util import util
 from ._base_string_feature import _BaseStringFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class StringContains(_BaseStringFeature):
@@ -95,24 +98,23 @@ class StringContains(_BaseStringFeature):
         _BaseStringFeature.__init__(self, columns, column_names)
         self.contains_vec = np.array(contains_vec, str).astype(object)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
+
         self.check_dataframe(X)
         for col, val, name in zip(self.columns, self.contains_vec, self.column_names):
-            X.loc[:, name] = X[col].str.contains(val, regex=False).astype(np.float64)
+            X[name] = X[col].str.contains(val, regex=False).astype(np.float64)
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

@@ -1,12 +1,14 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Pipeline(Transformer):
@@ -24,18 +26,17 @@ class Pipeline(Transformer):
 
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = pd.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> obj.fit_transform(X)
          A    B        C
@@ -48,18 +49,17 @@ class Pipeline(Transformer):
 
     >>> import databricks.koalas as ks
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = ks.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> obj.fit_transform(X)
          A    B        C
@@ -72,18 +72,17 @@ class Pipeline(Transformer):
 
     >>> import pandas as pd
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = pd.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
@@ -96,18 +95,17 @@ class Pipeline(Transformer):
 
     >>> import databricks.koalas as ks
     >>> import numpy as np
-    >>> from gators.imputers import IntImputer
-    >>> from gators.imputers import FloatImputer
+    >>> from gators.imputers import NumericsImputer
     >>> from gators.imputers import ObjectImputer
     >>> from gators.pipeline import Pipeline
     >>> X = ks.DataFrame({
     ...     'A': [0.1, 0.2, 0.3, np.nan],
     ...     'B': [1, 2, 2, np.nan],
-    ...     'C': ['a', 'b', 'c', np.nan]})
+    ...     'C': ['a', 'b', 'c', None]})
     >>> steps = [
     ...     ObjectImputer(strategy='constant', value='MISSING'),
-    ...     FloatImputer(strategy='median'),
-    ...     IntImputer(strategy='most_frequent')]
+    ...     NumericsImputer(strategy='median', columns=['A']),
+    ...     NumericsImputer(strategy='most_frequent', columns=['B'])]
     >>> obj = Pipeline(steps=steps)
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
@@ -123,23 +121,22 @@ class Pipeline(Transformer):
         if not steps:
             raise TypeError("`steps` should be an empty list.")
         self.steps = steps
-        self.is_model = hasattr(self.steps[-1], "predict")
+        self.is_model = (hasattr(self.steps[-1], "predict")) or (
+            "pyspark.ml" in str(type(self.steps[-1]))
+        )
         self.n_steps = len(self.steps)
         self.n_transformations = self.n_steps - 1 if self.is_model else self.n_steps
+        self.problem_category = ""
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "Pipeline":
+    def fit(self, X: DataFrame, y: Series = None) -> "Pipeline":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -151,22 +148,20 @@ class Pipeline(Transformer):
             step = step.fit(X, y)
             X = step.transform(X)
         if self.is_model:
-            _ = self.steps[-1].fit(X, y)
+            self.steps[-1] = util.get_function(X).fit(self.steps[-1], X, y)
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -192,40 +187,32 @@ class Pipeline(Transformer):
             X = step.transform_numpy(X)
         return X
 
-    def fit_transform(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def fit_transform(self, X: DataFrame, y: Series = None) -> DataFrame:
         """Fit and transform the pandas dataframe.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed pandas dataframe.
         """
         self.base_columns = list(X.columns).copy()
-        # import time
+        # self.problem_category = self.define_problem_category(y=y)
         for step in self.steps[: self.n_transformations]:
             step = step.fit(X, y)
             X = step.transform(X)
         return X
 
-    def predict(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> np.ndarray:
+    def predict(self, X: DataFrame, y: Series = None) -> np.ndarray:
         """Predict on X, and predict.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
@@ -235,16 +222,15 @@ class Pipeline(Transformer):
         """
         for step in self.steps[:-1]:
             X = step.transform(X)
-        return self.steps[-1].predict(X)
 
-    def predict_proba(
-        self, X: Union[pd.DataFrame, ks.DataFrame], y: np.array = None
-    ) -> np.ndarray:
+        return util.get_function(X).predict(self.steps[-1], X)
+
+    def predict_proba(self, X: DataFrame, y: np.array = None) -> np.ndarray:
         """Predict on X, and return the probability of success.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
@@ -254,16 +240,14 @@ class Pipeline(Transformer):
         """
         for step in self.steps[:-1]:
             X = step.transform(X)
-        return self.steps[-1].predict_proba(X)
+        return util.get_function(X).predict_proba(self.steps[-1], X)
 
-    def predict_numpy(
-        self, X: np.ndarray, y: Union[pd.Series, ks.Series] = None
-    ) -> np.ndarray:
+    def predict_numpy(self, X: np.ndarray, y: Series = None) -> np.ndarray:
         """Predict on X, and predict.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns

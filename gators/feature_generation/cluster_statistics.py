@@ -1,13 +1,15 @@
 # License: Apache-2.0
-from typing import Dict, List, Union
+from typing import Dict, List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from feature_gen import cluster_statistics
 
+from ..util import util
 from ._base_feature_generation import _BaseFeatureGeneration
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class ClusterStatistics(_BaseFeatureGeneration):
@@ -135,19 +137,15 @@ class ClusterStatistics(_BaseFeatureGeneration):
         self.clusters_dict = clusters_dict
         self.n_clusters = len(self.clusters_dict)
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "ClusterStatistics":
+    def fit(self, X: DataFrame, y: Series = None) -> "ClusterStatistics":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -161,25 +159,26 @@ class ClusterStatistics(_BaseFeatureGeneration):
 
     def transform(
         self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+        X: DataFrame,
+    ) -> DataFrame:
         """Transform the dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Dataframe with statistics cluster features.
         """
+        self.check_dataframe(X)
+        util.get_function(X).set_options("compute.ops_on_diff_frames", True)
         for i, cols in enumerate(self.clusters_dict.values()):
-            X = X.join(X[cols].mean(axis=1).rename(self.column_names[2 * i]))
-            X = X.join(X[cols].std(axis=1).rename(self.column_names[2 * i + 1]))
-        if isinstance(X, ks.DataFrame):
-            return X.astype(self.dtype).sort_index()
+            X[self.column_names[2 * i]] = X[cols].mean(axis=1)
+            X[self.column_names[2 * i + 1]] = X[cols].std(axis=1)
+        util.get_function(X).set_options("compute.ops_on_diff_frames", False)
         return X.astype(self.dtype)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
@@ -200,13 +199,13 @@ class ClusterStatistics(_BaseFeatureGeneration):
 
     @staticmethod
     def get_idx_columns(
-        X: Union[pd.DataFrame, ks.DataFrame], clusters_dict: Dict[str, List[str]]
+        X: DataFrame, clusters_dict: Dict[str, List[str]]
     ) -> np.ndarray:
         """Get the column indices of the clusters.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input data.
         clusters_dict : Dict[str, List[str]]
             Clusters.
@@ -232,7 +231,7 @@ class ClusterStatistics(_BaseFeatureGeneration):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns

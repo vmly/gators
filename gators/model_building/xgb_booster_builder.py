@@ -20,7 +20,7 @@ class XGBBoosterBuilder:
     >>> xgbooster = XGBBoosterBuilder.train(
     ...     model=model,
     ...     X_train=X_train,
-    ...     y_train=y_train,
+    ...     y_train=y_train)
     >>> xgbooster.predict(xgb.DMatrix(X_train))
     array([0.5, 0.5, 0.5, 0.5], dtype=float32)
 
@@ -29,7 +29,7 @@ class XGBBoosterBuilder:
     @staticmethod
     def train(
         model: Union[XGBClassifier, XGBRegressor, XGBRFClassifier, XGBRFRegressor],
-        X_train: np.array,
+        X_train: np.ndarray,
         y_train: np.ndarray,
         num_class=None,
     ):

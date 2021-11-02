@@ -1,15 +1,15 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from feature_gen_str import extract_str
 
 from ..util import util
-
 from ._base_string_feature import _BaseStringFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Extract(_BaseStringFeature):
@@ -33,7 +33,7 @@ class Extract(_BaseStringFeature):
     >>> import pandas as pd
     >>> from gators.feature_generation_str import Extract
     >>> X = pd.DataFrame({'A': ['qwe', 'asd', 'zxc'], 'B': [1, 2, 3]})
-    >>> obj = Extract(columns=['A','A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
+    >>> obj = Extract(columns=['A', 'A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
     >>> obj.fit_transform(X)
          A  B A__substring_0_to_1 A__substring_2_to_3
     0  qwe  1                   q                   e
@@ -45,7 +45,7 @@ class Extract(_BaseStringFeature):
     >>> import databricks.koalas as ks
     >>> from gators.feature_generation_str import Extract
     >>> X = ks.DataFrame({'A': ['qwe', 'asd', 'zxc'], 'B': [1, 2, 3]})
-    >>> obj = Extract(columns=['A','A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
+    >>> obj = Extract(columns=['A', 'A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
     >>> obj.fit_transform(X)
          A  B A__substring_0_to_1 A__substring_2_to_3
     0  qwe  1                   q                   e
@@ -57,7 +57,7 @@ class Extract(_BaseStringFeature):
     >>> import pandas as pd
     >>> from gators.feature_generation_str import Extract
     >>> X = pd.DataFrame({'A': ['qwe', 'asd', 'zxc'], 'B': [1, 2, 3]})
-    >>> obj = Extract(columns=['A','A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
+    >>> obj = Extract(columns=['A', 'A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['qwe', 1, 'q', 'e'],
@@ -69,7 +69,7 @@ class Extract(_BaseStringFeature):
     >>> import databricks.koalas as ks
     >>> from gators.feature_generation_str import Extract
     >>> X = ks.DataFrame({'A': ['qwe', 'asd', 'zxc'], 'B': [1, 2, 3]})
-    >>> obj = Extract(columns=['A','A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
+    >>> obj = Extract(columns=['A', 'A'], i_min_vec=[0, 2], i_max_vec=[1, 3])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['qwe', 1, 'q', 'e'],
@@ -105,19 +105,15 @@ class Extract(_BaseStringFeature):
         self.i_min_vec = np.array(i_min_vec, int)
         self.i_max_vec = np.array(i_max_vec, int)
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "Extract":
+    def fit(self, X: DataFrame, y: Series = None) -> "Extract":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -130,19 +126,17 @@ class Extract(_BaseStringFeature):
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -150,9 +144,7 @@ class Extract(_BaseStringFeature):
         for col, i_min, i_max, name in zip(
             self.columns, self.i_min_vec, self.i_max_vec, self.column_names
         ):
-            X.loc[:, name] = (
-                X[col].str.slice(start=i_min, stop=i_max).replace({"": "MISSING"})
-            )
+            X[name] = X[col].str.slice(start=i_min, stop=i_max).replace({"": "MISSING"})
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

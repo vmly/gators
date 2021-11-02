@@ -1,12 +1,14 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class CorrelationFilter(_BaseFeatureSelection):
@@ -80,19 +82,15 @@ class CorrelationFilter(_BaseFeatureSelection):
         _BaseFeatureSelection.__init__(self)
         self.max_corr = max_corr
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "CorrelationFilter":
+    def fit(self, X: DataFrame, y: Series = None) -> "CorrelationFilter":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -100,9 +98,7 @@ class CorrelationFilter(_BaseFeatureSelection):
         """
         self.check_dataframe(X)
         columns = X.columns
-        corr = X.corr().abs()
-        if not isinstance(X, pd.DataFrame):
-            corr = corr.to_pandas()
+        corr = util.get_function(X).to_pandas(X.corr()).abs()
         stacked_corr = (
             corr.where(np.tril(np.ones(corr.shape), k=-1).astype(np.bool))
             .stack()

@@ -1,10 +1,10 @@
-from typing import Dict, Tuple, Union
-
-import databricks.koalas as ks
-import numpy as np
-import pandas as pd
+from typing import Dict, Tuple, TypeVar
 
 from ..transformers import TransformerXY
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class UnsupervisedSampling(TransformerXY):
@@ -52,14 +52,14 @@ class UnsupervisedSampling(TransformerXY):
     >>> obj = UnsupervisedSampling(n_samples=3)
     >>> X, y = obj.transform(X, y)
     >>> X
-       A   B   C
-    0  0   1   2
-    3  9  10  11
-    2  6   7   8
+        A   B   C
+    2   6   7   8
+    3   9  10  11
+    5  15  16  17
     >>> y
-    0    0
-    3    1
     2    1
+    3    1
+    5    3
     Name: TARGET, dtype: int64
 
     """
@@ -71,27 +71,31 @@ class UnsupervisedSampling(TransformerXY):
 
     def transform(
         self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series],
-    ) -> Tuple[Union[pd.DataFrame, ks.DataFrame], Union[pd.Series, ks.Series]]:
+        X: DataFrame,
+        y: Series,
+    ) -> Tuple[DataFrame, Series]:
         """Fit and transform the dataframe `X` and the series `y`.
 
         Parameters:
-        X : Union[pd.DataFrame, ks.DataFrame]
-            Input dataframe.
-        y : Union[pd.Series, ks.Series]
-            Input target.
+        X : DataFrame
+            Iut dataframe.
+        y : Series
+            Iut target.
 
         Returns
         -------
-        Tuple[Union[pd.DataFrame, ks.DataFrame], Union[pd.Series, ks.Series]]:
+        Tuple[DataFrame, Series]:
             Transformed dataframe and the series.
         """
         self.check_dataframe(X)
         self.check_y(X, y)
-        frac = self.n_samples / X.shape[0]
+        frac = self.n_samples / util.get_function(X).shape(X)[0]
         if frac >= 1.0:
             return X, y
         y_name = y.name
-        Xy = X.join(y).sample(frac=round(frac, 3), random_state=0)
+        Xy = (
+            util.get_function(X)
+            .join(X, y.to_frame())
+            .sample(frac=round(frac, 3), random_state=0)
+        )
         return Xy.drop(y_name, axis=1), Xy[y_name]

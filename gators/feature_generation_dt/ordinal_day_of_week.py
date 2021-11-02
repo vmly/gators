@@ -1,13 +1,17 @@
 # Licence Apache-2.0
-from typing import List, Union
 
-import databricks.koalas as ks
+from typing import List, TypeVar
+
 import numpy as np
 import pandas as pd
 
 import feature_gen_dt
 
+from ..util import util
 from ._base_datetime_feature import _BaseDatetimeFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class OrdinalDayOfWeek(_BaseDatetimeFeature):
@@ -81,33 +85,24 @@ class OrdinalDayOfWeek(_BaseDatetimeFeature):
         column_mapping = dict(zip(column_names, columns))
         _BaseDatetimeFeature.__init__(self, columns, column_names, column_mapping)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
         Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        if isinstance(X, pd.DataFrame):
-            X_ordinal = X[self.columns].apply(
-                lambda x: x.dt.dayofweek.astype(np.float64).astype(str)
-            )
-            X_ordinal.columns = self.column_names
-            return X.join(X_ordinal)
 
-        for col, name in zip(self.columns, self.column_names):
-            X = X.assign(
-                dummy=X[col].dt.dayofweek.astype(np.float64).astype(str)
-            ).rename(columns={"dummy": name})
+        for name, col in zip(self.column_names, self.columns):
+            X[name] = X[col].dt.dayofweek.astype(np.float64).astype(str)
+
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

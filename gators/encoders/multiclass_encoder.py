@@ -1,16 +1,17 @@
 # License: Apache-2.0
 import copy
 import warnings
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from ..data_cleaning.drop_columns import DropColumns
 from ..transformers.transformer import Transformer
 from ..util import util
 from ._base_encoder import _BaseEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class MultiClassEncoder(_BaseEncoder):
@@ -21,25 +22,54 @@ class MultiClassEncoder(_BaseEncoder):
     Parameters
     ----------
     encoder : Transformer
-        Binary Encoder.
+        Supervised binary Encoder.
     dtype : type, default to np.float64.
         Numerical datatype of the output data.
 
     Examples
     --------
 
-    * fit & transform with `pandas`
+    Imports and initialization:
+
+    >>> from gators.encoders import MultiClassEncoder
+    >>> from gators.encoders import WOEEncoder  # or TargetEncoder
+    >>> obj = MultiClassEncoder(encoder=WOEEncoder())
+
+    The `fit`, `transform`, and `fit_transform` methods accept:
+
+    * `dask` dataframes,
+
+    >>> import dask.dataframe as dd
+    >>> import pandas as pd
+    >>> X = dd.from_pandas(pd.DataFrame({
+    ...    'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
+    ...    'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
+    ...    'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
+    ...    'D': [1, 2, 3, 4, 5, 6]}), npartitions=1)
+    >>> y = dd.from_pandas(pd.Series([0,  0, 1, 2, 1, 2], name='TARGET'), npartitions=1)
+
+    * `koalas` dataframes,
+
+    >>> import databricks.koalas as ks
+    >>> X = ks.DataFrame({
+    ...    'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
+    ...    'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
+    ...    'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
+    ...    'D': [1, 2, 3, 4, 5, 6]})
+    >>> y = ks.Series([0,  0, 1, 2, 1, 2], name='TARGET')
+
+    * and `pandas` dataframes:
 
     >>> import pandas as pd
-    >>> from gators.encoders import MultiClassEncoder
-    >>> from gators.encoders import WOEEncoder
     >>> X = pd.DataFrame({
     ...    'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
     ...    'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
     ...    'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
     ...    'D': [1, 2, 3, 4, 5, 6]})
     >>> y = pd.Series([0,  0, 1, 2, 1, 2], name='TARGET')
-    >>> obj = MultiClassEncoder(WOEEncoder())
+
+    The result is a transformed dataframe belonging to the same dataframe library.
+
     >>> obj.fit_transform(X, y)
          D  A__TARGET_1_WOEEncoder  B__TARGET_1_WOEEncoder  C__TARGET_1_WOEEncoder  A__TARGET_2_WOEEncoder  B__TARGET_2_WOEEncoder  C__TARGET_2_WOEEncoder
     0  1.0                     0.0                0.000000               -0.405465                0.000000                0.000000               -0.405465
@@ -49,67 +79,10 @@ class MultiClassEncoder(_BaseEncoder):
     4  5.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
     5  6.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
 
-    * fit & transform with `koalas`
+    Independly of the dataframe library used to fit the transformer, the `tranform_numpy` method only accepts NumPy arrays
+    and returns a transformed NumPy array. Note that this transformer should **only** be used
+    when the number of rows is small *e.g.* in real-time environment.
 
-    >>> import databricks.koalas as ks
-    >>> from gators.encoders import MultiClassEncoder
-    >>> from gators.encoders import WOEEncoder
-    >>> X = ks.DataFrame({
-    ...    'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
-    ...    'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
-    ...    'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
-    ...    'D': [1, 2, 3, 4, 5, 6]})
-    >>> y = ks.Series([0,  0, 1, 2, 1, 2], name='TARGET')
-    >>> obj = MultiClassEncoder(WOEEncoder())
-    >>> obj.fit_transform(X, y)
-         D  A__TARGET_1_WOEEncoder  B__TARGET_1_WOEEncoder  C__TARGET_1_WOEEncoder  A__TARGET_2_WOEEncoder  B__TARGET_2_WOEEncoder  C__TARGET_2_WOEEncoder
-    0  1.0                     0.0                0.000000               -0.405465                0.000000                0.000000               -0.405465
-    1  2.0                     0.0                0.000000               -0.405465                0.000000                0.000000               -0.405465
-    2  3.0                     0.0                0.693147               -0.405465                0.000000                0.693147               -0.405465
-    3  4.0                     0.0                0.693147               -0.405465                1.386294                0.693147               -0.405465
-    4  5.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
-    5  6.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
-
-    * fit with `pandas` & transform with `NumPy`
-
-    >>> import pandas as pd
-    >>> from gators.encoders import MultiClassEncoder
-    >>> from gators.encoders import WOEEncoder
-    >>> X = pd.DataFrame({
-    ...    'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
-    ...    'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
-    ...    'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
-    ...    'D': [1, 2, 3, 4, 5, 6]})
-    >>> y = pd.Series([0,  0, 1, 2, 1, 2], name='TARGET')
-    >>> obj = MultiClassEncoder(WOEEncoder())
-    >>> _ = obj.fit(X, y)
-    >>> obj.transform_numpy(X.to_numpy())
-    array([[ 1.        ,  0.        ,  0.        , -0.40546511,  0.        ,
-             0.        , -0.40546511],
-           [ 2.        ,  0.        ,  0.        , -0.40546511,  0.        ,
-             0.        , -0.40546511],
-           [ 3.        ,  0.        ,  0.69314718, -0.40546511,  0.        ,
-             0.69314718, -0.40546511],
-           [ 4.        ,  0.        ,  0.69314718, -0.40546511,  1.38629436,
-             0.69314718, -0.40546511],
-           [ 5.        ,  0.        ,  0.69314718,  0.69314718,  1.38629436,
-             0.69314718,  0.69314718],
-           [ 6.        ,  0.        ,  0.69314718,  0.69314718,  1.38629436,
-             0.69314718,  0.69314718]])
-
-    * fit with `koalas` & transform with `NumPy`
-
-    >>> import databricks.koalas as ks
-    >>> from gators.encoders import MultiClassEncoder
-    >>> from gators.encoders import WOEEncoder
-    >>> X = ks.DataFrame({
-    ...    'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
-    ...    'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
-    ...    'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
-    ...    'D': [1, 2, 3, 4, 5, 6]})
-    >>> y = ks.Series([0,  0, 1, 2, 1, 2], name='TARGET')
-    >>> obj = MultiClassEncoder(WOEEncoder())
-    >>> _ = obj.fit(X, y)
     >>> obj.transform_numpy(X.to_numpy())
     array([[ 1.        ,  0.        ,  0.        , -0.40546511,  0.        ,
              0.        , -0.40546511],
@@ -139,16 +112,14 @@ class MultiClassEncoder(_BaseEncoder):
         self.column_mapping = {}
         self.name = type(encoder).__name__
 
-    def fit(
-        self, X: Union[pd.DataFrame, ks.DataFrame], y: Union[pd.Series, ks.Series]
-    ) -> "MultiClassEncoder":
+    def fit(self, X: DataFrame, y: Series) -> "MultiClassEncoder":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -158,9 +129,9 @@ class MultiClassEncoder(_BaseEncoder):
         """
         self.check_dataframe(X)
         self.check_y(X, y)
-        self.check_multiclass_target(y)
+        # self.check_multiclass_target(y)
+        # self.check_nans(X, self.columns)
         self.columns = util.get_datatype_columns(X, object)
-        self.check_nans(X, self.columns)
         self.drop_columns = DropColumns(self.columns).fit(X)
         if not self.columns:
             warnings.warn(
@@ -172,11 +143,7 @@ class MultiClassEncoder(_BaseEncoder):
             columns=X.columns,
             selected_columns=self.columns,
         )
-        y_name = y.name
-        if isinstance(X, pd.DataFrame):
-            y_one_hot = pd.get_dummies(y, prefix=y_name)
-        else:
-            y_one_hot = ks.get_dummies(y, prefix=y_name)
+        y_one_hot = util.get_function(X).get_dummies(y.to_frame(), columns=[y.name])
         y_one_hot = y_one_hot.drop(y_one_hot.columns[0], axis=1)
         self.label_names = y_one_hot.columns
         for label_name in self.label_names:
@@ -184,26 +151,27 @@ class MultiClassEncoder(_BaseEncoder):
             self.encoder_dict[label_name].fit(X[self.columns], y_one_hot[label_name])
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
         if not self.columns:
             self.idx_columns = np.array([])
             return X
+        import time
+
         for i, label_name in enumerate(self.label_names):
+            to = time.time()
             dummy = self.encoder_dict[label_name].transform(X[self.columns].copy())[
                 self.encoder_dict[label_name].columns
             ]
@@ -212,7 +180,8 @@ class MultiClassEncoder(_BaseEncoder):
             self.column_names.extend(column_names)
             for name, col in zip(column_names, self.columns):
                 self.column_mapping[name] = col
-            X = X.join(dummy, how="inner").sort_index()
+            X = util.get_function(X).join(X, dummy)
+
         return self.drop_columns.transform(X).astype(self.dtype)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

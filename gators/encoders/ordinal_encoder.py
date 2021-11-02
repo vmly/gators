@@ -1,13 +1,14 @@
 # License: Apache-2.0
 import warnings
-from typing import Dict, List, Union
+from typing import Dict, List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from ..util import util
 from ._base_encoder import _BaseEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class OrdinalEncoder(_BaseEncoder):
@@ -25,49 +26,41 @@ class OrdinalEncoder(_BaseEncoder):
     Examples
     ---------
 
-    * fit & transform with `pandas`
+    Imports and initialization:
+
+    >>> from gators.encoders import OrdinalEncoder
+    >>> obj = OrdinalEncoder()
+
+    The `fit`, `transform`, and `fit_transform` methods accept:
+
+    * `dask` dataframes,
+
+    >>> import dask.dataframe as dd
+    >>> import pandas as pd
+    >>> X = dd.from_pandas({'A': ['a', 'a', 'b'], 'B': ['c', 'd', 'd']}), npartitions=1)
+
+    * `koalas` dataframes,
+
+    >>> import databricks.koalas as ks
+    >>> X = ks.DataFrame({'A': ['a', 'a', 'b'], 'B': ['c', 'd', 'd']})
+
+    * and `pandas` dataframes:
 
     >>> import pandas as pd
-    >>> from gators.encoders import OrdinalEncoder
     >>> X = pd.DataFrame({'A': ['a', 'a', 'b'], 'B': ['c', 'd', 'd']})
-    >>> obj = OrdinalEncoder()
+
+    The result is a transformed dataframe belonging to the same dataframe library.
+
     >>> obj.fit_transform(X)
          A    B
     0  1.0  1.0
     1  1.0  0.0
     2  0.0  0.0
 
-    * fit & transform with `koalas`
+    Independly of the dataframe library used to fit the transformer, the `tranform_numpy` method only accepts NumPy arrays
+    and returns a transformed NumPy array. Note that this transformer should **only** be used
+    when the number of rows is small *e.g.* in real-time environment.
 
-    >>> import databricks.koalas as ks
-    >>> from gators.encoders import OrdinalEncoder
-    >>> X = ks.DataFrame({'A': ['a', 'a', 'b'], 'B': ['c', 'd', 'd']})
-    >>> obj = OrdinalEncoder()
-    >>> obj.fit_transform(X)
-         A    B
-    0  1.0  1.0
-    1  1.0  0.0
-    2  0.0  0.0
-
-    * fit with `pandas` & transform with `NumPy`
-
-    >>> import pandas as pd
-    >>> from gators.encoders import OrdinalEncoder
-    >>> X = pd.DataFrame({'A': ['a', 'a', 'b'], 'B': ['c', 'd', 'd']})
-    >>> obj = OrdinalEncoder()
-    >>> _ = obj.fit(X)
-    >>> obj.transform_numpy(X.to_numpy())
-    array([[1., 1.],
-           [1., 0.],
-           [0., 0.]])
-
-    * fit with `koalas` & transform with `NumPy`
-
-    >>> import databricks.koalas as ks
-    >>> from gators.encoders import OrdinalEncoder
-    >>> X = ks.DataFrame({'A': ['a', 'a', 'b'], 'B': ['c', 'd', 'd']})
-    >>> obj = OrdinalEncoder()
-    >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([[1., 1.],
            [1., 0.],
@@ -80,18 +73,14 @@ class OrdinalEncoder(_BaseEncoder):
             raise TypeError("`add_other_columns` shouldbe a bool.")
         self.add_other_columns = add_other_columns
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "OrdinalEncoder":
+    def fit(self, X: DataFrame, y: Series = None) -> "OrdinalEncoder":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -100,7 +89,7 @@ class OrdinalEncoder(_BaseEncoder):
         """
         self.check_dataframe(X)
         self.columns = util.get_datatype_columns(X, object)
-        self.check_nans(X, self.columns)
+        # self.check_nans(X, self.columns)
         if not self.columns:
             warnings.warn(
                 f"""`X` does not contain object columns:
@@ -117,17 +106,14 @@ class OrdinalEncoder(_BaseEncoder):
         )
         return self
 
-    @staticmethod
     def generate_mapping(
-        X: Union[pd.DataFrame, ks.DataFrame],
-        columns: List[str],
-        add_other_columns: bool,
+        self, X: DataFrame, columns: List[str], add_other_columns: bool
     ) -> Dict[str, Dict[str, float]]:
         """Generate the mapping to perform the encoding.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         self.columns : List[str]
             List of  columns.
@@ -143,7 +129,11 @@ class OrdinalEncoder(_BaseEncoder):
         """
         mapping = {}
         for c in columns:
-            categories = X[c].value_counts().to_dict()
+            categories = (
+                util.get_function(X)
+                .to_pandas(X[c].value_counts(dropna=False))
+                .to_dict()
+            )
             n_categories = len(categories)
             category_names = list(categories.keys())
             category_names = sorted(category_names)
@@ -155,5 +145,4 @@ class OrdinalEncoder(_BaseEncoder):
             if add_other_columns and "OTHERS" not in category_mapping:
                 category_mapping["OTHERS"] = str(len(category_mapping))
             mapping[c] = category_mapping
-
         return mapping

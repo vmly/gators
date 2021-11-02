@@ -1,13 +1,15 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
 import pandas as pd
 
 from ..binning._base_discretizer import _BaseDiscretizer
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
 from .information_value import InformationValue
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class MultiClassInformationValue(_BaseFeatureSelection):
@@ -133,18 +135,14 @@ class MultiClassInformationValue(_BaseFeatureSelection):
         self.k = k
         self.discretizer = discretizer
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "MultiClassInformationValue":
+    def fit(self, X: DataFrame, y: Series = None) -> "MultiClassInformationValue":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -168,17 +166,15 @@ class MultiClassInformationValue(_BaseFeatureSelection):
 
     @staticmethod
     def compute_information_value(
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series],
-        discretizer: _BaseDiscretizer,
+        X: DataFrame, y: Series, discretizer: _BaseDiscretizer
     ) -> pd.Series:
         """Compute information value.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
         discretizer : _BaseDiscretizer
             Discretizer Transformer.
@@ -189,10 +185,9 @@ class MultiClassInformationValue(_BaseFeatureSelection):
             Information value.
         """
         discretizer.inplace = False
-        if isinstance(X, pd.DataFrame):
-            y_onehot = pd.get_dummies(y, prefix=y.name)
-        else:
-            y_onehot = ks.get_dummies(y, prefix=y.name)
+        y_onehot = util.get_function(y).get_dummies(
+            y.astype(str).to_frame(), columns=[y.name]
+        )
         y_onehot = y_onehot.drop(y_onehot.columns[0], axis=1)
         information_values = pd.DataFrame(index=X.columns, columns=y_onehot.columns[1:])
         iv = InformationValue(discretizer=discretizer, k=X.shape[1])

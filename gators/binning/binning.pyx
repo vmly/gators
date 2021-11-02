@@ -89,7 +89,7 @@ cpdef np.ndarray[object, ndim = 2] discretizer_inplace(
             j_col = idx_columns[j]
             for k in range(1, n_bins):
                 if X[i, j_col] <= bins_np[k, j]:
-                    X[i, j_col] = str(float(k - 1))
+                    X[i, j_col] = '_' + str(k - 1)
                     break
     return X
 
@@ -113,6 +113,6 @@ cpdef np.ndarray[object, ndim = 2] discretizer(
             j_col = idx_columns[j]
             for k in range(1, n_bins):
                 if float(X[i, j_col]) <= bins_np[k, j]:
-                    X_bin[i, j] = str(float(k - 1))
+                    X_bin[i, j] = '_' + str(k - 1)
                     break
     return np.concatenate((X, X_bin), axis=1)

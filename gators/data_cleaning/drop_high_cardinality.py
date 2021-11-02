@@ -1,11 +1,11 @@
 # License: Apache-2.0
-from typing import List, Union
-
-import databricks.koalas as ks
-import pandas as pd
+from typing import List, TypeVar
 
 from ..util import util
 from ._base_data_cleaning import _BaseDataCleaning
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropHighCardinality(_BaseDataCleaning):
@@ -74,11 +74,7 @@ class DropHighCardinality(_BaseDataCleaning):
         _BaseDataCleaning.__init__(self)
         self.max_categories = max_categories
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "DropHighCardinality":
+    def fit(self, X: DataFrame, y: Series = None) -> "DropHighCardinality":
         """Fit the transformer on the dataframe `X`.
 
         Get the list of column names to remove and the array of
@@ -86,7 +82,7 @@ class DropHighCardinality(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         y : None
            None
@@ -111,9 +107,7 @@ class DropHighCardinality(_BaseDataCleaning):
         return self
 
     @staticmethod
-    def get_columns_to_drop(
-        X: Union[pd.DataFrame, ks.DataFrame], max_categories: int
-    ) -> List[str]:
+    def get_columns_to_drop(X: DataFrame, max_categories: int) -> List[str]:
         """Get the column names to drop.
 
         Parameters
@@ -131,10 +125,7 @@ class DropHighCardinality(_BaseDataCleaning):
         object_columns = util.get_datatype_columns(X, object)
         if not object_columns:
             return []
-        if isinstance(X, pd.DataFrame):
-            X_nunique = X[object_columns].nunique()
-        else:
-            X_nunique = X[object_columns].nunique(approx=True)
+        X_nunique = util.get_function(X).nunique(X[object_columns])
         mask_columns = X_nunique > max_categories
         columns_to_drop = X_nunique[mask_columns].index
         return list(columns_to_drop.to_numpy())

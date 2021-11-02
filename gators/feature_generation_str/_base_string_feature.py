@@ -1,12 +1,14 @@
 # Licence Apache-2.0
-from typing import List, Union
 
-import databricks.koalas as ks
+from typing import List, TypeVar
+
 import numpy as np
-import pandas as pd
 
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseStringFeature(Transformer):
@@ -36,18 +38,14 @@ class _BaseStringFeature(Transformer):
         self.column_mapping = dict(zip(column_names, columns))
         self.idx_columns: np.ndarray = np.array([])
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "_BaseStringFeature":
+    def fit(self, X: DataFrame, y: Series = None) -> "_BaseStringFeature":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
         X : pd.DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Target values.
 
         Returns

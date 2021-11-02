@@ -1,9 +1,7 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from ..transformers import Transformer
 
@@ -23,6 +21,10 @@ LIST_NUMPY_NUM_DTYPES = [
     "np.float32",
     "np.float64",
 ]
+
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class ConvertColumnDatatype(Transformer):
@@ -98,16 +100,14 @@ class ConvertColumnDatatype(Transformer):
         self.columns = columns
         self.datatype = datatype
 
-    def fit(
-        self, X: Union[pd.DataFrame, ks.DataFrame], y=None
-    ) -> "ConvertColumnDatatype":
+    def fit(self, X: DataFrame, y=None) -> "ConvertColumnDatatype":
         """Fit the transformer on the dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -117,19 +117,17 @@ class ConvertColumnDatatype(Transformer):
         self.check_dataframe(X)
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame], y=None
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame, y=None) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         X[self.columns] = X[self.columns].astype(self.datatype)

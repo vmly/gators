@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import pytest
 from hyperopt import hp, tpe
-from pandas.testing import assert_series_equal
 from sklearn.datasets import make_classification
 from sklearn.metrics import make_scorer
 from sklearn.model_selection import StratifiedKFold
@@ -52,6 +51,7 @@ def test_hyperopt(data):
     y_pred = hyper.model.predict(X)
     feature_importances = hyper.get_feature_importances()
     assert feature_importances[-3:].sum() == 0
+    assert list(feature_importances.index) == list("ABCDE")
     assert np.allclose(y_pred, y_pred_expected)
 
 

@@ -1,12 +1,15 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
+
 from scaler import standard_scaler
 
 from ..transformers.transformer import Transformer
+from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class StandardScaler(Transformer):
@@ -74,24 +77,20 @@ class StandardScaler(Transformer):
 
     def __init__(self, dtype: type = np.float64):
         self.dtype = dtype
-        self.X_mean: Union[pd.DataFrame, ks.DataFrame] = None
-        self.X_std: Union[pd.DataFrame, ks.DataFrame] = None
+        self.X_mean: DataFrame = None
+        self.X_std: DataFrame = None
         self.X_mean_np = np.array([])
         self.X_std_np = np.array([])
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "StandardScaler":
+    def fit(self, X: DataFrame, y: Series = None) -> "StandardScaler":
         """Fit the transformer on the pandas/koalas dataframe X.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -99,10 +98,13 @@ class StandardScaler(Transformer):
         """
         self.check_dataframe(X)
         self.check_dataframe_is_numerics(X)
-        self.X_std = X.std().astype(self.dtype)
-        self.X_mean = X.mean().astype(self.dtype)
-        self.X_mean_np = self.X_mean.to_numpy().astype(self.dtype)
-        self.X_std_np = self.X_std.to_numpy().astype(self.dtype)
+        self.columns = list(X.columns)
+        self.X_mean = util.get_function(X).to_pandas(X.mean()).astype(self.dtype)
+        self.X_std = util.get_function(X).to_pandas(X.std()).astype(self.dtype)
+        self.X_mean_np = util.get_function(self.X_mean).to_numpy(self.X_mean)
+        self.X_std_np = util.get_function(self.X_std).to_numpy(self.X_std)
+        self.X_mean = self.X_mean.to_dict()
+        self.X_std = self.X_std.to_dict()
         return self
 
     def transform(self, X):
@@ -110,22 +112,20 @@ class StandardScaler(Transformer):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
         self.check_dataframe_is_numerics(X)
 
-        def f(x: ks.Series[self.dtype]):
-            c = x.name
-            return (x - self.X_mean[c]) / self.X_std[c]
-
-        return X.astype(self.dtype).apply(f)
+        for col in self.columns:
+            X[col] = (X[col] - self.X_mean[col]) / self.X_std[col]
+        return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the numpy ndarray X.

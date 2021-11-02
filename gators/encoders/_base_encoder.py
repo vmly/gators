@@ -1,9 +1,7 @@
 # License: Apache-2.0
-from typing import Any, Collection, Dict, List, Tuple, Union
+from typing import Any, Collection, Dict, List, Tuple, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from encoder import encoder
 
@@ -12,6 +10,9 @@ from ..transformers.transformer import (
     PRINT_NUMERICS_DTYPES,
     Transformer,
 )
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseEncoder(Transformer):
@@ -35,18 +36,16 @@ class _BaseEncoder(Transformer):
         self.encoded_values_vec = np.array([])
         self.mapping: Dict[str, Dict[str, float]] = {}
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -64,7 +63,7 @@ class _BaseEncoder(Transformer):
         np.ndarray: Encoded array.
         """
         self.check_array(X)
-        if len(self.idx_columns) == 0:
+        if self.idx_columns.size == 0:
             return X.astype(self.dtype)
         return encoder(
             X,

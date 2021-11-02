@@ -1,15 +1,16 @@
 # License: Apache-2.0
 import warnings
-from typing import Dict, List, Union
+from typing import Dict, List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from binning import bin_rare_events
 
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class BinRareEvents(Transformer):
@@ -87,15 +88,15 @@ class BinRareEvents(Transformer):
         self.n_categories_to_keep_np: np.ndarray = None
         self.categories_to_keep_dict: Dict[str, np.ndarray] = {}
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame], y=None) -> "BinRareEvents":
+    def fit(self, X: DataFrame, y=None) -> "BinRareEvents":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -125,30 +126,26 @@ class BinRareEvents(Transformer):
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
 
-        def f(x):
-            name = x.name
-            if name not in self.categories_to_keep_dict:
-                return x
-            return x.mask(~x.isin(self.categories_to_keep_dict[name]), "OTHERS")
-
-        return X.apply(f)
+        for col in self.columns:
+            X[col] = X[col].mask(
+                ~X[col].isin(self.categories_to_keep_dict[col]), "OTHERS"
+            )
+        return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array.
@@ -179,13 +176,13 @@ class BinRareEvents(Transformer):
 
     @staticmethod
     def compute_categories_to_keep_dict(
-        X: Union[pd.DataFrame, ks.DataFrame], min_ratio: float
+        X: DataFrame, min_ratio: float
     ) -> Dict[str, List[str]]:
         """Compute the category frequency.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
         min_ratio : float
             Min occurence per category.
@@ -194,17 +191,15 @@ class BinRareEvents(Transformer):
         -------
             Dict[str, List[str]]: Categories to keep.
         """
-
-        def f(x):
-            freq = x.astype("object").value_counts(normalize=True).sort_values()
+        mapping = {}
+        for c in X.columns:
+            freq = (
+                util.get_function(X)
+                .to_pandas(X[c].value_counts(normalize=True))
+                .sort_values()
+            )
             freq = freq[freq >= min_ratio]
-            return list(freq.index)
-
-        mapping = X.apply(f).to_dict()
-        mapping = {
-            key: val if isinstance(val, list) else list(val.values())
-            for key, val in mapping.items()
-        }
+            mapping[c] = freq.index
         return mapping
 
     @staticmethod

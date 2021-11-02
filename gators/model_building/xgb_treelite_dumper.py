@@ -1,10 +1,8 @@
 # License: Apache-2.0
 import os
 
-import numpy as np
 import treelite
 import xgboost
-from xgboost.sklearn import XGBClassifier
 
 
 class XGBTreeliteDumper:

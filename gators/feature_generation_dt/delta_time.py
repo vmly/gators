@@ -1,14 +1,31 @@
 # Licence Apache-2.0
-from typing import List, Union
 
-import databricks.koalas as ks
+from typing import List, TypeVar
+
 import numpy as np
-import pandas as pd
 
 import feature_gen_dt
 
 from ..transformers import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+
+
+# class ComputerPandas(ComputerFactory):
+#     def compute(self, X, column_names, columns_a, columns_b, deltatime_dtype):
+#         for name, c_a, c_b in zip(column_names, columns_a, columns_b):
+#             X[name] = (X[c_a] - X[c_b])
+#         return X
+
+
+# class ComputerKoalas(ComputerFactory):
+#     def compute(self, X, column_names, columns_a, columns_b, deltatime_dtype):
+#         for name, c_a, c_b in zip(column_names, columns_a, columns_b):
+#             X = X.assign(dummy=(X[c_a].astype(float) - X[c_b].astype(float))).rename(
+#                 columns={"dummy": name}
+#             )
 
 
 class DeltaTime(Transformer):
@@ -84,9 +101,6 @@ class DeltaTime(Transformer):
            [Timestamp('2020-01-15 18:00:00'), 1,
             Timestamp('2020-01-15 23:00:00'), 18000.0],
            [NaT, 0, NaT, nan]], dtype=object)
-
-
-
     """
 
     def __init__(self, columns_a: List[str], columns_b: List[str]):
@@ -114,18 +128,14 @@ class DeltaTime(Transformer):
             for name, c_a, c_b in zip(self.column_names, columns_a, columns_b)
         }
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "DeltaTime":
+    def fit(self, X: DataFrame, y: Series = None) -> "DeltaTime":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
         X : pd.DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Target values.
 
         Returns
@@ -135,7 +145,7 @@ class DeltaTime(Transformer):
         """
         self.check_dataframe(X)
         columns = list(set(self.columns_a + self.columns_b))
-        X_datetime_dtype = X.iloc[:5000][columns].dtypes
+        X_datetime_dtype = X.dtypes
         for column in columns:
             if not np.issubdtype(X_datetime_dtype[column], np.datetime64):
                 raise TypeError(
@@ -154,32 +164,23 @@ class DeltaTime(Transformer):
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        if isinstance(X, pd.DataFrame):
-            for name, c_a, c_b in zip(
-                self.column_names, self.columns_a, self.columns_b
-            ):
-                X.loc[:, name] = (X[c_a] - X[c_b]).astype(self.deltatime_dtype)
-            return X
-        for name, c_a, c_b in zip(self.column_names, self.columns_a, self.columns_b):
-            X = X.assign(dummy=(X[c_a].astype(float) - X[c_b].astype(float))).rename(
-                columns={"dummy": name}
-            )
+        X = util.get_function(X).delta_time(
+            X, self.column_names, self.columns_a, self.columns_b, self.deltatime_dtype
+        )
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

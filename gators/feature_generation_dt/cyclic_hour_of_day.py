@@ -1,16 +1,19 @@
 # Licence Apache-2.0
 from math import pi
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 import feature_gen_dt
 
+from ..util import util
 from ._base_datetime_feature import _BaseDatetimeFeature
 
 PREFACTOR = 2 * pi / 23.0
+
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class CyclicHourOfDay(_BaseDatetimeFeature):
@@ -90,23 +93,21 @@ class CyclicHourOfDay(_BaseDatetimeFeature):
         }
         _BaseDatetimeFeature.__init__(self, columns, column_names, column_mapping)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        return self.compute_cyclic_hour_of_day(X, self.columns, self.column_names)
+        return self.compute_cyclic_hour_of_day(X)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.
@@ -124,39 +125,25 @@ class CyclicHourOfDay(_BaseDatetimeFeature):
         self.check_array(X)
         return feature_gen_dt.cyclic_hour_of_day(X, self.idx_columns, PREFACTOR)
 
-    @staticmethod
     def compute_cyclic_hour_of_day(
-        X: Union[pd.DataFrame, ks.DataFrame],
-        columns: List[str],
-        column_names: List[str],
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+        self,
+        X: DataFrame,
+    ) -> DataFrame:
         """Compute the cyclic hours of the day features.
 
         Parameters
         ----------
-        X_datetime : Union[pd.DataFrame, ks.DataFrame]
+        X_datetime : DataFrame
             Dataframe of datetime columns.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Dataframe of cyclic hours of the day features.
         """
-        if isinstance(X, pd.DataFrame):
-            X_cyclic = (
-                X[columns].apply(lambda x: PREFACTOR * x.dt.hour).agg(["cos", "sin"])
-            )
-            X_cyclic.columns = column_names
-            return X.join(X_cyclic)
 
-        for i, col in enumerate(columns):
-            X = X.assign(
-                dummy_cos=np.cos(PREFACTOR * X[col].dt.hour),
-                dummy_sin=np.sin(PREFACTOR * X[col].dt.hour),
-            ).rename(
-                columns={
-                    "dummy_cos": column_names[2 * i],
-                    "dummy_sin": column_names[2 * i + 1],
-                }
-            )
+        for i, c in enumerate(self.columns):
+            hour = X[c].dt.hour
+            X[self.column_names[2 * i]] = np.cos(PREFACTOR * hour)
+            X[self.column_names[2 * i + 1]] = np.sin(PREFACTOR * hour)
         return X

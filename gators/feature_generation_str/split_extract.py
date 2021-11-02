@@ -1,13 +1,16 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 
 from feature_gen_str import split_and_extract_str
 
+from ..util import util
 from ._base_string_feature import _BaseStringFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class SplitExtract(_BaseStringFeature):
@@ -41,7 +44,7 @@ class SplitExtract(_BaseStringFeature):
     >>> from gators.feature_generation_str import SplitExtract
     >>> X = pd.DataFrame({'A': ['qw*e', 'a*qd', 'zxq*'], 'B': [1, 2, 3]})
     >>> obj = SplitExtract(
-    ...     columns=['A','A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
+    ...     columns=['A', 'A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
     >>> obj.fit_transform(X)
           A  B A__split_by_*_idx_0 A__split_by_*_idx_1
     0  qw*e  1                  qw                   e
@@ -54,7 +57,7 @@ class SplitExtract(_BaseStringFeature):
     >>> from gators.feature_generation_str import SplitExtract
     >>> X = ks.DataFrame({'A': ['qw*e', 'a*qd', 'zxq*'], 'B': [1, 2, 3]})
     >>> obj = SplitExtract(
-    ...     columns=['A','A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
+    ...     columns=['A', 'A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
     >>> obj.fit_transform(X)
           A  B A__split_by_*_idx_0 A__split_by_*_idx_1
     0  qw*e  1                  qw                   e
@@ -67,7 +70,7 @@ class SplitExtract(_BaseStringFeature):
     >>> from gators.feature_generation_str import SplitExtract
     >>> X = pd.DataFrame({'A': ['qw*e', 'a*qd', 'zxq*'], 'B': [1, 2, 3]})
     >>> obj = SplitExtract(
-    ...     columns=['A','A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
+    ...     columns=['A', 'A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['qw*e', 1, 'qw', 'e'],
@@ -80,7 +83,7 @@ class SplitExtract(_BaseStringFeature):
     >>> from gators.feature_generation_str import SplitExtract
     >>> X = ks.DataFrame({'A': ['qw*e', 'a*qd', 'zxq*'], 'B': [1, 2, 3]})
     >>> obj = SplitExtract(
-    ...     columns=['A','A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
+    ...     columns=['A', 'A'], str_split_vec=['*', '*'], idx_split_vec=[0, 1])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['qw*e', 1, 'qw', 'e'],
@@ -115,29 +118,24 @@ class SplitExtract(_BaseStringFeature):
         self.str_split_vec = np.array(str_split_vec, object)
         self.idx_split_vec = np.array(idx_split_vec, int)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
         for col, idx, str_split, name in zip(
             self.columns, self.idx_split_vec, self.str_split_vec, self.column_names
         ):
-            n = idx if idx > 0 else 1
-            X.loc[:, name] = (
-                X[col].str.split(str_split, n=n, expand=True)[idx].fillna("MISSING")
-            )
+            X[name] = X[col].str.split(str_split).str.get(idx).fillna("MISSING")
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

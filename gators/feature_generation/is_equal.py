@@ -1,14 +1,15 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from feature_gen import is_equal, is_equal_object
 
 from ..util import util
 from ._base_feature_generation import _BaseFeatureGeneration
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class IsEqual(_BaseFeatureGeneration):
@@ -31,9 +32,9 @@ class IsEqual(_BaseFeatureGeneration):
     >>> obj = IsEqual(columns_a=['A'],columns_b=['B'])
     >>> obj.fit_transform(X)
        A  B  A__is__B
-    0  1  1         1
-    1  2  1         0
-    2  3  1         0
+    0  1  1       1.0
+    1  2  1       0.0
+    2  3  1       0.0
 
     * fit & transform with `koalas`
 
@@ -43,9 +44,9 @@ class IsEqual(_BaseFeatureGeneration):
     >>> obj = IsEqual(columns_a=['A'],columns_b=['B'])
     >>> obj.fit_transform(X)
        A  B  A__is__B
-    0  1  1         1
-    1  2  1         0
-    2  3  1         0
+    0  1  1       1.0
+    1  2  1       0.0
+    2  3  1       0.0
 
     * fit with `pandas` & transform with `NumPy`
 
@@ -112,19 +113,15 @@ class IsEqual(_BaseFeatureGeneration):
         self.idx_columns_a: List[int] = []
         self.idx_columns_b: List[int] = []
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ):
+    def fit(self, X: DataFrame, y: Series = None):
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -140,39 +137,22 @@ class IsEqual(_BaseFeatureGeneration):
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        if isinstance(X, pd.DataFrame):
-            for a, b, name in zip(self.columns_a, self.columns_b, self.column_names):
-                x_dtype = X[a].dtype
-                x_dtype = (
-                    x_dtype if (x_dtype != object) and (x_dtype != bool) else np.float64
-                )
-                X.loc[:, name] = (X[a] == X[b]).astype(x_dtype)
-            return X
-
         for a, b, name in zip(self.columns_a, self.columns_b, self.column_names):
-            x_dtype = X[a].dtype
-            x_dtype = (
-                x_dtype if (x_dtype != object) and (x_dtype != bool) else np.float64
-            )
-            X = X.assign(dummy=(X[a] == X[b]).astype(x_dtype)).rename(
-                columns={"dummy": name}
-            )
+            X[name] = (X[a] == X[b]).astype(float)
         return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:

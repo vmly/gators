@@ -1,15 +1,15 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from feature_gen_str import lower_case
 
 from ..util import util
-
 from ._base_string_feature import _BaseStringFeature
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class LowerCase(_BaseStringFeature):
@@ -27,7 +27,7 @@ class LowerCase(_BaseStringFeature):
     >>> import pandas as pd
     >>> from gators.feature_generation_str import LowerCase
     >>> X = pd.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = LowerCase(columns=['A','B'])
+    >>> obj = LowerCase(columns=['A', 'B'])
     >>> obj.fit_transform(X)
          A     B
     0  abc   abc
@@ -39,7 +39,7 @@ class LowerCase(_BaseStringFeature):
     >>> import databricks.koalas as ks
     >>> from gators.feature_generation_str import LowerCase
     >>> X = ks.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = LowerCase(columns=['A','B'])
+    >>> obj = LowerCase(columns=['A', 'B'])
     >>> obj.fit_transform(X)
          A     B
     0  abc   abc
@@ -51,7 +51,7 @@ class LowerCase(_BaseStringFeature):
     >>> import pandas as pd
     >>> from gators.feature_generation_str import LowerCase
     >>> X = pd.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = LowerCase(columns=['A','B'])
+    >>> obj = LowerCase(columns=['A', 'B'])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['abc', 'abc'],
@@ -63,7 +63,7 @@ class LowerCase(_BaseStringFeature):
     >>> import databricks.koalas as ks
     >>> from gators.feature_generation_str import LowerCase
     >>> X = ks.DataFrame({'A': ['abC', 'Ab', ''], 'B': ['ABc', 'aB', None]})
-    >>> obj = LowerCase(columns=['A','B'])
+    >>> obj = LowerCase(columns=['A', 'B'])
     >>> _ = obj.fit(X)
     >>> obj.transform_numpy(X.to_numpy())
     array([['abc', 'abc'],
@@ -80,19 +80,15 @@ class LowerCase(_BaseStringFeature):
             raise ValueError("`columns` should not be empty.")
         self.columns = columns
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "LowerCase":
+    def fit(self, X: DataFrame, y: Series = None) -> "LowerCase":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -105,28 +101,23 @@ class LowerCase(_BaseStringFeature):
         )
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
 
-        def f(x):
-            if x.name in self.columns:
-                return x.astype(str).str.lower().replace({"none": None})
-            return x
-
-        return X.apply(f)
+        for col in self.columns:
+            X[col] = X[col].astype(str).str.lower().replace({"none": None})
+        return X
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.

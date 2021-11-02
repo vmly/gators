@@ -1,12 +1,14 @@
 # Licence Apache-2.0
-from typing import Dict, List, Union
 
-import databricks.koalas as ks
+from typing import Dict, List, TypeVar
+
 import numpy as np
-import pandas as pd
 
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseDatetimeFeature(Transformer):
@@ -36,18 +38,14 @@ class _BaseDatetimeFeature(Transformer):
         self.idx_columns: np.ndarray = np.array([])
         self.n_columns = len(self.columns)
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "_BaseDatetimeFeature":
+    def fit(self, X: DataFrame, y: Series = None) -> "_BaseDatetimeFeature":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
         X : pd.DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Target values.
 
         Returns
@@ -56,7 +54,7 @@ class _BaseDatetimeFeature(Transformer):
             Instance of itself.
         """
         self.check_dataframe(X)
-        X_datetime_dtype = X.iloc[:100][self.columns].dtypes
+        X_datetime_dtype = X[self.columns].dtypes
         for column in self.columns:
             if not np.issubdtype(X_datetime_dtype[column], np.datetime64):
                 raise TypeError(

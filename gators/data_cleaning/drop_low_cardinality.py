@@ -1,11 +1,11 @@
 # License: Apache-2.0
-from typing import List, Union
-
-import databricks.koalas as ks
-import pandas as pd
+from typing import List, TypeVar
 
 from ..util import util
 from ._base_data_cleaning import _BaseDataCleaning
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropLowCardinality(_BaseDataCleaning):
@@ -75,7 +75,7 @@ class DropLowCardinality(_BaseDataCleaning):
         _BaseDataCleaning.__init__(self)
         self.min_categories: int = min_categories
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame], y=None) -> "DropLowCardinality":
+    def fit(self, X: DataFrame, y=None) -> "DropLowCardinality":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -83,7 +83,7 @@ class DropLowCardinality(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         y : None
            None
@@ -103,9 +103,7 @@ class DropLowCardinality(_BaseDataCleaning):
         return self
 
     @staticmethod
-    def get_columns_to_drop(
-        X: Union[pd.DataFrame, ks.DataFrame], min_categories: float
-    ) -> List[str]:
+    def get_columns_to_drop(X: DataFrame, min_categories: float) -> List[str]:
         """Get the list of column names to remove.
 
         Parameters
@@ -123,11 +121,11 @@ class DropLowCardinality(_BaseDataCleaning):
         object_columns = util.get_datatype_columns(X, "object")
         if not object_columns:
             return []
-        if isinstance(X, pd.DataFrame):
-            X_nunique = X[object_columns].nunique()
-        else:
-            X_nunique = X[object_columns].nunique().to_pandas()
-            X_nunique = X[object_columns].nunique(approx=True).to_pandas()
+
+        def f(x):
+            return x.nunique()
+
+        X_nunique = util.get_function(X).apply_to_pandas(X, f)
         mask_columns = X_nunique < min_categories
         columns_to_drop = mask_columns[mask_columns].index
-        return list(columns_to_drop.to_numpy())
+        return list(columns_to_drop)

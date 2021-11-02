@@ -1,14 +1,16 @@
 # License: Apache-2.0
-from typing import List, Tuple, Union
+from typing import List, Tuple, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from ..util import util
 from ._base_discretizer import _BaseDiscretizer
 
 EPSILON = 1e-10
+
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class QuantileDiscretizer(_BaseDiscretizer):
@@ -96,23 +98,22 @@ class QuantileDiscretizer(_BaseDiscretizer):
         Discretize using equal splits.
     gators.binning.CustomDiscretizer
         Discretize using the variable quantiles.
-
+    gators.binning.TreeDiscretizer
+        Discretize using tree-based splits.
     """
 
     def __init__(self, n_bins: int, inplace=False):
         _BaseDiscretizer.__init__(self, n_bins=n_bins, inplace=inplace)
 
     @staticmethod
-    def compute_bins(
-        X: Union[pd.DataFrame, ks.DataFrame], n_bins: int
-    ) -> Tuple[List[List[float]], np.ndarray]:
+    def compute_bins(X: DataFrame, n_bins: int) -> Tuple[List[List[float]], np.ndarray]:
         """Compute the bins list and the bins array.
         The bin list is used for dataframes and
         the bins array is used for arrays.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         n_bins : int
             Number of bins to use.
@@ -130,11 +131,11 @@ class QuantileDiscretizer(_BaseDiscretizer):
         X_dtype = X.dtypes.to_numpy()[0]
 
         def f(x):
-            return x.quantile(q=q)
+            return x.quantile(q=q).astype(np.float64)
 
-        bins = X.apply(f)
-        if isinstance(bins, ks.DataFrame):
-            bins = bins.to_pandas()
+        bins = util.get_function(X).apply(X, f)
+        bins = util.get_function(bins).to_pandas(bins)
+        bins = bins.groupby(bins.index).mean()  # for dask
         bins.loc[-np.inf, :] = util.get_bounds(X_dtype)[0]
         bins.loc[np.inf, :] = util.get_bounds(X_dtype)[1]
         bins = bins.sort_index()
@@ -144,8 +145,4 @@ class QuantileDiscretizer(_BaseDiscretizer):
             bins[c].iloc[1 : 1 + n_unique] = unique_bins
             bins[c].iloc[1 + n_unique :] = util.get_bounds(X_dtype)[1]
         bins_np = bins.to_numpy()
-        if isinstance(X, pd.DataFrame):
-            return bins.to_dict(orient="list"), bins_np
-        else:
-            bins = bins_np.T.tolist()
-            return [np.unique(b) + EPSILON for b in bins], bins_np
+        return bins.to_dict(orient="list"), bins_np

@@ -1,11 +1,11 @@
 # License: Apache-2.0
-from typing import List, Union
-
-import databricks.koalas as ks
-import pandas as pd
+from typing import List, TypeVar
 
 from ..util import util
 from ._base_data_cleaning import _BaseDataCleaning
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropHighNaNRatio(_BaseDataCleaning):
@@ -83,7 +83,7 @@ class DropHighNaNRatio(_BaseDataCleaning):
         _BaseDataCleaning.__init__(self)
         self.max_ratio = max_ratio
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame], y=None) -> "DropHighNaNRatio":
+    def fit(self, X: DataFrame, y=None) -> "DropHighNaNRatio":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -91,7 +91,7 @@ class DropHighNaNRatio(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
         y : None
            None
@@ -111,9 +111,7 @@ class DropHighNaNRatio(_BaseDataCleaning):
         return self
 
     @staticmethod
-    def get_columns_to_drop(
-        X: Union[pd.DataFrame, ks.DataFrame], max_ratio: float
-    ) -> List[str]:
+    def get_columns_to_drop(X: DataFrame, max_ratio: float) -> List[str]:
         """Get  the list of column names to drop.
 
         Parameters
@@ -128,8 +126,6 @@ class DropHighNaNRatio(_BaseDataCleaning):
         List[str]
             List of column names to drop.
         """
-        mask_columns = X.isnull().mean() > max_ratio
-        columns_to_drop = mask_columns[mask_columns].index
-        if isinstance(columns_to_drop, ks.indexes.Index):
-            columns_to_drop = columns_to_drop.to_pandas()
+        mask_columns = util.get_function(X).to_pandas(X.isnull().mean()) > max_ratio
+        columns_to_drop = list(mask_columns[mask_columns].index)
         return columns_to_drop

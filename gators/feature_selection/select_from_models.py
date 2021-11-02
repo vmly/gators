@@ -1,14 +1,15 @@
 # License: Apache-2.0
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
-import pyspark.sql.dataframe as ps
 
 from ..scalers.minmax_scaler import MinMaxScaler
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class SelectFromModels(_BaseFeatureSelection):
@@ -38,19 +39,19 @@ class SelectFromModels(_BaseFeatureSelection):
     >>> y = pd.Series([0, 1, 1, 1, 0, 0, 0, 0, 1, 1], name='TARGET')
     >>> models = [RFC(n_estimators=1, max_depth=1, random_state=0),
     ... RFC(n_estimators=1, max_depth=2, random_state=1)]
-    >>> obj = SelectFromModels(models=models, k=2)
+    >>> obj = SelectFromModels(models=models, k=1)
     >>> obj.fit_transform(X, y)
-           B    C
-    0   7.25  3.0
-    1  71.28  1.0
-    2   7.92  3.0
-    3  53.10  1.0
-    4   8.05  3.0
-    5   8.46  3.0
-    6  51.86  1.0
-    7  21.08  3.0
-    8  11.13  3.0
-    9  30.07  2.0
+           B
+    0   7.25
+    1  71.28
+    2   7.92
+    3  53.10
+    4   8.05
+    5   8.46
+    6  51.86
+    7  21.08
+    8  11.13
+    9  30.07
 
     * fit & transform with `koalas`
 
@@ -64,19 +65,19 @@ class SelectFromModels(_BaseFeatureSelection):
     >>> y = ks.Series([0, 1, 1, 1, 0, 0, 0, 0, 1, 1], name='TARGET')
     >>> models = [RFCSpark(numTrees=1, maxDepth=1, labelCol=y.name, seed=0),
     ... RFCSpark(numTrees=1, maxDepth=2, labelCol=y.name, seed=1)]
-    >>> obj = SelectFromModels(models=models, k=2)
+    >>> obj = SelectFromModels(models=models, k=1)
     >>> obj.fit_transform(X, y)
-           A      B
-    0  22.00   7.25
-    1  38.00  71.28
-    2  26.00   7.92
-    3  35.00  53.10
-    4  35.00   8.05
-    5  28.11   8.46
-    6  54.00  51.86
-    7   2.00  21.08
-    8  27.00  11.13
-    9  14.00  30.07
+           A
+    0  22.00
+    1  38.00
+    2  26.00
+    3  35.00
+    4  35.00
+    5  28.11
+    6  54.00
+    7   2.00
+    8  27.00
+    9  14.00
 
     See Also
     --------
@@ -99,18 +100,14 @@ class SelectFromModels(_BaseFeatureSelection):
         self.models = models
         self.k = k
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "SelectFromModels":
+    def fit(self, X: DataFrame, y: Series = None) -> "SelectFromModels":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -120,19 +117,10 @@ class SelectFromModels(_BaseFeatureSelection):
         self.check_dataframe(X)
         self.check_y(X, y)
         self.feature_importances_ = self.get_feature_importances_frame(X, self.models)
-        if isinstance(X, pd.DataFrame):
-            for col, model in zip(self.feature_importances_.columns, self.models):
-                model_feature_importances_ = self.get_feature_importances_pd(
-                    model=model, X=X, y=y
-                )
-                self.feature_importances_[col] = model_feature_importances_
-        else:
-            spark_df = util.generate_spark_dataframe(X=X, y=y)
-            for col, model in zip(self.feature_importances_.columns, self.models):
-                model_feature_importances_ = self.get_feature_importances_sk(
-                    model=model, spark_df=spark_df
-                )
-                self.feature_importances_[col] = model_feature_importances_
+        for col, model in zip(self.feature_importances_.columns, self.models):
+            self.feature_importances_[col] = util.get_function(X).feature_importances_(
+                model, X, y
+            )
         self.feature_importances_ = self.clean_feature_importances_frame(
             self.feature_importances_
         )
@@ -146,20 +134,6 @@ class SelectFromModels(_BaseFeatureSelection):
             X.columns, self.selected_columns
         )
         return self
-
-    @staticmethod
-    def get_feature_importances_pd(
-        model: object, X: pd.DataFrame, y: Union[pd.Series, ks.Series]
-    ):
-        model.fit(X, y)
-        feature_importances_ = model.feature_importances_
-        return feature_importances_
-
-    @staticmethod
-    def get_feature_importances_sk(model: object, spark_df: ps.DataFrame):
-        trained_model = model.fit(spark_df)
-        feature_importances_ = trained_model.featureImportances.toArray()
-        return feature_importances_
 
     @staticmethod
     def get_feature_importances_frame(X, models):

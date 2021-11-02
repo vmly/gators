@@ -28,8 +28,13 @@ def get_runtime_in_milliseconds(ipynb_benchmark: str) -> float:
     dump = ipynb_benchmark.split(" ± ")[0].split(" ")
     if "s" not in ipynb_benchmark:
         raise ValueError("`ipynb_benchmark` format not supported")
+    if "min" in dump[0]:
+        return float(dump[0][:-3]) * 1e3
+
     val = float(dump[0])
     t_unit = dump[1]
+    if "ms" in t_unit:
+        return val
     if "ms" in t_unit:
         return val
     if "µs" in t_unit:
@@ -239,9 +244,7 @@ def plot_all(bench_dict):
     # key = list(bench_dict.keys())[-1]
     # val = bench_dict[key]
     # columns = (val['pandas']/val['numpy']).sort_values().index
-    # print(columns)
     for key, val in bench_dict.items():
-        # val = val.loc[columns]
         fig, ax = plt.subplots(1, 2, figsize=[18, 8])
         column = "column" if key == 1 else "columns"
         val.index = val.index.str.split("_").str[0]

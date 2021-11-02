@@ -1,11 +1,11 @@
 # License: Apache-2.0
-from typing import Union
-
-import databricks.koalas as ks
-import pandas as pd
+from typing import TypeVar
 
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class VarianceFilter(_BaseFeatureSelection):
@@ -78,19 +78,15 @@ class VarianceFilter(_BaseFeatureSelection):
         _BaseFeatureSelection.__init__(self)
         self.min_var = min_var
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "VarianceFilter":
+    def fit(self, X: DataFrame, y: Series = None) -> "VarianceFilter":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -98,9 +94,11 @@ class VarianceFilter(_BaseFeatureSelection):
         """
         self.check_dataframe(X)
         numerical_columns = util.get_numerical_columns(X)
-        self.feature_importances_ = X[numerical_columns].var()
-        if isinstance(self.feature_importances_, ks.Series):
-            self.feature_importances_ = self.feature_importances_.to_pandas()
+        self.feature_importances_ = util.get_function(X).to_pandas(
+            X[numerical_columns].var()
+        )
+        # if isinstance(self.feature_importances_, ks.Series):
+        #     self.feature_importances_ = self.feature_importances_.to_pandas()
         mask = self.feature_importances_ < self.min_var
         self.columns_to_drop = list(self.feature_importances_.index[mask])
         self.selected_columns = util.exclude_columns(X.columns, self.columns_to_drop)

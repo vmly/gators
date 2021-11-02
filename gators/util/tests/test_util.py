@@ -48,30 +48,6 @@ def test_get_datatype_columns_object_pd(data):
     assert object_columns == ["F"]
 
 
-def test_get_float_only_columns_pd(data):
-    X = data
-    float_only_columns = util.get_float_only_columns(X)
-    assert float_only_columns == ["A", "B", "C"]
-
-
-def test_get_float_only_columns_pd_no(data):
-    X = pd.DataFrame({"F": "a"}, index=[0])
-    float_only_columns = util.get_float_only_columns(X)
-    assert float_only_columns == []
-
-
-def test_get_int_only_columns_pd(data):
-    X = data
-    int_only_columns = util.get_int_only_columns(X)
-    assert int_only_columns == ["D", "E"]
-
-
-def test_get_int_only_columns_pd_no(data):
-    X = pd.DataFrame({"A": "a", "B": "b", "C": "c", "F": "f"}, index=[0])
-    int_only_columns = util.get_int_only_columns(X)
-    assert int_only_columns == []
-
-
 def test_get_idx_columns():
     columns = ["A", "B", "C", "D", "E"]
     selected_columns = ["A", "C", "E"]
@@ -89,7 +65,7 @@ def test_exclude_idx_columns():
 def test_concat_pd(data):
     X = data
     assert_frame_equal(
-        util.concat([X, X[["A"]].rename(columns={"A": "AA"})], axis=1),
+        util.get_function(X).concat([X, X[["A"]].rename(columns={"A": "AA"})], axis=1),
         pd.concat([X, X[["A"]].rename(columns={"A": "AA"})], axis=1),
     )
 
@@ -116,24 +92,12 @@ def test_get_datatype_columns_object_ks(data_ks):
 
 
 @pytest.mark.koalas
-def test_get_float_only_columns_ks(data_ks):
-    X = data_ks
-    float_only_columns = util.get_float_only_columns(X)
-    assert float_only_columns == ["A", "B", "C"]
-
-
-@pytest.mark.koalas
-def test_get_int_only_columns_ks(data_ks):
-    X = data_ks
-    int_only_columns = util.get_int_only_columns(X)
-    assert int_only_columns == ["D", "E"]
-
-
-@pytest.mark.koalas
 def test_concat_ks(data_ks):
     X = data_ks
     assert_frame_equal(
-        util.concat([X, X[["A"]].rename(columns={"A": "AA"})], axis=1).to_pandas(),
+        util.get_function(X)
+        .concat([X, X[["A"]].rename(columns={"A": "AA"})], axis=1)
+        .to_pandas(),
         ks.concat([X, X[["A"]].rename(columns={"A": "AA"})], axis=1).to_pandas(),
     )
 

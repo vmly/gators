@@ -1,14 +1,15 @@
 # License: Apache-2.0
-from typing import Dict, Union
+from typing import Dict, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from data_cleaning import replace
 
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class Replace(Transformer):
@@ -29,7 +30,7 @@ class Replace(Transformer):
     >>> import pandas as pd
     >>> from gators.data_cleaning import Replace
     >>> X = pd.DataFrame(
-    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e','f'],'C': [1, 2, 3]})
+    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e', 'f'],'C': [1, 2, 3]})
     >>> to_replace_dict = {'A': {'a': 'X', 'b': 'Z'}, 'B': {'d': 'Y'}}
     >>> obj = Replace(to_replace_dict=to_replace_dict)
     >>> obj.fit_transform(X)
@@ -43,7 +44,7 @@ class Replace(Transformer):
     >>> import databricks.koalas as ks
     >>> from gators.data_cleaning import Replace
     >>> X = ks.DataFrame(
-    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e','f'],'C': [1, 2, 3]})
+    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e', 'f'],'C': [1, 2, 3]})
     >>> to_replace_dict = {'A': {'a': 'X', 'b': 'Z'}, 'B': {'d': 'Y'}}
     >>> obj = Replace(to_replace_dict=to_replace_dict)
     >>> obj.fit_transform(X)
@@ -57,7 +58,7 @@ class Replace(Transformer):
     >>> import pandas as pd
     >>> from gators.data_cleaning import Replace
     >>> X = pd.DataFrame(
-    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e','f'],'C': [1, 2, 3]})
+    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e', 'f'],'C': [1, 2, 3]})
     >>> to_replace_dict = {'A': {'a': 'X', 'b': 'Z'}, 'B': {'d': 'Y'}}
     >>> obj = Replace(to_replace_dict=to_replace_dict)
     >>> _ = obj.fit(X)
@@ -71,7 +72,7 @@ class Replace(Transformer):
     >>> import databricks.koalas as ks
     >>> from gators.data_cleaning import Replace
     >>> X = ks.DataFrame(
-    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e','f'],'C': [1, 2, 3]})
+    ...     {'A': ['a', 'b', 'c'], 'B': ['d', 'e', 'f'],'C': [1, 2, 3]})
     >>> to_replace_dict = {'A': {'a': 'X', 'b': 'Z'}, 'B': {'d': 'Y'}}
     >>> obj = Replace(to_replace_dict=to_replace_dict)
     >>> _ = obj.fit(X)
@@ -104,7 +105,7 @@ class Replace(Transformer):
                 self.to_replace_dict[col].values()
             )[:n_elements]
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame], y=None) -> "Replace":
+    def fit(self, X: DataFrame, y=None) -> "Replace":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -112,9 +113,9 @@ class Replace(Transformer):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -122,23 +123,21 @@ class Replace(Transformer):
         Replace: Instance of itself.
         """
         self.check_dataframe(X)
-        self.check_nans(X, self.columns)
+        # self.check_nans(X, self.columns)
         self.idx_columns = util.get_idx_columns(X.columns, self.columns)
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)

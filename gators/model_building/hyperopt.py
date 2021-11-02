@@ -1,13 +1,15 @@
 # License: Apache-2.0
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, TypeVar, Union
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 from hyperopt import Trials, fmin
 from hyperopt.pyll.base import Apply
 from sklearn.metrics._scorer import _PredictScorer
 from sklearn.model_selection import KFold, StratifiedKFold, cross_val_score
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class HyperOpt:
@@ -122,9 +124,9 @@ class HyperOpt:
             Instance of itself.
         """
         if not isinstance(X, np.ndarray):
-            raise TypeError("""`X` must be a NumPy array.""")
+            raise TypeError("""`X` should be a NumPy array.""")
         if not isinstance(y, np.ndarray):
-            raise TypeError("""`y` must be a NumPy array.""")
+            raise TypeError("""`y` should be a NumPy array.""")
 
         def fn(params, cv=self.kfold, X=X, y=y):
             for int_parameter in self.int_parameters:
@@ -178,7 +180,7 @@ class HyperOpt:
             Hyperparameter tuning history.
         """
 
-        def f(x) -> ks.Series[np.float32]:
+        def f(x):
             return pd.Series({key: val[0] for key, val in x.items()})
 
         loss = pd.DataFrame(trials.results)

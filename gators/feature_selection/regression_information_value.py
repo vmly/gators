@@ -1,13 +1,15 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
 import pandas as pd
 
 from ..binning._base_discretizer import _BaseDiscretizer
 from ..util import util
 from ._base_feature_selection import _BaseFeatureSelection
 from .multiclass_information_value import MultiClassInformationValue
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class RegressionInformationValue(_BaseFeatureSelection):
@@ -137,18 +139,14 @@ class RegressionInformationValue(_BaseFeatureSelection):
         self.k = k
         self.discretizer = discretizer
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "RegressionInformationValue":
+    def fit(self, X: DataFrame, y: Series = None) -> "RegressionInformationValue":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -172,17 +170,15 @@ class RegressionInformationValue(_BaseFeatureSelection):
 
     @staticmethod
     def compute_information_value(
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series],
-        discretizer: _BaseDiscretizer,
+        X: DataFrame, y: Series, discretizer: _BaseDiscretizer
     ) -> pd.Series:
         """Compute information value.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
         discretizer : _BaseDiscretizer
             Discretizer Transformer.
@@ -197,5 +193,5 @@ class RegressionInformationValue(_BaseFeatureSelection):
         discretizer.inplace = False
         discretizer.output_columns = []
         return MultiClassInformationValue.compute_information_value(
-            X, y_binned.astype(float).astype(int), discretizer=discretizer
+            X, y_binned.str.slice(start=1).astype(int), discretizer=discretizer
         )

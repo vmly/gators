@@ -2,17 +2,18 @@
 from math import cos
 from math import pi as PI
 from math import sin
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from feature_gen import plan_rotation
 from gators.transformers import Transformer
 from gators.util import util
 
 from ._base_feature_generation import _BaseFeatureGeneration
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class PlaneRotation(Transformer):
@@ -129,19 +130,15 @@ class PlaneRotation(Transformer):
         self.cos_theta_vec = np.cos(self.theta_vec * np.pi / 180)
         self.sin_theta_vec = np.sin(self.theta_vec * np.pi / 180)
 
-    def fit(
-        self,
-        X: Union[pd.DataFrame, ks.DataFrame],
-        y: Union[pd.Series, ks.Series] = None,
-    ) -> "PlaneRotation":
+    def fit(self, X: DataFrame, y: Series = None) -> "PlaneRotation":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : None
-            None.
+        y : Series, default to None.
+            Target values.
 
         Returns
         -------
@@ -154,19 +151,17 @@ class PlaneRotation(Transformer):
         self.idx_columns_y = util.get_idx_columns(X, self.columns[1::2])
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
@@ -174,8 +169,8 @@ class PlaneRotation(Transformer):
             for theta in self.theta_vec:
                 cos_theta = cos(theta * PI / 180)
                 sin_theta = sin(theta * PI / 180)
-                X.loc[:, f"{x}{y}_x_{theta}deg"] = X[x] * cos_theta - X[y] * sin_theta
-                X.loc[:, f"{x}{y}_y_{theta}deg"] = X[x] * sin_theta + X[y] * cos_theta
+                X[f"{x}{y}_x_{theta}deg"] = X[x] * cos_theta - X[y] * sin_theta
+                X[f"{x}{y}_y_{theta}deg"] = X[x] * sin_theta + X[y] * cos_theta
         X[self.column_names] = X[self.column_names].astype(self.dtype)
         return X
 

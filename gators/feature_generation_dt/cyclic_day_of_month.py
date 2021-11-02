@@ -1,16 +1,19 @@
 # Licence Apache-2.0
 from math import pi
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 import feature_gen_dt
 
+from ..util import util
 from ._base_datetime_feature import _BaseDatetimeFeature
 
 TWO_PI = 2 * pi
+
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class CyclicDayOfMonth(_BaseDatetimeFeature):
@@ -88,23 +91,21 @@ class CyclicDayOfMonth(_BaseDatetimeFeature):
         }
         _BaseDatetimeFeature.__init__(self, columns, column_names, column_mapping)
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         self.check_dataframe(X)
-        return self.compute_cyclic_day_of_month(X, self.columns, self.column_names)
+        return self.compute_cyclic_day_of_month(X)
 
     def transform_numpy(self, X: np.ndarray) -> np.ndarray:
         """Transform the NumPy array `X`.
@@ -123,56 +124,24 @@ class CyclicDayOfMonth(_BaseDatetimeFeature):
         self.check_array(X)
         return feature_gen_dt.cyclic_day_of_month(X, self.idx_columns)
 
-    @staticmethod
-    def compute_cyclic_day_of_month(
-        X: Union[pd.DataFrame, ks.DataFrame],
-        columns: List[str],
-        column_names: List[str],
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def compute_cyclic_day_of_month(self, X: DataFrame) -> DataFrame:
         """Compute the cyclic day of the month features.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Dataframe of datetime columns.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Dataframe of cyclic day of the month features.
         """
 
-        def f_cos(x):
-            day_of_month = x.dt.day - 1
-            n_days_in_month = x.dt.daysinmonth - 1
+        for i, c in enumerate(self.columns):
+            day_of_month = X[c].dt.day - 1
+            n_days_in_month = X[c].dt.daysinmonth - 1
             prefactors = 2 * np.pi / n_days_in_month
-            return np.cos(prefactors * day_of_month)
-
-        def f_sin(x):
-            day_of_month = x.dt.day - 1
-            n_days_in_month = x.dt.daysinmonth - 1
-            prefactors = 2 * np.pi / n_days_in_month
-            return np.sin(prefactors * day_of_month)
-
-        if isinstance(X, pd.DataFrame):
-            for i, col in enumerate(columns):
-                X_cos = X[[col]].apply(f_cos)
-                X_cos.columns = [column_names[2 * i]]
-                X_sin = X[[col]].apply(f_sin)
-                X_sin.columns = [column_names[2 * i + 1]]
-                X = X.join(X_cos.join(X_sin))
-            return X
-
-        for i, col in enumerate(columns):
-            n_days_in_month = X[col].dt.daysinmonth - 1
-            prefactors = 2 * np.pi / n_days_in_month
-            X = X.assign(
-                dummy_cos=np.cos(prefactors * (X[col].dt.day - 1.0)),
-                dummy_sin=np.sin(prefactors * (X[col].dt.day - 1.0)),
-            ).rename(
-                columns={
-                    "dummy_cos": column_names[2 * i],
-                    "dummy_sin": column_names[2 * i + 1],
-                }
-            )
+            X[self.column_names[2 * i]] = np.cos(prefactors * day_of_month)
+            X[self.column_names[2 * i + 1]] = np.sin(prefactors * day_of_month)
         return X

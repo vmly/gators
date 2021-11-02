@@ -1,13 +1,14 @@
 # License: Apache-2.0
-from typing import Union
+from typing import TypeVar
 
-import databricks.koalas as ks
 import numpy as np
-import pandas as pd
 
 from ..transformers import Transformer
 from ._base_encoder import _BaseEncoder
 from .multiclass_encoder import MultiClassEncoder
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class RegressionEncoder(_BaseEncoder):
@@ -29,21 +30,50 @@ class RegressionEncoder(_BaseEncoder):
 
     Examples
     --------
-    * fit & transform with `pandas`
+    Imports and initialization:
+
+    >>> from gators.encoders import RegressionEncoder
+    >>> from gators.binning import QuantileDiscretizer  # or other discretizers
+    >>> from gators.encoders import WOEEncoder  # or TargetEncoder
+    >>> obj = RegressionEncoder(
+    ... encoder=WOEEncoder(),
+    ... discretizer=QuantileDiscretizer(n_bins=3, inplace=True))
+
+    The `fit`, `transform`, and `fit_transform` methods accept:
+
+    * `dask` dataframes,
+
+    >>> import dask.dataframe as dd
+    >>> import pandas as pd
+    >>> X = dd.from_pandas({
+    ... 'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
+    ... 'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
+    ... 'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
+    ... 'D': [1, 2, 3, 4, 5, 6]}), npartitions=1)
+    >>> y = dd.from_pandas(pd.Series([0.11,  -0.1, 5.55, 233.9, 4.66, 255.1], name='TARGET'), npartitions=1)
+
+    * `koalas` dataframes,
+
+    >>> import databricks.koalas as ks
+    >>> X = ks.DataFrame({
+    ... 'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
+    ... 'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
+    ... 'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
+    ... 'D': [1, 2, 3, 4, 5, 6]})
+    >>> y = ks.Series([0.11,  -0.1, 5.55, 233.9, 4.66, 255.1], name='TARGET')
+
+    * and `pandas` dataframes:
 
     >>> import pandas as pd
-    >>> from gators.binning import QuantileDiscretizer
-    >>> from gators.encoders import WOEEncoder
-    >>> from gators.encoders import RegressionEncoder
     >>> X = pd.DataFrame({
     ... 'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
     ... 'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
     ... 'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
     ... 'D': [1, 2, 3, 4, 5, 6]})
     >>> y = pd.Series([0.11,  -0.1, 5.55, 233.9, 4.66, 255.1], name='TARGET')
-    >>> obj = RegressionEncoder(
-    ... encoder=WOEEncoder(),
-    ... discretizer=QuantileDiscretizer(n_bins=3, inplace=True))
+
+    The result is a transformed dataframe belonging to the same dataframe library.
+
     >>> obj.fit_transform(X, y)
          D  A__TARGET_1_WOEEncoder  B__TARGET_1_WOEEncoder  C__TARGET_1_WOEEncoder  A__TARGET_2_WOEEncoder  B__TARGET_2_WOEEncoder  C__TARGET_2_WOEEncoder
     0  1.0                     0.0                0.000000               -0.405465                0.000000                0.000000               -0.405465
@@ -53,76 +83,11 @@ class RegressionEncoder(_BaseEncoder):
     4  5.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
     5  6.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
 
-    * fit & transform with `koalas`
 
-    >>> import databricks.koalas as ks
-    >>> from gators.binning import QuantileDiscretizer
-    >>> from gators.encoders import WOEEncoder
-    >>> from gators.encoders import RegressionEncoder
-    >>> X = ks.DataFrame({
-    ... 'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
-    ... 'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
-    ... 'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
-    ... 'D': [1, 2, 3, 4, 5, 6]})
-    >>> y = ks.Series([0.11,  -0.1, 5.55, 233.9, 4.66, 255.1], name='TARGET')
-    >>> obj = RegressionEncoder(
-    ... encoder=WOEEncoder(),
-    ... discretizer=QuantileDiscretizer(n_bins=3, inplace=True))
-    >>> obj.fit_transform(X, y)
-         D  A__TARGET_1_WOEEncoder  B__TARGET_1_WOEEncoder  C__TARGET_1_WOEEncoder  A__TARGET_2_WOEEncoder  B__TARGET_2_WOEEncoder  C__TARGET_2_WOEEncoder
-    0  1.0                     0.0                0.000000               -0.405465                0.000000                0.000000               -0.405465
-    1  2.0                     0.0                0.000000               -0.405465                0.000000                0.000000               -0.405465
-    2  3.0                     0.0                0.693147               -0.405465                0.000000                0.693147               -0.405465
-    3  4.0                     0.0                0.693147               -0.405465                1.386294                0.693147               -0.405465
-    4  5.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
-    5  6.0                     0.0                0.693147                0.693147                1.386294                0.693147                0.693147
+    Independly of the dataframe library used to fit the transformer, the `tranform_numpy` method only accepts NumPy arrays
+    and returns a transformed NumPy array. Note that this transformer should **only** be used
+    when the number of rows is small *e.g.* in real-time environment.
 
-    * fit with `pandas` & transform with `NumPy`
-
-    >>> import pandas as pd
-    >>> from gators.binning import QuantileDiscretizer
-    >>> from gators.encoders import WOEEncoder
-    >>> from gators.encoders import RegressionEncoder
-    >>> X = pd.DataFrame({
-    ... 'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
-    ... 'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
-    ... 'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
-    ... 'D': [1, 2, 3, 4, 5, 6]})
-    >>> y = pd.Series([0.11,  -0.1, 5.55, 233.9, 4.66, 255.1], name='TARGET')
-    >>> obj = RegressionEncoder(
-    ... encoder=WOEEncoder(),
-    ... discretizer=QuantileDiscretizer(n_bins=3, inplace=True))
-    >>> _ = obj.fit(X, y)
-    >>> obj.transform_numpy(X.to_numpy())
-    array([[ 1.        ,  0.        ,  0.        , -0.40546511,  0.        ,
-             0.        , -0.40546511],
-           [ 2.        ,  0.        ,  0.        , -0.40546511,  0.        ,
-             0.        , -0.40546511],
-           [ 3.        ,  0.        ,  0.69314718, -0.40546511,  0.        ,
-             0.69314718, -0.40546511],
-           [ 4.        ,  0.        ,  0.69314718, -0.40546511,  1.38629436,
-             0.69314718, -0.40546511],
-           [ 5.        ,  0.        ,  0.69314718,  0.69314718,  1.38629436,
-             0.69314718,  0.69314718],
-           [ 6.        ,  0.        ,  0.69314718,  0.69314718,  1.38629436,
-             0.69314718,  0.69314718]])
-
-    * fit with `koalas` & transform with `NumPy`
-
-    >>> import databricks.koalas as ks
-    >>> from gators.binning import QuantileDiscretizer
-    >>> from gators.encoders import WOEEncoder
-    >>> from gators.encoders import RegressionEncoder
-    >>> X = ks.DataFrame({
-    ... 'A': ['Q', 'Q', 'Q', 'W', 'W', 'W'],
-    ... 'B': ['Q', 'Q', 'W', 'W', 'W', 'W'],
-    ... 'C': ['Q', 'Q', 'Q', 'Q', 'W', 'W'],
-    ... 'D': [1, 2, 3, 4, 5, 6]})
-    >>> y = ks.Series([0.11,  -0.1, 5.55, 233.9, 4.66, 255.1], name='TARGET')
-    >>> obj = RegressionEncoder(
-    ... encoder=WOEEncoder(),
-    ... discretizer=QuantileDiscretizer(n_bins=3, inplace=True))
-    >>> _ = obj.fit(X, y)
     >>> obj.transform_numpy(X.to_numpy())
     array([[ 1.        ,  0.        ,  0.        , -0.40546511,  0.        ,
              0.        , -0.40546511],
@@ -150,16 +115,14 @@ class RegressionEncoder(_BaseEncoder):
         self.discretizer = discretizer
         self.multiclass_encoder = MultiClassEncoder(encoder=encoder, dtype=dtype)
 
-    def fit(
-        self, X: Union[pd.DataFrame, ks.DataFrame], y: Union[pd.Series, ks.Series]
-    ) -> "RegressionEncoder":
+    def fit(self, X: DataFrame, y: Series) -> "RegressionEncoder":
         """Fit the transformer on the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
@@ -169,24 +132,23 @@ class RegressionEncoder(_BaseEncoder):
         """
         self.check_dataframe(X)
         self.check_y(X, y)
-        self.check_regression_target(y)
+        # self.check_regression_target(y)
+        self.discretizer.inplace = True
         y_binned = self.discretizer.fit_transform(y.to_frame())
-        self.multiclass_encoder.fit(X, y_binned[y.name].astype(float).astype(int))
+        self.multiclass_encoder.fit(X, y_binned[y.name].str.slice(start=1).astype(int))
         return self
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame].
+        X : DataFrame.
             Input dataframe.
 
         Returns
         -------
-        Union[pd.DataFrame, ks.DataFrame]
+        DataFrame
             Transformed dataframe.
         """
         return self.multiclass_encoder.transform(X)

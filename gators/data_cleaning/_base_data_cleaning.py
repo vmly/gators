@@ -1,13 +1,15 @@
 # License: Apache-2.0
 from abc import ABC
-from typing import List, Union
+from typing import List, TypeVar
 
-import databricks.koalas as ks
 import numpy as np
 import pandas as pd
 
 from ..transformers.transformer import Transformer
 from ..util import util
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class _BaseDataCleaning(Transformer, ABC):
@@ -19,9 +21,7 @@ class _BaseDataCleaning(Transformer, ABC):
         self.columns_to_keep: List[str] = []
         self.idx_columns_to_keep = np.array([])
 
-    def transform(
-        self, X: Union[pd.DataFrame, ks.DataFrame]
-    ) -> Union[pd.DataFrame, ks.DataFrame]:
+    def transform(self, X: DataFrame) -> DataFrame:
         """Transform the dataframe `X`.
 
         Parameters

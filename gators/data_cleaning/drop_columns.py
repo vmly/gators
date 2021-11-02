@@ -1,11 +1,11 @@
 # License: Apache-2.0
-from typing import Union
-
-import databricks.koalas as ks
-import pandas as pd
+from typing import TypeVar
 
 from ..util import util
 from ._base_data_cleaning import _BaseDataCleaning
+
+DataFrame = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
+Series = TypeVar("Union[pd.DataFrame, ks.DataFrame, dd.DataFrame]")
 
 
 class DropColumns(_BaseDataCleaning):
@@ -75,7 +75,7 @@ class DropColumns(_BaseDataCleaning):
         _BaseDataCleaning.__init__(self)
         self.columns = columns
 
-    def fit(self, X: Union[pd.DataFrame, ks.DataFrame], y=None) -> "DropColumns":
+    def fit(self, X: DataFrame, y=None) -> "DropColumns":
         """Fit the transformer on the dataframe X.
 
         Get the list of column names to remove and the array of
@@ -83,9 +83,9 @@ class DropColumns(_BaseDataCleaning):
 
         Parameters
         ----------
-        X : Union[pd.DataFrame, ks.DataFrame]
+        X : DataFrame
             Input dataframe.
-        y : Union[pd.Series, ks.Series], default to None.
+        y : Series, default to None.
             Labels.
 
         Returns
