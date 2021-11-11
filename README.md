@@ -4,7 +4,7 @@
 [![Documentation Status](https://readthedocs.org/projects/treelite/badge/?version=latest)](http://treelite.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/scikit-learn-contrib/imbalanced-learn/branch/master/graph/badge.svg)](https://codecov.io/gh/scikit-learn-contrib/imbalanced-learn)
 ![GitHub](https://img.shields.io/github/license/paypal/gators)
-![Python Version](https://img.shields.io/badge/python-3.7%20%7C%203.8%20%7C%203.9-blue)
+![Python Version](https://img.shields.io/badge/python-3.6%203.7%20%7C%203.8%20%7C%203.9-blue)
 [![Build and test](https://github.com/paypal/gators/actions/workflows/build.yml/badge.svg)](https://github.com/paypal/gators/actions/workflows/build.yml)
 
 
