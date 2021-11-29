@@ -40,17 +40,11 @@ jobs:
       - name: Build MacOS wheel
         if: matrix.os == 'macos-latest'
         env:
-          CIBW_BUILD: cp36-macosx_x86_64
+          CIBW_BUILD: "cp36-macosx_x86_64 cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
           CIBW_BEFORE_ALL: brew install libomp		
-#          CIBW_ENVIRONMENT: >
-#            SSL_CERT_FILE="combined_cert.pem"
-#            REQUESTS_CA_BUNDLE="combined_cert.pem"
         run: python -m cibuildwheel --platform macos --output-dir wheelhouse
 
-#      - name: Install linux wheels
-#        env:
-#          CIBW_BUILD: "cp36-manylinux_x86_64"
-#          CIBW_ENVIRONMENT: >
-#            SSL_CERT_FILE="combined_cert.pem"
-#            REQUESTS_CA_BUNDLE="combined_cert.pem"
-#        run: python -m cibuildwheel --output-dir wheelhouse
+      - name: Install linux wheels
+        env:
+          CIBW_BUILD: "cp36-manylinux_x86_64 cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
+        run: python -m cibuildwheel --output-dir wheelhouse
